@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="coverlet.collector"/>
+        <PackageReference Include="coverlet.collector" PrivateAssets="all"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
         <PackageReference Include="xunit"/>
         <PackageReference Include="xunit.runner.visualstudio"/>
@@ -19,7 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\TinyBDD.Xunit\TinyBDD.Xunit.csproj" />
+        <ProjectReference Include="..\..\src\TinyBDD.Xunit\TinyBDD.Xunit.csproj"/>
     </ItemGroup>
 
 </Project>

@@ -5,4 +5,10 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
+
+
+    <PropertyGroup>
+        <ExcludeByFile>**/bin/**;**/obj/**;**/Migrations/**</ExcludeByFile>
+        <Exclude>[*]TinyBDD.*.Tests.*</Exclude>
+    </PropertyGroup>
 </Project>
