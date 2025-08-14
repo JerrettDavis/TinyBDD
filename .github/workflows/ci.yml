@@ -32,6 +32,9 @@ jobs:
             8.0.x
             9.0.x
           cache: true
+          cache-dependency-path: |
+            **/packages.lock.json
+            global.json
 
       - name: Restore dependencies
         run: dotnet restore --use-lock-file
