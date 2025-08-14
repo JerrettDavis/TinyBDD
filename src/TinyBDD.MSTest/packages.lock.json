@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "dependencies": {
+    "net9.0": {
+      "MSTest.TestFramework": {
+        "type": "Direct",
+        "requested": "[3.10.2, )",
+        "resolved": "3.10.2",
+        "contentHash": "8rigmjMCEGbpAjrRhl/vCW4b4SE9AENMu1Uzatdke+L88v4YjyUlU5336160+np5HkdC9hizXo73NVzlCj2bog==",
+        "dependencies": {
+          "MSTest.Analyzers": "3.10.2"
+        }
+      },
+      "MSTest.Analyzers": {
+        "type": "Transitive",
+        "resolved": "3.10.2",
+        "contentHash": "WS9GHohjOzf653bqCSxplq3T25LAwFVeVrgLuotTiPDu+bO5bD7RgvXbkLqRqZGE2Qyuk/dbQpqa18PYAMXjMg=="
+      },
+      "tinybdd": {
+        "type": "Project"
+      }
+    }
+  }
+}
