@@ -172,7 +172,7 @@ public class LoginTests : TinyBddMsTestBase
     {
         await Given("start", () => 3)
             .Then("triple (transform)", (x, _) => Task.FromResult(x * 3)) // alias to When<TOut>
-            .Then("== 9", v => v == 9);
+            .And("== 9", v => v == 9);
 
         Scenario.AssertPassed();
     }

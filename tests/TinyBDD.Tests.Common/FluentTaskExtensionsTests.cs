@@ -20,7 +20,7 @@ public class FluentTaskExtensionsTests
             s => Assert.Equal("Given", s.Kind),
             s => Assert.Equal("When", s.Kind),
             s => Assert.Equal("Then", s.Kind),
-            s => Assert.Equal("Then", s.Kind));
+            s => Assert.Equal("And", s.Kind));
     }
 
     private static Task GreaterThanOrEqual10(int v)
