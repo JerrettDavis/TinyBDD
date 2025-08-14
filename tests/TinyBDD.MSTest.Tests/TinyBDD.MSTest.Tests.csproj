@@ -3,6 +3,7 @@
     <PropertyGroup>
         <SuppressTfmSupportBuildWarning>true</SuppressTfmSupportBuildWarning>
         <SuppressTfmSupportBuildErrors>true</SuppressTfmSupportBuildErrors>
+        <IsPackable>false</IsPackable>
     </PropertyGroup>
     
     <ItemGroup>
