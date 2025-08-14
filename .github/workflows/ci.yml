@@ -98,13 +98,15 @@ jobs:
       - name: Combine coverage and create reports
         shell: bash
         run: |
-          REPORTS=$(echo $(find . -type f -path "*/TestResults/*/coverage.cobertura.xml" | tr '\n' ';'))
+          REPORTS=$(find . -type f -path "*/TestResults/*/coverage.cobertura.xml" | tr '\n' ';')
+
           reportgenerator \
             -reports:"$REPORTS" \
             -targetdir:"coverage-report" \
             -reporttypes:"HtmlInline;Cobertura;TextSummary;lcov;Badges" \
             -assemblyfilters:"+TinyBDD*;-*Tests*"
-          echo "COVERAGE_SUMMARY<<'EOF'" >> $GITHUB_ENV
+          
+          echo "COVERAGE_SUMMARY<<EOF" >> $GITHUB_ENV
           cat coverage-report/Summary.txt >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
