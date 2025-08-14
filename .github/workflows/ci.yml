@@ -34,7 +34,7 @@ jobs:
           cache: true
 
       - name: Restore dependencies
-        run: dotnet restore TinyBDD.sln
+        run: dotnet restore --use-lock-file
 
       - name: Fetch all history and tags
         run: git fetch --prune --tags
