@@ -130,7 +130,7 @@ jobs:
         with:
           files: |
             **/TestResults/*/coverage.cobertura.xml
-          flags: unittests/put to
+          flags: unittests
           fail_ci_if_error: true
           verbose: true
         env:
