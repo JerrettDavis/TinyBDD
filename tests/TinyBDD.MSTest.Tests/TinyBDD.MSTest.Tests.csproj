@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    
+    <PropertyGroup>
+        <SuppressTfmSupportBuildWarning>true</SuppressTfmSupportBuildWarning>
+        <SuppressTfmSupportBuildErrors>true</SuppressTfmSupportBuildErrors>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="MSTest"/>
+        <PackageReference Include="MSTest.TestAdapter" />
+    </ItemGroup>
+    <ItemGroup>
+        <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\TinyBDD.MSTest\TinyBDD.MSTest.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+
+    <ItemGroup>
+      <ProjectReference Include="..\TinyBDD\TinyBDD.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="xunit.abstractions" />
+    </ItemGroup>
+
+</Project>
