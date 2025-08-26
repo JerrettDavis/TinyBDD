@@ -31,7 +31,7 @@ public class FlowAmbientDefaultsTests
         Ambient.Current.Value = ctx;
         try
         {
-            await Flow.Given((CancellationToken ct) => Task.FromResult(2))
+            await Flow.Given(_ => Task.FromResult(2))
                 .When("id", x => x)
                 .Then("== 2", v => v == 2);
             ctx.AssertPassed();
@@ -60,7 +60,7 @@ public class FlowAmbientDefaultsTests
         var ctx = Bdd.CreateContext(new Host());
 
         await Flow.From(ctx)
-            .Given((CancellationToken ct) => Task.FromResult(4))
+            .Given(_ => Task.FromResult(4))
             .When("id", x => x)
             .Then("== 4", v => v == 4);
 

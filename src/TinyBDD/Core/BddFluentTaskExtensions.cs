@@ -83,9 +83,9 @@ public static class BddFluentTaskExtensions
         Func<TGiven, CancellationToken, Task> actionAsync)
     {
         // Execute Given now (still lazy until outer await reaches here)
-        var value = await Bdd.RunStepAsync(given._ctx, "Given", given._title,
-            () => given._fn(CancellationToken.None)).ConfigureAwait(false);
-        return new WhenBuilder<TGiven>(given._ctx, value, title, actionAsync);
+        var value = await Bdd.RunStepAsync(given.Ctx, "Given", given.Title,
+            () => given.Fn(CancellationToken.None)).ConfigureAwait(false);
+        return new WhenBuilder<TGiven>(given.Ctx, value, title, actionAsync);
     }
 
     /// <summary>
@@ -144,9 +144,9 @@ public static class BddFluentTaskExtensions
         string title,
         Func<TGiven, CancellationToken, Task<TOut>> actionAsync)
     {
-        var value = await Bdd.RunStepAsync(given._ctx, "Given", given._title,
-            () => given._fn(CancellationToken.None)).ConfigureAwait(false);
-        return new WhenBuilder<TGiven, TOut>(given._ctx, value, title, actionAsync);
+        var value = await Bdd.RunStepAsync(given.Ctx, "Given", given.Title,
+            () => given.Fn(CancellationToken.None)).ConfigureAwait(false);
+        return new WhenBuilder<TGiven, TOut>(given.Ctx, value, title, actionAsync);
     }
 
     /// <summary>
@@ -282,13 +282,13 @@ public static class BddFluentTaskExtensions
         string title,
         Func<TGiven, CancellationToken, Task> assertion)
     {
-        var value = await Bdd.RunStepAsync(given._ctx, "Given", given._title,
-            () => given._fn(CancellationToken.None)).ConfigureAwait(false);
+        var value = await Bdd.RunStepAsync(given.Ctx, "Given", given.Title,
+            () => given.Fn(CancellationToken.None)).ConfigureAwait(false);
 
-        await Bdd.RunStepAsync(given._ctx, "Then", title,
+        await Bdd.RunStepAsync(given.Ctx, "Then", title,
             () => assertion(value, CancellationToken.None)).ConfigureAwait(false);
 
-        return new ThenBuilder<TGiven>(given._ctx, value);
+        return new ThenBuilder<TGiven>(given.Ctx, value);
     }
 
     /// <summary>
@@ -349,14 +349,14 @@ public static class BddFluentTaskExtensions
         var when = await whenTask.ConfigureAwait(false);
 
         // Execute When
-        await Bdd.RunStepAsync(when._ctx, "When", when._title,
-            () => when._fn(when._given, CancellationToken.None)).ConfigureAwait(false);
+        await Bdd.RunStepAsync(when.Ctx, "When", when.Title,
+            () => when.Fn(when.Given, CancellationToken.None)).ConfigureAwait(false);
 
         // Execute Then
-        await Bdd.RunStepAsync(when._ctx, "Then", title,
+        await Bdd.RunStepAsync(when.Ctx, "Then", title,
             () => assertion(CancellationToken.None)).ConfigureAwait(false);
 
-        return new ThenBuilder(when._ctx);
+        return new ThenBuilder(when.Ctx);
     }
 
     /// <summary>
@@ -417,13 +417,13 @@ public static class BddFluentTaskExtensions
     {
         var when = await whenTask.ConfigureAwait(false);
 
-        var result = await Bdd.RunStepAsync(when._ctx, "When", when._title,
-            () => when._fn(when._given, CancellationToken.None)).ConfigureAwait(false);
+        var result = await Bdd.RunStepAsync(when.Ctx, "When", when.Title,
+            () => when.Fn(when.Given, CancellationToken.None)).ConfigureAwait(false);
 
-        await Bdd.RunStepAsync(when._ctx, "Then", title,
+        await Bdd.RunStepAsync(when.Ctx, "Then", title,
             () => assertion(result, CancellationToken.None)).ConfigureAwait(false);
 
-        return new ThenBuilder<TOut>(when._ctx, result);
+        return new ThenBuilder<TOut>(when.Ctx, result);
     }
 
     /// <summary>
@@ -1067,16 +1067,16 @@ public static class BddFluentTaskExtensions
     {
         var when = await whenTask.ConfigureAwait(false);
 
-        var result = await Bdd.RunStepAsync(when._ctx, "When", when._title,
-            () => when._fn(when._given, CancellationToken.None)).ConfigureAwait(false);
+        var result = await Bdd.RunStepAsync(when.Ctx, "When", when.Title,
+            () => when.Fn(when.Given, CancellationToken.None)).ConfigureAwait(false);
 
-        await Bdd.RunStepAsync(when._ctx, nameof(And), title, async () =>
+        await Bdd.RunStepAsync(when.Ctx, nameof(And), title, async () =>
         {
             if (!await predicate(result, CancellationToken.None).ConfigureAwait(false))
                 throw new BddAssertException($"Assertion failed: {title}");
         }).ConfigureAwait(false);
 
-        return new ThenBuilder<TOut>(when._ctx, result);
+        return new ThenBuilder<TOut>(when.Ctx, result);
     }
 
     /// <summary>

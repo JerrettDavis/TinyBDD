@@ -253,3 +253,5 @@ ehthumbs_vista.db
 $RECYCLE.BIN/
 *.lnk
 .idea/
+_site/
+api/

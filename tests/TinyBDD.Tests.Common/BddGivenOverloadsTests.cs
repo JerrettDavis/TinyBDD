@@ -25,7 +25,7 @@ public class BddGivenOverloadsTests
     {
         var ctx = Bdd.CreateContext(new Host());
 
-        await Bdd.Given(ctx, (CancellationToken _) => Task.FromResult("abc"))
+        await Bdd.Given(ctx, _ => Task.FromResult("abc"))
             .When("noop", (_, _) => Task.CompletedTask)
             .Then("ok", () => Task.CompletedTask);
 

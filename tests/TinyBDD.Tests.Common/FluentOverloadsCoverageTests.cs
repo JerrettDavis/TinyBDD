@@ -27,7 +27,7 @@ public class FluentOverloadsCoverageTests
         var ctx = Bdd.CreateContext(new Host());
 
         await Bdd.Given(ctx, "start", () => 10)
-            .When((int x, CancellationToken _) => x + 5)
+            .When((x, _) => x + 5)
             .Then("== 15", v => v == 15);
 
         ctx.AssertPassed();
@@ -66,7 +66,7 @@ public class FluentOverloadsCoverageTests
         var ctx = Bdd.CreateContext(new Host());
 
         await Bdd.Given(ctx, "start", () => 1)
-            .When((int _, CancellationToken _) => Task.CompletedTask)
+            .When((_, _) => Task.CompletedTask)
             .Then("ok", () => Task.CompletedTask);
 
         ctx.AssertPassed();
@@ -79,7 +79,7 @@ public class FluentOverloadsCoverageTests
         var ctx = Bdd.CreateContext(new Host());
 
         await Bdd.Given(ctx, "list", () => new List<int>())
-            .When("add item", (List<int> l) => l.Add(42))
+            .When("add item", l => l.Add(42))
             .Then("contains 42", l => l.Contains(42));
 
         ctx.AssertPassed();

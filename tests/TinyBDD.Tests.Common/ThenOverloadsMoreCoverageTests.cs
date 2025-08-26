@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace TinyBDD.Tests.Common;
 
+[SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
 public class ThenOverloadsMoreCoverageTests
 {
     [Feature("ThenOverloads")] private sealed class Host {}

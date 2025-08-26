@@ -25,7 +25,7 @@ public class BddFluentTaskDefaultsTests
         var ctx = Bdd.CreateContext(new Host());
 
         await Bdd.Given(ctx, "start", () => 1)
-            .When<int, int>((v, ct) => Task.FromResult(v + 1))
+            .When((v, _) => Task.FromResult(v + 1))
             .Then("== 2", v => v == 2);
 
         ctx.AssertPassed();
@@ -38,7 +38,7 @@ public class BddFluentTaskDefaultsTests
         var ctx = Bdd.CreateContext(new Host());
 
         await Bdd.Given(ctx, "start", () => 2)
-            .When<int, int>(v => Task.FromResult(v * 2))
+            .When(v => Task.FromResult(v * 2))
             .Then("== 4", v => v == 4);
 
         ctx.AssertPassed();
@@ -51,7 +51,7 @@ public class BddFluentTaskDefaultsTests
         var ctx = Bdd.CreateContext(new Host());
 
         await Bdd.Given(ctx, "list", () => new List<int>())
-            .When((List<int> l, CancellationToken ct) => l.Add(3))
+            .When((l, _) => l.Add(3))
             .Then("has item", l => l.Contains(3));
 
         ctx.AssertPassed();
@@ -65,15 +65,15 @@ public class BddFluentTaskDefaultsTests
 
         // explicit title, no token
         await Bdd.Given(ctx, "start1", () => 10)
-            .Then("assert", v => Task.CompletedTask);
+            .Then("assert", _ => Task.CompletedTask);
 
         // default title, token-aware
         await Bdd.Given(ctx, "start2", () => 11)
-            .Then((int v, CancellationToken ct) => Task.CompletedTask);
+            .Then((_, _) => Task.CompletedTask);
 
         // default title, no token
         await Bdd.Given(ctx, "start3", () => 12)
-            .Then(v => Task.CompletedTask);
+            .Then(_ => Task.CompletedTask);
 
         ctx.AssertPassed();
     }
@@ -86,7 +86,7 @@ public class BddFluentTaskDefaultsTests
 
         await Bdd.Given(ctx, "prep1", () => 0)
             .When("noop", (_, _) => Task.CompletedTask)
-            .Then(ct => Task.CompletedTask);
+            .Then(_ => Task.CompletedTask);
 
         await Bdd.Given(ctx, "prep2", () => 0)
             .When("noop", (_, _) => Task.CompletedTask)
@@ -103,14 +103,14 @@ public class BddFluentTaskDefaultsTests
 
         await Bdd.Given(ctx, "start", () => 3)
             .When("double", (x, _) => Task.FromResult(x * 2))
-            .Then((v, ct) => Task.CompletedTask)
-            .And(v => Task.CompletedTask) // also covers typed And default-title no-token
-            .But("token assert", (v, ct) => Task.CompletedTask); // covers token assertion on But
+            .Then((_, _) => Task.CompletedTask)
+            .And(_ => Task.CompletedTask) // also covers typed And default-title no-token
+            .But("token assert", (_, _) => Task.CompletedTask); // covers token assertion on But
 
         // also cover default-title typed Then no-token
         await Bdd.Given(ctx, "start2", () => 5)
             .When("noop", (x, _) => Task.FromResult(x))
-            .Then(v => Task.CompletedTask);
+            .Then(_ => Task.CompletedTask);
 
         ctx.AssertPassed();
     }
@@ -124,7 +124,7 @@ public class BddFluentTaskDefaultsTests
         await Bdd.Given(ctx, "prep", () => 0)
             .When("noop", (_, _) => Task.CompletedTask)
             .Then("ok", () => Task.CompletedTask)
-            .And(ct => Task.CompletedTask)
+            .And(_ => Task.CompletedTask)
             .And(() => Task.CompletedTask);
 
         ctx.AssertPassed();
@@ -155,7 +155,7 @@ public class BddFluentTaskDefaultsTests
 
         await Bdd.Given(ctx, "start1", () => 4)
             .When("id", (x, _) => Task.FromResult(x))
-            .Then((v, ct) => Task.FromResult(v == 4));
+            .Then((v, _) => Task.FromResult(v == 4));
 
         await Bdd.Given(ctx, "start2", () => 6)
             .When("id", (x, _) => Task.FromResult(x))
@@ -177,10 +177,10 @@ public class BddFluentTaskDefaultsTests
         await Bdd.Given(ctx, "start", () => 9)
             .When("id", (x, _) => Task.FromResult(x))
             .Then(">= 9", v => v >= 9)
-            .And(v => true) // default title sync predicate
-            .But(v => true) // default title sync predicate for But
-            .And("async ok", v => Task.FromResult(true))
-            .But("async ok", v => Task.FromResult(true));
+            .And(_ => true) // default title sync predicate
+            .But(_ => true) // default title sync predicate for But
+            .And("async ok", _ => Task.FromResult(true))
+            .But("async ok", _ => Task.FromResult(true));
 
         ctx.AssertPassed();
     }
