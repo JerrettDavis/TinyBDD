@@ -29,7 +29,7 @@ public class XunitTraitBridgeTests(ITestOutputHelper output)
         ctx.AddTag("fast");
 
         await Bdd.Given(ctx, "wire", () => 1)
-            .When("noop", (x, _) => Task.CompletedTask)
+            .When("noop", (_, _) => Task.CompletedTask)
             .Then("ok", _ => Task.CompletedTask);
 
         var log = tee.ToString(); // assert against this
