@@ -6,8 +6,7 @@
 ![.NET Versions](https://img.shields.io/badge/.NET%208.0%20%7C%209.0-blue)
 
 **TinyBDD** is a minimal, fluent **Behavior-Driven Development** library for .NET.  
-It provides a lightweight `Given` / `When` / `Then` syntax with optional `And` / `But` chaining, supporting both **sync
-** and **async** steps.
+It provides a lightweight `Given` / `When` / `Then` syntax with optional `And` / `But` chaining, supporting both **sync** and **async** steps.
 
 It is designed to:
 
