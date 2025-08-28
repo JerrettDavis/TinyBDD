@@ -82,24 +82,46 @@ dotnet add package TinyBDD.Xunit
 
 ```csharp
 using TinyBDD.MSTest;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-[Feature("Login")]
+[Feature("Math")]
 [TestClass]
-public class LoginTests : TinyBddMsTestBase
+public class MathTests : TinyBddMsTestBase
 {
-    [Scenario("Valid login")]
+    [Scenario("Doubling numbers")]
     [TestMethod]
-    public async Task LoginScenario()
+    public async Task DoublingScenario()
     {
-        await Flow.Given("a valid user", () => "alice")
-            .When("logging in", u => Authenticate(u))
-            .Then("login succeeds", r => r.IsSuccess);
+        await Flow.Given("start with 5", () => 5)
+                  .When("doubled", x => x * 2)
+                  .Then("should be 10", v => v == 10);
 
         Scenario.AssertPassed();
     }
+}
+```
 
-    private Task<Result> Authenticate(string username) =>
-        Task.FromResult(Result.Success());
+---
+
+### NUnit Example
+
+```csharp
+using TinyBDD.NUnit;
+using NUnit.Framework;
+
+[Feature("Math")]
+public class MathTests : TinyBddNUnitBase
+{
+    [Scenario("Doubling numbers")]
+    [Test]
+    public async Task DoublingScenario()
+    {
+        await Flow.Given("start with 5", () => 5)
+                  .When("doubled", x => x * 2)
+                  .Then("should be 10", v => v == 10);
+
+        Scenario.AssertPassed();
+    }
 }
 ```
 
@@ -119,9 +141,9 @@ public class MathTests : TinyBddXunitBase
     public async Task DoublingScenario()
     {
         await Flow.Given("start with 5", () => 5)
-            .When("doubled", x => x * 2)
-            .Then("should be 10", v => v == 10);
-        
+                  .When("doubled", x => x * 2)
+                  .Then("should be 10", v => v == 10);
+
         Scenario.AssertPassed();
     }
 }
