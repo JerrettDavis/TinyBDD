@@ -21,10 +21,9 @@ public class ThenOverloadsTests
     {
         var ctx = Bdd.CreateContext(this);
 
-        await Assert.ThrowsAsync<BddStepException>(async () =>
-            await Bdd.Given(ctx, "wire", () => 1)
-                .When("act", (x, _) => Task.FromResult(x + 1))
-                .Then("is three", v => Task.FromResult(v == 3)));
+        await Bdd.Given(ctx, "wire", () => 1)
+            .When("act", (x, _) => Task.FromResult(x + 1))
+            .Then("is three", v => Task.FromResult(v == 3));
 
         ctx.AssertFailed();
     }

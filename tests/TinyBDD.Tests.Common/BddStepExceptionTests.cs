@@ -16,18 +16,12 @@ public class BddStepExceptionTests
 
         var boom = new InvalidOperationException("boom!");
 
-        var ex = await Assert.ThrowsAsync<BddStepException>(async () =>
-        {
-            await Bdd.Given(ctx, "Wire-up", () => 1)
-                .When("Explode", (_, _) => Task.FromException(boom))
-                .Then("Unreached", _ => Task.CompletedTask);
-        });
 
-        Assert.Contains("When failed: Explode", ex.Message);
-        Assert.Same(boom, ex.InnerException);
+        await Bdd.Given(ctx, "Wire-up", () => 1)
+            .When("Explode", (_, _) => Task.FromException(boom))
+            .Then("Unreached", _ => Task.CompletedTask);
 
-        // last step is failed When
-        var last = ctx.Steps[^1];
+        var last = ctx.Steps.Last(x => x.Error != null);
         Assert.Equal("When", last.Kind);
         Assert.Equal("Explode", last.Title);
         Assert.NotNull(last.Error);

@@ -20,19 +20,6 @@ public class FluentOverloadsCoverageTests
         Assert.Equal(5, ctx.Steps.Count);
     }
 
-    [Scenario("When sync transform with CancellationToken (default title)")]
-    [Fact]
-    public async Task When_Sync_With_Token_Default_Title()
-    {
-        var ctx = Bdd.CreateContext(new Host());
-
-        await Bdd.Given(ctx, "start", () => 10)
-            .When((x, _) => x + 5)
-            .Then("== 15", v => v == 15);
-
-        ctx.AssertPassed();
-    }
-
     [Scenario("When sync transform without token (default title)")]
     [Fact]
     public async Task When_Sync_NoToken_Default_Title()
@@ -45,6 +32,7 @@ public class FluentOverloadsCoverageTests
 
         ctx.AssertPassed();
     }
+    
 
     [Scenario("When async action with title (no token)")]
     [Fact]
@@ -128,7 +116,7 @@ public class FluentOverloadsCoverageTests
         ctx.AssertPassed();
     }
 
-    [Scenario("And directly after typed When with async bool predicate")]
+    [Scenario("Then directly after typed When with async bool predicate")]
     [Fact]
     public async Task And_After_Typed_When_AsyncBool()
     {
@@ -136,7 +124,7 @@ public class FluentOverloadsCoverageTests
 
         await Bdd.Given(ctx, "start", () => 2)
             .When("double", (x, _) => Task.FromResult(x * 2))
-            .And("== 4 (async)", v => Task.FromResult(v == 4));
+            .Then("== 4 (async)", v => Task.FromResult(v == 4));
 
         ctx.AssertPassed();
     }

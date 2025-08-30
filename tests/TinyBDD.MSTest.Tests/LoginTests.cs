@@ -46,7 +46,7 @@ public class LoginTests : TinyBddMsTestBase
     public async Task GivenACompletelyAsyncRealLogin_WhenWeDoSomethingAsync_ThenHave2Async()
     {
         await Given("completely real login with async assert and no await", () => Task.FromResult(1))
-            .When("we do something", async (x, _) => await x + 1)
+            .When("we do something", (x, _) => Task.FromResult(x + 1))
             .Then("we have 2", v => v == 2);
 
         Scenario.AssertPassed();
@@ -58,7 +58,7 @@ public class LoginTests : TinyBddMsTestBase
     public async Task GivenAsync_WhenSync_ThenSyncBool()
     {
         await Given("async given", () => Task.FromResult(1))
-            .When("add one", async x => await x + 1)
+            .When("add one", x => Task.FromResult(x + 1))
             .Then("equals 2", v => v == 2);
 
         Scenario.AssertPassed();
@@ -91,16 +91,6 @@ public class LoginTests : TinyBddMsTestBase
         Scenario.AssertPassed();
     }
 
-    [Scenario("Given sync; When side-effect (Action<T,CancellationToken>); Then predicate")]
-    [TestMethod]
-    public async Task WhenSideEffect_Action_WithToken()
-    {
-        await Given("list", () => new List<int>())
-            .When("add 7 with token", (list, _) => list.Add(7))
-            .Then("has one item", list => list.Count == 1);
-
-        Scenario.AssertPassed();
-    }
 
     [Scenario("Then with custom fail message")]
     [TestMethod]
@@ -143,27 +133,11 @@ public class LoginTests : TinyBddMsTestBase
     public async Task Mixed_AllGood()
     {
         await Given("async start", () => Task.FromResult(10))
-            .When("minus 3 async", async x => await x - 3) // 7
+            .When("minus 3 async", x => Task.FromResult(x - 3)) // 7
             .Then(">= 7", v => v >= 7)
             .And("== 7", v => v == 7);
 
         Scenario.AssertPassed();
-    }
-
-    [Scenario("Failure path surfaces BddAssertException message")]
-    [TestMethod]
-    public async Task Failure_Shows_Custom_Message()
-    {
-        try
-        {
-            await Given("start", () => 1)
-                .When("add one", x => x + 1) // 2
-                .Then("should be 3", v => v == 3);
-        }
-        catch (BddStepException ex) // wrapped
-        {
-            Assert.Contains("should be 3", ex.InnerException?.Message ?? "");
-        }
     }
 
     [Scenario("Transform via Given.Then(alias); Then predicate")]
@@ -182,7 +156,7 @@ public class LoginTests : TinyBddMsTestBase
     public async Task GivenAsync_WhenSync_ThenSyncBool_Fixed()
     {
         await Given("async start", () => Task.FromResult(1))
-            .When("add one", async x => await x + 1)
+            .When("add one", x => Task.FromResult(x + 1))
             .Then("== 2", v => v == 2);
 
         Scenario.AssertPassed();

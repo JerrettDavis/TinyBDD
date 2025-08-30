@@ -16,8 +16,7 @@ public sealed class StepResult
     public TimeSpan Elapsed { get; init; }
 
     /// <summary>
-    /// Exception captured during step execution, if any. A non-null value indicates the step failed
-    /// and a <see cref="BddStepException"/> was thrown to the caller.
+    /// Exception captured during step execution, if any. 
     /// </summary>
     public Exception? Error { get; init; }
 }

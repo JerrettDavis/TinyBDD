@@ -19,6 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\src\TinyBDD.Xunit\TinyBDD.Xunit.csproj" />
       <ProjectReference Include="..\..\src\TinyBDD\TinyBDD.csproj" />
     </ItemGroup>
 
