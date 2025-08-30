@@ -8,13 +8,15 @@ namespace TinyBDD;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Call <see cref="CreateContext(object, string?, ITraitBridge?)"/> to construct a <see cref="ScenarioContext"/>
-/// from attributes on your test class and method (see <see cref="FeatureAttribute"/>, <see cref="ScenarioAttribute"/>,
-/// and <see cref="TagAttribute"/>). Then begin a scenario with one of the <c>Given</c> overloads.
+/// Use this static API when you want to work with an explicit <see cref="ScenarioContext"/>.
+/// Call <see cref="CreateContext(object, string?, ITraitBridge?)"/> to construct a context from
+/// attributes on your test class and method (see <see cref="FeatureAttribute"/>,
+/// <see cref="ScenarioAttribute"/>, and <see cref="TagAttribute"/>). Then begin your scenario
+/// with one of the <c>Given</c> overloads.
 /// </para>
 /// <para>
-/// If you prefer not to pass a context around, use the ambient <see cref="Flow"/> API by setting
-/// <see cref="Ambient.Current"/> at the start of a test.
+/// If you prefer not to pass a context around, use the ambient <see cref="Flow"/> API by
+/// setting <see cref="Ambient.Current"/> at the start of a test (TinyBDD base classes do this for you).
 /// </para>
 /// </remarks>
 /// <example>
@@ -26,6 +28,12 @@ namespace TinyBDD;
 /// ctx.AssertPassed();
 /// </code>
 /// </example>
+/// <seealso cref="Flow"/>
+/// <seealso cref="Ambient"/>
+/// <seealso cref="ScenarioContext"/>
+/// <seealso cref="FeatureAttribute"/>
+/// <seealso cref="ScenarioAttribute"/>
+/// <seealso cref="TagAttribute"/>
 public static class Bdd
 {
     /// <summary>
@@ -100,46 +108,87 @@ public static class Bdd
     }
 
     /// <summary>Starts a <c>Given</c> step with an explicit title and synchronous setup.</summary>
+    /// <typeparam name="T">The type produced by the setup function.</typeparam>
     /// <param name="ctx">Scenario context created by <see cref="CreateContext(object, string?, ITraitBridge?)"/>.</param>
     /// <param name="title">Human-friendly step title.</param>
     /// <param name="setup">Synchronous factory for the initial value.</param>
-    /// <typeparam name="T">The type produced by the setup function.</typeparam>
+    /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
     public static ScenarioChain<T> Given<T>(ScenarioContext ctx, string title, Func<T> setup)
         => ScenarioChain<T>.Seed(ctx, title, _ => VT.From(setup()));
 
     /// <summary>Starts a <c>Given</c> step with an explicit title and asynchronous setup.</summary>
+    /// <typeparam name="T">The type produced by the setup function.</typeparam>
+    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object, string?, ITraitBridge?)"/>.</param>
+    /// <param name="title">Human-friendly step title.</param>
+    /// <param name="setup">Asynchronous factory for the initial value.</param>
+    /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
     public static ScenarioChain<T> Given<T>(ScenarioContext ctx, string title, Func<Task<T>> setup)
         => ScenarioChain<T>.Seed(ctx, title, _ => VT.From(setup()));
 
     /// <summary>Starts a <c>Given</c> step with an explicit title and <see cref="ValueTask"/> setup.</summary>
+    /// <typeparam name="T">The type produced by the setup function.</typeparam>
+    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object, string?, ITraitBridge?)"/>.</param>
+    /// <param name="title">Human-friendly step title.</param>
+    /// <param name="setup">ValueTask-producing factory for the initial value.</param>
+    /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
     public static ScenarioChain<T> Given<T>(ScenarioContext ctx, string title, Func<ValueTask<T>> setup)
         => ScenarioChain<T>.Seed(ctx, title, _ => setup());
 
     /// <summary>Starts a token-aware <c>Given</c> step with an explicit title and asynchronous setup.</summary>
+    /// <typeparam name="T">The type produced by the setup function.</typeparam>
+    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object, string?, ITraitBridge?)"/>.</param>
+    /// <param name="title">Human-friendly step title.</param>
+    /// <param name="setup">Asynchronous factory that observes a <see cref="CancellationToken"/>.</param>
+    /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
     public static ScenarioChain<T> Given<T>(ScenarioContext ctx, string title, Func<CancellationToken, Task<T>> setup)
         => ScenarioChain<T>.Seed(ctx, title, ct => VT.From(setup(ct)));
 
     /// <summary>Starts a token-aware <c>Given</c> step with an explicit title and <see cref="ValueTask"/> setup.</summary>
+    /// <typeparam name="T">The type produced by the setup function.</typeparam>
+    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object, string?, ITraitBridge?)"/>.</param>
+    /// <param name="title">Human-friendly step title.</param>
+    /// <param name="setup">ValueTask-producing factory that observes a <see cref="CancellationToken"/>.</param>
+    /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
     public static ScenarioChain<T> Given<T>(ScenarioContext ctx, string title, Func<CancellationToken, ValueTask<T>> setup)
         => ScenarioChain<T>.Seed(ctx, title, setup);
 
     /// <summary>Starts a <c>Given</c> step using a default title derived from <typeparamref name="T"/>.</summary>
+    /// <typeparam name="T">The type produced by the setup function.</typeparam>
+    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object, string?, ITraitBridge?)"/>.</param>
+    /// <param name="setup">Synchronous factory for the initial value.</param>
+    /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
     public static ScenarioChain<T> Given<T>(ScenarioContext ctx, Func<T> setup)
         => ScenarioChain<T>.Seed(ctx, $"Given {typeof(T).Name}", _ => VT.From(setup()));
 
     /// <summary>Starts a <c>Given</c> step with a default title and <see cref="ValueTask"/> setup.</summary>
+    /// <typeparam name="T">The type produced by the setup function.</typeparam>
+    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object, string?, ITraitBridge?)"/>.</param>
+    /// <param name="setup">ValueTask-producing factory for the initial value.</param>
+    /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
     public static ScenarioChain<T> Given<T>(ScenarioContext ctx, Func<ValueTask<T>> setup)
         => ScenarioChain<T>.Seed(ctx, $"Given {typeof(T).Name}", _ => setup());
 
     /// <summary>Starts a <c>Given</c> step with a default title and asynchronous setup.</summary>
+    /// <typeparam name="T">The type produced by the setup function.</typeparam>
+    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object, string?, ITraitBridge?)"/>.</param>
+    /// <param name="setup">Asynchronous factory for the initial value.</param>
+    /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
     public static ScenarioChain<T> Given<T>(ScenarioContext ctx, Func<Task<T>> setup)
         => ScenarioChain<T>.Seed(ctx, $"Given {typeof(T).Name}", _ => VT.From(setup()));
 
     /// <summary>Starts a token-aware <c>Given</c> step with a default title and asynchronous setup.</summary>
+    /// <typeparam name="T">The type produced by the setup function.</typeparam>
+    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object, string?, ITraitBridge?)"/>.</param>
+    /// <param name="setup">Asynchronous factory that observes a <see cref="CancellationToken"/>.</param>
+    /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
     public static ScenarioChain<T> Given<T>(ScenarioContext ctx, Func<CancellationToken, Task<T>> setup)
         => ScenarioChain<T>.Seed(ctx, $"Given {typeof(T).Name}", ct => VT.From(setup(ct)));
 
     /// <summary>Starts a token-aware <c>Given</c> step with a default title and <see cref="ValueTask"/> setup.</summary>
+    /// <typeparam name="T">The type produced by the setup function.</typeparam>
+    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object, string?, ITraitBridge?)"/>.</param>
+    /// <param name="setup">ValueTask-producing factory that observes a <see cref="CancellationToken"/>.</param>
+    /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
     public static ScenarioChain<T> Given<T>(ScenarioContext ctx, Func<CancellationToken, ValueTask<T>> setup)
         => ScenarioChain<T>.Seed(ctx, $"Given {typeof(T).Name}", setup);
 }

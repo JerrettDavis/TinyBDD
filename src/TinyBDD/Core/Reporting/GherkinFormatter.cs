@@ -30,63 +30,45 @@ namespace TinyBDD;
 /// </para>
 /// </remarks>
 /// <example>
-/// <para>Example: writing a simple scenario</para>
+/// <para>Example: writing a simple scenario report</para>
 /// <code>
-/// // Arrange
-/// var ctx = new ScenarioContext(
-///     featureName: "Login",
-///     featureDescription: "Users can sign in with valid credentials.",
-///     scenarioName: "Successful sign-in",
-///     steps: new[]
-///     {
-///         new StepContext(StepKind.Given, "a registered user exists", TimeSpan.FromMilliseconds(12)),
-///         new StepContext(StepKind.When,  "they sign in with correct credentials", TimeSpan.FromMilliseconds(34)),
-///         new StepContext(StepKind.Then,  "they are redirected to the dashboard", TimeSpan.FromMilliseconds(9))
-///     });
+/// // Execute a scenario to populate the context
+/// var ctx = Bdd.CreateContext(this);
+/// await Bdd.Given(ctx, "start", () => 2)
+///          .When("double", x => x * 2)
+///          .Then(">= 4", v => v >= 4);
 ///
-/// IBddReporter reporter = new ConsoleBddReporter(); // your implementation
-///
-/// // Act
+/// // Write as Gherkin
+/// var reporter = new StringBddReporter();
 /// GherkinFormatter.Write(ctx, reporter);
+/// Console.WriteLine(reporter.ToString());
 ///
 /// // Possible output:
-/// // Feature: Login
-/// //   Users can sign in with valid credentials.
-/// // Scenario: Successful sign-in
-/// //   Given a registered user exists [OK] 12 ms
-/// //   When they sign in with correct credentials [OK] 34 ms
-/// //   Then they are redirected to the dashboard [OK] 9 ms
+/// // Feature: &lt;YourTestClassNameOrFeatureAttributeName&gt;
+/// // Scenario: &lt;TestMethodNameOrScenarioAttributeName&gt;
+/// //   Given start [OK] 1 ms
+/// //   When double [OK] 0 ms
+/// //   Then >= 4 [OK] 0 ms
 /// </code>
 /// </example>
 /// <example>
 /// <para>Example: error reporting</para>
 /// <code>
-/// var failing = new ScenarioContext(
-///     featureName: "Profile",
-///     featureDescription: "",
-///     scenarioName: "Show profile picture",
-///     steps: new[]
-///     {
-///         new StepContext(StepKind.Given, "a user with a profile", TimeSpan.FromMilliseconds(5)),
-///         new StepContext(
-///             StepKind.When,
-///             "they open their profile page",
-///             TimeSpan.FromMilliseconds(27),
-///             error: new InvalidOperationException("Profile service unavailable"))
-///     });
+/// var ctx = Bdd.CreateContext(this);
+/// await Bdd.Given(ctx, "seed", () => 1)
+///          .When("boom", _ => throw new InvalidOperationException("nope"))
+///          .Then("unreached", () => Task.CompletedTask);
 ///
-/// GherkinFormatter.Write(failing, reporter);
+/// var reporter = new StringBddReporter();
+/// GherkinFormatter.Write(ctx, reporter);
+/// Console.WriteLine(reporter.ToString());
 ///
-/// // Output:
-/// // Feature: Profile
-/// // Scenario: Show profile picture
-/// //   Given a user with a profile [OK] 5 ms
-/// //   When they open their profile page [FAIL] 27 ms
-/// //     Error: InvalidOperationException: Profile service unavailable
+/// // Output will include a FAIL line and an Error: detail for the When step.
 /// </code>
 /// </example>
 /// <seealso cref="ScenarioContext"/>
 /// <seealso cref="IBddReporter"/>
+/// <seealso cref="StringBddReporter"/>
 public static class GherkinFormatter
 {
     /// <summary>
