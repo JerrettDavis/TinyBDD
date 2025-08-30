@@ -128,8 +128,6 @@ public class WhenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
         Scenario.AssertPassed();
     }
 
-    // New tests: side-effect When using ValueTask (keeps T)
-
     [Scenario("Supports When(title) side-effect ValueTask (keeps T)")]
     [Fact]
     public async Task When_Title_SideEffect_ValueTask()

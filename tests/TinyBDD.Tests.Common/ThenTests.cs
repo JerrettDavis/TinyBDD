@@ -25,7 +25,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
     {
         await Flow.Given("seed", () => 2)
             .When("+3", x => x + 3)
-            .Then("== 5 (async)", v => Task.CompletedTask)
+            .Then("== 5 (async)", _ => Task.CompletedTask)
             .And("== 5 (sync)", v => v == 5);
 
         Scenario.AssertPassed();
@@ -38,7 +38,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
     {
         await Flow.Given("seed", () => 3)
             .When("x2", x => x * 2)
-            .Then("check token", (v, _) => Task.CompletedTask)
+            .Then("check token", (_, _) => Task.CompletedTask)
             .And("> 0", v => v > 0);
 
         Scenario.AssertPassed();
@@ -75,7 +75,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
     {
         await Flow.Given("seed", () => 6)
             .When("+4", x => x + 4)
-            .Then(v => Task.CompletedTask)
+            .Then(_ => Task.CompletedTask)
             .And(v => v == 10);
 
         Scenario.AssertPassed();
@@ -138,7 +138,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
         await Flow.Given("seed", () => 7)
             .When("+3", x => x + 3)
             .Then(">= 10?", v => v >= 10)
-            .And("token ok", (v, _) => Task.CompletedTask);
+            .And("token ok", (_, _) => Task.CompletedTask);
 
         Scenario.AssertPassed();
     }
