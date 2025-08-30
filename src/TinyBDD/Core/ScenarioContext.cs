@@ -13,6 +13,23 @@ namespace TinyBDD;
 /// framework while steps are recorded in <see cref="Steps"/> as the scenario executes.
 /// </para>
 /// </remarks>
+/// <example>
+/// <code>
+/// var ctx = Bdd.CreateContext(this);
+/// await Bdd.Given(ctx, "seed", () => 1)
+///          .When("+1", x => x + 1)
+///          .Then("== 2", v => v == 2);
+///
+/// ctx.AssertPassed();
+/// foreach (var step in ctx.Steps)
+///     Console.WriteLine($"{step.Kind} {step.Title}: {(step.Error is null ? "OK" : step.Error.Message)}");
+/// </code>
+/// </example>
+/// <seealso cref="Bdd"/>
+/// <seealso cref="Flow"/>
+/// <seealso cref="FeatureAttribute"/>
+/// <seealso cref="ScenarioAttribute"/>
+/// <seealso cref="TagAttribute"/>
 public sealed class ScenarioContext
 {
     /// <summary>The logical feature under test, e.g. a capability in your system.</summary>
@@ -60,6 +77,7 @@ public sealed class ScenarioContext
     /// <summary>
     /// Adds a tag to the scenario and forwards it to <see cref="TraitBridge"/>.
     /// </summary>
+    /// <param name="tag">The tag name to add.</param>
     public void AddTag(string tag)
     {
         _tags.Add(tag);

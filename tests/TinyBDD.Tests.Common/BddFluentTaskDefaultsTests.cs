@@ -51,7 +51,7 @@ public class BddFluentTaskDefaultsTests
         var ctx = Bdd.CreateContext(new Host());
 
         await Bdd.Given(ctx, "list", () => new List<int>())
-            .When((l, _) => l.Add(3))
+            .When(l => l.Add(3))
             .Then("has item", l => l.Contains(3));
 
         ctx.AssertPassed();

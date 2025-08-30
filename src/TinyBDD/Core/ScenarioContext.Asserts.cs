@@ -3,6 +3,35 @@ namespace TinyBDD;
 /// <summary>
 /// Assertion helpers for verifying the outcome of a recorded scenario.
 /// </summary>
+/// <remarks>
+/// These extensions inspect <see cref="ScenarioContext.Steps"/> to determine whether any step
+/// captured an error. They are intended to be called at the end of a scenario to validate its outcome
+/// in a test.
+/// </remarks>
+/// <example>
+/// <code>
+/// var ctx = Bdd.CreateContext(this);
+/// await Bdd.Given(ctx, "seed", () => 1)
+///          .When("+1", x => x + 1)
+///          .Then("== 2", v => v == 2);
+///
+/// // Verify success
+/// ctx.AssertPassed();
+/// </code>
+/// </example>
+/// <example>
+/// <code>
+/// var ctx = Bdd.CreateContext(this);
+/// await Bdd.Given(ctx, "seed", () => 1)
+///          .When("boom", _ => throw new InvalidOperationException("nope"))
+///          .Then("unreached", () => Task.CompletedTask);
+///
+/// // Verify at least one failure was recorded
+/// ctx.AssertFailed();
+/// </code>
+/// </example>
+/// <seealso cref="ScenarioContext"/>
+/// <seealso cref="StepResult"/>
 public static class ScenarioContextAsserts
 {
     /// <summary>

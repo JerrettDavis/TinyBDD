@@ -8,7 +8,7 @@ This guide gets you productive with TinyBDD in minutes: install the package, pic
 - A unit test framework: xUnit, NUnit, or MSTest
 
 ## Install
-<img src="../images/tinyBDD.png" alt="TinyBDD" width="110" align="right" />
+<img src="images/tinyBDD.png" alt="TinyBDD" width="110" align="right" />
 
 Pick your framework adapter plus the core library.
 - xUnit
