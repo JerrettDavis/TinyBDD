@@ -36,7 +36,7 @@ ctx.AssertPassed();
 ```
 
 ## Get started
-- Introduction: [docs/introduction.md](docs/introduction.md)
-- Getting Started: [docs/getting-started.md](docs/getting-started.md)
+- Introduction: [introduction.md](introduction.md)
+- Getting Started: [getting-started.md](getting-started.md)
 
 Tip: add [Feature], [Scenario], and [Tag] to make reports shine. Base classes emit Gherkin output automatically.

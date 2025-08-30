@@ -3,7 +3,7 @@
 
 TinyBDD is a tiny, fluent BDD helper for .NET tests. It gives you a clean Given/When/Then style without tying you to a specific test framework.
 
-<img src="../images/tinyBDD.png" alt="TinyBDD" width="110" align="right" />
+<img src="images/tinyBDD.png" alt="TinyBDD" width="110" align="right" />
 
 Why TinyBDD
 

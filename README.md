@@ -2,7 +2,7 @@
 
 [![codecov](https://codecov.io/gh/JerrettDavis/TinyBDD/branch/main/graph/badge.svg)](https://codecov.io/gh/JerrettDavis/TinyBDD)
 [![CI](https://github.com/JerrettDavis/TinyBDD/actions/workflows/ci.yml/badge.svg)](https://github.com/JerrettDavis/TinyBDD/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
 ![.NET Versions](https://img.shields.io/badge/.NET%208.0%20%7C%209.0-blue)
 
 **TinyBDD** is a minimal, fluent **Behavior-Driven Development** library for .NET.  
@@ -306,4 +306,4 @@ Actual:   3
 
 ## License
 
-[MIT License](LICENSE)
+[MIT License](LICENSE.md)
