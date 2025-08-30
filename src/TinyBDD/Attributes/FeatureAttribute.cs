@@ -7,6 +7,15 @@ namespace TinyBDD;
 /// The attribute is read by <see cref="Bdd.CreateContext(object, string?, ITraitBridge?)"/> to populate
 /// <see cref="ScenarioContext.FeatureName"/> and <see cref="ScenarioContext.FeatureDescription"/>.
 /// </remarks>
+/// <example>
+/// <code>
+/// [Feature("Shopping Cart", "Customers can add and remove items")]
+/// public class CartTests : TinyBddXunitBase { /* ... */ }
+/// </code>
+/// </example>
+/// <seealso cref="ScenarioAttribute"/>
+/// <seealso cref="TagAttribute"/>
+/// <seealso cref="ScenarioContext"/>
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public sealed class FeatureAttribute : Attribute
 {
@@ -17,6 +26,8 @@ public sealed class FeatureAttribute : Attribute
     public string? Description { get; }
 
     /// <summary>Creates a new <see cref="FeatureAttribute"/>.</summary>
+    /// <param name="name">The feature name to display in reports.</param>
+    /// <param name="description">Optional human-readable description shown under the feature.</param>
     public FeatureAttribute(string name, string? description = null)
     {
         Name = name;
