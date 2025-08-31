@@ -5,12 +5,52 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>latest</LangVersion>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-        <IsPackable>true</IsPackable>
+        <Deterministic>true</Deterministic>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>
-
 
     <PropertyGroup>
-        <ExcludeByFile>**/bin/**;**/obj/**;**/Migrations/**</ExcludeByFile>
-        <Exclude>[*]TinyBDD.*.Tests.*</Exclude>
+        <Authors>Jerrett Davis and contributors</Authors>
+        <Company>JDH Productions LLC.</Company>
+        <Product>TinyBDD</Product>
+        <Description>TinyBDD is a minimal, fluent BDD library for .NET with Given/When/Then syntax, optional And/But chaining, and first-class sync/async support with adapters for MSTest, xUnit, and NUnit.</Description>
+        <PackageTags>bdd;testing;unit-testing;given-when-then;fluent;xunit;mstest;nunit;dotnet</PackageTags>
+
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/JerrettDavis/TinyBDD</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/JerrettDavis/TinyBDD</PackageProjectUrl>
+
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>tiny.png</PackageIcon>
+
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+        <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
     </PropertyGroup>
+
+    <PropertyGroup>
+        <IsPackable>false</IsPackable>
+        <IsPackable Condition="$([System.String]::Copy('$(MSBuildProjectName)').EndsWith('.Tests'))">false</IsPackable>
+        <IsPackable Condition="$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('TinyBDD'))">true</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\"/>
+
+        <None Include="$(MSBuildThisFileDirectory)docs/images/tiny.png"
+              Pack="true"
+              PackagePath="logo.png"/>
+    </ItemGroup>
+
+    <!-- SourceLink for GitHub -->
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+    </ItemGroup>
+
 </Project>
