@@ -45,6 +45,6 @@
 
         <None Include="$(MSBuildThisFileDirectory)docs/images/tiny.png"
               Pack="true"
-              PackagePath="logo.png"/>
+              PackagePath="tiny.png"/>
     </ItemGroup>
 </Project>
