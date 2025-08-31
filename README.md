@@ -1,9 +1,21 @@
 # TinyBDD
 
-[![codecov](https://codecov.io/gh/JerrettDavis/TinyBDD/branch/main/graph/badge.svg)](https://codecov.io/gh/JerrettDavis/TinyBDD)
 [![CI](https://github.com/JerrettDavis/TinyBDD/actions/workflows/ci.yml/badge.svg)](https://github.com/JerrettDavis/TinyBDD/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/JerrettDavis/TinyBDD/branch/main/graph/badge.svg)](https://codecov.io/gh/JerrettDavis/TinyBDD)
+[![CodeQL](https://github.com/JerrettDavis/TinyBDD/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/JerrettDavis/TinyBDD/security/code-scanning)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
 ![.NET Versions](https://img.shields.io/badge/.NET%208.0%20%7C%209.0-blue)
+
+**NuGet Packages:**
+
+| Package | Version | Downloads |
+|--------|---------|-----------|
+| **TinyBDD** | [![NuGet](https://img.shields.io/nuget/v/TinyBDD.svg)](https://www.nuget.org/packages/TinyBDD/) | [![NuGet Downloads](https://img.shields.io/nuget/dt/TinyBDD.svg)](https://www.nuget.org/packages/TinyBDD/) |
+| **TinyBDD.MSTest** | [![NuGet](https://img.shields.io/nuget/v/TinyBDD.MSTest.svg)](https://www.nuget.org/packages/TinyBDD.MSTest/) | [![NuGet Downloads](https://img.shields.io/nuget/dt/TinyBDD.MSTest.svg)](https://www.nuget.org/packages/TinyBDD.MSTest/) |
+| **TinyBDD.Xunit** | [![NuGet](https://img.shields.io/nuget/v/TinyBDD.Xunit.svg)](https://www.nuget.org/packages/TinyBDD.Xunit/) | [![NuGet Downloads](https://img.shields.io/nuget/dt/TinyBDD.Xunit.svg)](https://www.nuget.org/packages/TinyBDD.Xunit/) |
+| **TinyBDD.NUnit** | [![NuGet](https://img.shields.io/nuget/v/TinyBDD.NUnit.svg)](https://www.nuget.org/packages/TinyBDD.NUnit/) | [![NuGet Downloads](https://img.shields.io/nuget/dt/TinyBDD.NUnit.svg)](https://www.nuget.org/packages/TinyBDD.NUnit/) |
+
+---
 
 **TinyBDD** is a minimal, fluent **Behavior-Driven Development** library for .NET.  
 It provides a lightweight `Given` / `When` / `Then` syntax with optional `And` / `But` chaining, supporting both **sync** and **async** steps.
@@ -14,6 +26,7 @@ It is designed to:
 - Keep scenarios **clear and concise** without heavy DSLs or external tooling.
 - Support **async and sync predicates** for maximum flexibility.
 - Integrate with existing test runners’ output for easy step visibility.
+
 
 ---
 
