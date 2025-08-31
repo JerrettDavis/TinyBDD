@@ -6,24 +6,20 @@ on:
   pull_request:
     branches: [ main ]
 
-permissions:
-  contents: write   # needed for creating tags/releases
-  packages: write   # needed for publishing to GitHub Packages
-
 env:
   DOTNET_NOLOGO: true
-  # Set to true if you want snupkg symbol packages too
   INCLUDE_SYMBOLS: true
 
 jobs:
-  build-test-pack:
+  pr-checks:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # ensures tags & full history for GitVersion
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -36,10 +32,90 @@ jobs:
             **/packages.lock.json
             global.json
 
-      - name: Restore dependencies
+      - name: Restore
         run: dotnet restore --use-lock-file
 
-      - name: Fetch all history and tags
+      - name: Build (Release)
+        run: dotnet build TinyBDD.sln --configuration Release --no-restore /p:ContinuousIntegrationBuild=true
+
+      - name: Test with coverage
+        run: |
+          dotnet test TinyBDD.sln \
+            --configuration Release \
+            --no-build \
+            --collect:"XPlat Code Coverage" \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+
+      - name: Install ReportGenerator
+        run: dotnet tool update -g dotnet-reportgenerator-globaltool
+
+      - name: Combine coverage and create reports
+        shell: bash
+        run: |
+          REPORTS=$(find . -type f -path "*/TestResults/*/coverage.cobertura.xml" | tr '\n' ';')
+          reportgenerator \
+            -reports:"$REPORTS" \
+            -targetdir:"coverage-report" \
+            -reporttypes:"HtmlInline;Cobertura;TextSummary;lcov;Badges" \
+            -assemblyfilters:"+TinyBDD*;-*Tests*"
+          echo "COVERAGE_SUMMARY<<EOF" >> $GITHUB_ENV
+          cat coverage-report/Summary.txt >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Upload coverage HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage-report
+
+      - name: Add coverage summary to PR
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          recreate: true
+          message: |
+            ## Code Coverage
+            ```
+            ${{ env.COVERAGE_SUMMARY }}
+            ```
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: |
+            **/TestResults/*/coverage.cobertura.xml
+          flags: unittests
+          fail_ci_if_error: true
+          verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+          cache: true
+          cache-dependency-path: |
+            **/packages.lock.json
+            global.json
+
+      - name: Restore
+        run: dotnet restore --use-lock-file
+
+      - name: Fetch tags
         run: git fetch --prune --tags
 
       - name: Install GitVersion
@@ -71,7 +147,7 @@ jobs:
       - name: Test (Release)
         run: dotnet test TinyBDD.sln --configuration Release --no-build --verbosity normal
 
-      - name: Pack (all packable projects in solution)
+      - name: Pack (all packable projects)
         run: >
           dotnet pack TinyBDD.sln
           --configuration Release
@@ -85,60 +161,6 @@ jobs:
           /p:FileVersion=${{ env.FILE_VERSION }}
           /p:PackageVersion=${{ env.PACKAGE_VERSION }}
 
-      - name: Test with coverage (all projects)
-        run: |
-          dotnet test TinyBDD.sln \
-            --configuration Release \
-            --collect:"XPlat Code Coverage" \
-            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
-
-      - name: Install ReportGenerator tool
-        run: dotnet tool update -g dotnet-reportgenerator-globaltool
-
-      - name: Combine coverage and create reports
-        shell: bash
-        run: |
-          REPORTS=$(find . -type f -path "*/TestResults/*/coverage.cobertura.xml" | tr '\n' ';')
-
-          reportgenerator \
-            -reports:"$REPORTS" \
-            -targetdir:"coverage-report" \
-            -reporttypes:"HtmlInline;Cobertura;TextSummary;lcov;Badges" \
-            -assemblyfilters:"+TinyBDD*;-*Tests*"
-          
-          echo "COVERAGE_SUMMARY<<EOF" >> $GITHUB_ENV
-          cat coverage-report/Summary.txt >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
-      - name: Upload coverage HTML report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage-report
-
-      - name: Add coverage summary to PR
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          recreate: true
-          message: |
-            ## Code Coverage
-            ```
-            ${{ env.COVERAGE_SUMMARY }}
-            ```
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: |
-            **/TestResults/*/coverage.cobertura.xml
-          flags: unittests
-          fail_ci_if_error: true
-          verbose: true
-        env:
-          # Not required for public repos, but fine to add:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
       - name: Upload packages as artifact
         uses: actions/upload-artifact@v4
         with:
@@ -148,7 +170,6 @@ jobs:
             ./artifacts/*.snupkg
 
       - name: Create and push git tag
-        if: github.ref == 'refs/heads/main'
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
@@ -156,7 +177,6 @@ jobs:
           git push origin v${{ env.PACKAGE_VERSION }}
 
       - name: Create GitHub Release
-        if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ env.PACKAGE_VERSION }}
@@ -166,10 +186,7 @@ jobs:
             ./artifacts/*.snupkg
           generate_release_notes: true
 
-      # Set the NUGET_API_KEY secret in repo settings to enable this step
-
       - name: Push to NuGet.org
-        if: github.ref == 'refs/heads/main'
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
@@ -182,9 +199,7 @@ jobs:
             echo "Skipping NuGet.org push: API key not set."
           fi
 
-
       - name: Push to GitHub Packages (optional)
-        if: github.ref == 'refs/heads/main'
         run: |
           dotnet nuget push "./artifacts/*.nupkg" \
             --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
