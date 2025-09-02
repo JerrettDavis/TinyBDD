@@ -5,7 +5,7 @@ namespace TinyBDD;
 /// </summary>
 /// <remarks>
 /// <para>
-/// A <see cref="ScenarioContext"/> is created via <see cref="Bdd.CreateContext(object, string?, ITraitBridge?)"/>
+/// A <see cref="ScenarioContext"/> is created via <see cref="Bdd.CreateContext(object,string,ITraitBridge,ScenarioOptions)"/>
 /// or set as ambient using <see cref="Ambient.Current"/> when using the <see cref="Flow"/> API.
 /// </para>
 /// <para>
@@ -42,18 +42,23 @@ public sealed class ScenarioContext
     public string ScenarioName { get; }
 
     /// <summary>All tags attached via <see cref="TagAttribute"/> on class/method or <see cref="ScenarioAttribute.Tags"/>.</summary>
-    public IReadOnlyList<string> Tags => _tags;
+    public IReadOnlyList<string> Tags => _tags.ToList();
 
     /// <summary>All recorded steps in execution order.</summary>
     public IReadOnlyList<StepResult> Steps => _steps;
 
     private readonly List<StepResult> _steps = new();
-    private readonly List<string> _tags = new();
+    private readonly HashSet<string> _tags = new();
 
     /// <summary>
     /// Bridge for integrating tags/categories with a host test framework.
     /// </summary>
     public ITraitBridge TraitBridge { get; }
+    
+    /// <summary>
+    /// Scenario options. See <see cref="ScenarioOptions"/>.
+    /// </summary>   
+    public ScenarioOptions Options { get; }
 
     /// <summary>
     /// Creates a new scenario context.
@@ -62,16 +67,19 @@ public sealed class ScenarioContext
     /// <param name="featureDescription">Optional feature description.</param>
     /// <param name="scenarioName">Scenario name.</param>
     /// <param name="traitBridge">Bridge for traits/categories.</param>
+    /// <param name="options">Scenario options.</param>
     public ScenarioContext(
         string featureName,
         string? featureDescription,
         string scenarioName,
-        ITraitBridge traitBridge)
+        ITraitBridge traitBridge,
+        ScenarioOptions options)
     {
         FeatureName = featureName;
         FeatureDescription = featureDescription;
         ScenarioName = scenarioName;
         TraitBridge = traitBridge;
+        Options = options;
     }
 
     /// <summary>
@@ -83,6 +91,18 @@ public sealed class ScenarioContext
         _tags.Add(tag);
         TraitBridge.AddTag(tag);
     }
+
+    /// <summary>   
+    /// Adds one or more tags to the scenario context in bulk.
+    /// </summary>
+    /// <param name="tags">Array of string values representing the tags to be added. Each tag must be a non-empty string.</param>
+    public void AddTags(params string[] tags) => Array.ForEach(tags, AddTag);
+    
+    /// <summary>
+    /// Adds one or more tags to the scenario context in bulk.
+    /// </summary>
+    /// <param name="tags">An enumerable collection of string values representing the tags to be added. Each tag must be a non-empty string.</param>   
+    public void AddTags(IEnumerable<string> tags) => AddTags(tags.ToArray());
 
     /// <summary>
     /// Adds a recorded step to <see cref="Steps"/>. Intended for internal use by the framework.

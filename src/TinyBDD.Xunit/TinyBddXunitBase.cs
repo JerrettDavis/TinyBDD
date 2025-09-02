@@ -11,6 +11,7 @@ namespace TinyBDD.Xunit;
 /// <see cref="Dispose"/> emits a Gherkin report and clears the ambient context.
 /// </remarks>
 [Feature("Unnamed Feature")]
+[UseTinyBdd]
 public abstract class TinyBddXunitBase : IDisposable
 {
     private readonly ITestOutputHelper _output;

@@ -12,6 +12,7 @@ namespace TinyBDD.NUnit;
 /// <see cref="TinyBdd_TearDown"/>, it emits a Gherkin report and clears the ambient context.
 /// </remarks>
 [Feature("Unnamed Feature")]
+[UseTinyBdd]
 public abstract class TinyBddNUnitBase
 {
     /// <summary>The current scenario context for the running test.</summary>

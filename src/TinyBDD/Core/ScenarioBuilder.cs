@@ -46,7 +46,7 @@ public readonly struct ThenChain<T>
         _p.Enqueue(StepPhase.Then, StepWord.And, title, (s, _) =>
         {
             assertion((T)s!);
-            return VT.From(s);
+            return ValueTask.FromResult(s);
         });
         return this;
     }
@@ -131,7 +131,7 @@ public readonly struct ThenChain<T>
         _p.Enqueue(StepPhase.Then, StepWord.And, title, (s, _) =>
         {
             AssertUtil.Ensure(predicate((T)s!), title);
-            return VT.From(s);
+            return ValueTask.FromResult(s);
         });
         return this;
     }
@@ -204,7 +204,7 @@ public readonly struct ThenChain<T>
         _p.Enqueue(StepPhase.Then, StepWord.And, "", (s, _) =>
         {
             assertion((T)s!);
-            return VT.From(s);
+            return ValueTask.FromResult(s);
         });
         return this;
     }
@@ -283,7 +283,7 @@ public readonly struct ThenChain<T>
         _p.Enqueue(StepPhase.Then, StepWord.And, "", (s, _) =>
         {
             AssertUtil.Ensure(predicate((T)s!), "And");
-            return VT.From(s);
+            return ValueTask.FromResult(s);
         });
         return this;
     }
@@ -354,7 +354,7 @@ public readonly struct ThenChain<T>
         _p.Enqueue(StepPhase.Then, StepWord.But, title, (s, _) =>
         {
             AssertUtil.Ensure(predicate((T)s!), title);
-            return VT.From(s);
+            return ValueTask.FromResult(s);
         });
         return this;
     }
@@ -368,7 +368,7 @@ public readonly struct ThenChain<T>
         _p.Enqueue(StepPhase.Then, StepWord.But, "", (s, _) =>
         {
             AssertUtil.Ensure(predicate((T)s!), "But");
-            return VT.From(s);
+            return ValueTask.FromResult(s);
         });
         return this;
     }

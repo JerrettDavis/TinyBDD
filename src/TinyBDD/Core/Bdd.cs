@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace TinyBDD;
@@ -9,7 +10,7 @@ namespace TinyBDD;
 /// <remarks>
 /// <para>
 /// Use this static API when you want to work with an explicit <see cref="ScenarioContext"/>.
-/// Call <see cref="CreateContext(object, string?, ITraitBridge?)"/> to construct a context from
+/// Call <see cref="CreateContext(object,string,ITraitBridge,ScenarioOptions)"/> to construct a context from
 /// attributes on your test class and method (see <see cref="FeatureAttribute"/>,
 /// <see cref="ScenarioAttribute"/>, and <see cref="TagAttribute"/>). Then begin your scenario
 /// with one of the <c>Given</c> overloads.
@@ -36,6 +37,11 @@ namespace TinyBDD;
 /// <seealso cref="TagAttribute"/>
 public static class Bdd
 {
+    private static readonly ScenarioOptions DefaultOptions = new();
+    private static ITestMethodResolver? _resolver;
+
+    public static void Register(ITestMethodResolver resolver) => _resolver = resolver;
+
     /// <summary>
     /// Creates a <see cref="ScenarioContext"/> by inspecting <paramref name="featureSource"/> and the current test method
     /// for <see cref="FeatureAttribute"/>, <see cref="ScenarioAttribute"/>, and <see cref="TagAttribute"/>.
@@ -43,46 +49,51 @@ public static class Bdd
     /// <param name="featureSource">Any object from the test class; only its type is used to read attributes.</param>
     /// <param name="scenarioName">Optional scenario name override; defaults to the method name or <see cref="ScenarioAttribute.Name"/>.</param>
     /// <param name="traits">Optional trait bridge for propagating tags to the host framework.</param>
+    /// <param name="options">Optional <see cref="ScenarioOptions"/> that customizes scenario behavior.</param>
     /// <returns>A new <see cref="ScenarioContext"/> populated with feature/scenario metadata and tags.</returns>
     public static ScenarioContext CreateContext(
-        object featureSource, 
-        string? scenarioName = null, 
-        ITraitBridge? traits = null)
+        object featureSource,
+        string? scenarioName = null,
+        ITraitBridge? traits = null,
+        ScenarioOptions? options = null)
     {
-        var featureAttr = featureSource.GetType().GetCustomAttribute<FeatureAttribute>();
-        var featureName = featureAttr?.Name ?? featureSource.GetType().Name;
+        options ??= DefaultOptions with { };
+
+        var featureType = featureSource.GetType();
+        var featureAttr = featureType.GetCustomAttribute<FeatureAttribute>();
+        var featureName = featureAttr?.Name ?? featureType.Name;
         var featureDesc = featureAttr?.Description;
 
         var method = FindCurrentTestMethod();
         var scenarioAttr = method?.GetCustomAttribute<ScenarioAttribute>();
 
-        var resolvedScenarioName =
-            !string.IsNullOrWhiteSpace(scenarioName) ? scenarioName :
-            !string.IsNullOrWhiteSpace(scenarioAttr?.Name) ? scenarioAttr.Name! :
-            method?.Name ?? "Scenario";
-
-        var ctx = new ScenarioContext(featureName, featureDesc, resolvedScenarioName, traits ?? new NullTraitBridge());
-
-        foreach (var tag in featureSource.GetType().GetCustomAttributes<TagAttribute>(inherit: true))
-            ctx.AddTag(tag.Name);
-
-        if (method is not null)
-        {
-            foreach (var tag in method.GetCustomAttributes<TagAttribute>(inherit: true))
-                ctx.AddTag(tag.Name);
-            if (scenarioAttr?.Tags is not { Length: > 0 })
-                return ctx;
-            foreach (var t in scenarioAttr.Tags)
-                ctx.AddTag(t);
-        }
-
-        return ctx;
+        return ScenarioContextBuilder.Create(
+                featureName,
+                featureDesc,
+                ResolveScenarioName(scenarioName, scenarioAttr, method),
+                traits ?? new NullTraitBridge(),
+                options)
+            .WithFeature(featureType)
+            .WithMethod(method)
+            .WithScenario(scenarioAttr)
+            .Build();
     }
 
-    private static MethodInfo? FindCurrentTestMethod()
+    private static string ResolveScenarioName(
+        string? scenarioName,
+        ScenarioAttribute? scenarioAttr,
+        MethodInfo? method) =>
+        !string.IsNullOrWhiteSpace(scenarioName) ? scenarioName :
+        !string.IsNullOrWhiteSpace(scenarioAttr?.Name) ? scenarioAttr.Name! :
+        method?.Name ?? "Scenario";
+
+    private static MethodInfo? FindCurrentTestMethod() =>
+        _resolver?.GetCurrentTestMethod() ?? FindByStackTrace();
+
+    [RequiresUnreferencedCode("Uses reflection/stack walking to find the current test method.")]
+    private static MethodInfo? FindByStackTrace()
     {
         var frames = new StackTrace().GetFrames();
-        if (frames is null) return null;
 
         foreach (var mi in frames.Select(f => f.GetMethod()).OfType<MethodInfo>())
             if (mi.GetCustomAttribute<ScenarioAttribute>() is not null)
@@ -94,101 +105,294 @@ public static class Bdd
             .FirstOrDefault(HasAnyTestAttribute);
     }
 
-    private static bool HasAnyTestAttribute(MethodInfo m)
+    private static readonly HashSet<string> TestAttributeNames = new(StringComparer.Ordinal)
     {
-        var names = m.GetCustomAttributes(inherit: true).Select(a => a.GetType().FullName ?? "");
-        foreach (var n in names)
-            if (n is "Xunit.FactAttribute"
-                or "Xunit.TheoryAttribute"
-                or "NUnit.Framework.TestAttribute"
-                or "NUnit.Framework.TestCaseAttribute"
-                or "Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute")
-                return true;
-        return false;
-    }
+        "Xunit.FactAttribute",
+        "Xunit.TheoryAttribute",
+        "NUnit.Framework.TestAttribute",
+        "NUnit.Framework.TestCaseAttribute",
+        "Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute"
+    };
+
+    private static bool HasAnyTestAttribute(MethodInfo m) =>
+        m.GetCustomAttributes(inherit: true)
+            .Any(a => TestAttributeNames.Contains(a.GetType().FullName ?? ""));
+
+    private static Func<CancellationToken, ValueTask<T>> Wrap<T>(Func<T> f)
+        => _ => new ValueTask<T>(f());
+
+    private static Func<CancellationToken, ValueTask<T>> Wrap<T>(Func<Task<T>> f)
+        => _ => new ValueTask<T>(f());
+
+    private static Func<CancellationToken, ValueTask<T>> Wrap<T>(Func<ValueTask<T>> f)
+        => _ => f();
+
+    private static Func<CancellationToken, ValueTask<T>> Wrap<T>(Func<CancellationToken, Task<T>> f)
+        => ct => new ValueTask<T>(f(ct));
+
+    private static Func<CancellationToken, ValueTask<T>> Wrap<T>(Func<CancellationToken, ValueTask<T>> f)
+        => f;
+
+    private static ScenarioChain<T> Seed<T>(
+        ScenarioContext ctx,
+        string title,
+        Func<CancellationToken, ValueTask<T>> setup)
+        => ScenarioChain<T>.Seed(ctx, title, setup);
+
+    private static string AutoTitle<T>() => $"Given {typeof(T).Name}";
 
     /// <summary>Starts a <c>Given</c> step with an explicit title and synchronous setup.</summary>
     /// <typeparam name="T">The type produced by the setup function.</typeparam>
-    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object, string?, ITraitBridge?)"/>.</param>
+    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object,string,ITraitBridge,ScenarioOptions)"/>.</param>
     /// <param name="title">Human-friendly step title.</param>
     /// <param name="setup">Synchronous factory for the initial value.</param>
     /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
-    public static ScenarioChain<T> Given<T>(ScenarioContext ctx, string title, Func<T> setup)
-        => ScenarioChain<T>.Seed(ctx, title, _ => VT.From(setup()));
+    public static ScenarioChain<T> Given<T>(
+        ScenarioContext ctx,
+        string title,
+        Func<T> setup) =>
+        Seed(ctx, title, Wrap(setup));
 
     /// <summary>Starts a <c>Given</c> step with an explicit title and asynchronous setup.</summary>
     /// <typeparam name="T">The type produced by the setup function.</typeparam>
-    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object, string?, ITraitBridge?)"/>.</param>
+    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object,string,ITraitBridge,ScenarioOptions)"/>.</param>
     /// <param name="title">Human-friendly step title.</param>
     /// <param name="setup">Asynchronous factory for the initial value.</param>
     /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
-    public static ScenarioChain<T> Given<T>(ScenarioContext ctx, string title, Func<Task<T>> setup)
-        => ScenarioChain<T>.Seed(ctx, title, _ => VT.From(setup()));
+    public static ScenarioChain<T> Given<T>(
+        ScenarioContext ctx,
+        string title,
+        Func<Task<T>> setup) =>
+        Seed(ctx, title, Wrap(setup));
 
     /// <summary>Starts a <c>Given</c> step with an explicit title and <see cref="ValueTask"/> setup.</summary>
     /// <typeparam name="T">The type produced by the setup function.</typeparam>
-    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object, string?, ITraitBridge?)"/>.</param>
+    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object,string,ITraitBridge,ScenarioOptions)"/>.</param>
     /// <param name="title">Human-friendly step title.</param>
     /// <param name="setup">ValueTask-producing factory for the initial value.</param>
     /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
-    public static ScenarioChain<T> Given<T>(ScenarioContext ctx, string title, Func<ValueTask<T>> setup)
-        => ScenarioChain<T>.Seed(ctx, title, _ => setup());
+    public static ScenarioChain<T> Given<T>(
+        ScenarioContext ctx,
+        string title,
+        Func<ValueTask<T>> setup) =>
+        Seed(ctx, title, Wrap(setup));
 
     /// <summary>Starts a token-aware <c>Given</c> step with an explicit title and asynchronous setup.</summary>
     /// <typeparam name="T">The type produced by the setup function.</typeparam>
-    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object, string?, ITraitBridge?)"/>.</param>
+    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object,string,ITraitBridge,ScenarioOptions)"/>.</param>
     /// <param name="title">Human-friendly step title.</param>
     /// <param name="setup">Asynchronous factory that observes a <see cref="CancellationToken"/>.</param>
     /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
-    public static ScenarioChain<T> Given<T>(ScenarioContext ctx, string title, Func<CancellationToken, Task<T>> setup)
-        => ScenarioChain<T>.Seed(ctx, title, ct => VT.From(setup(ct)));
+    public static ScenarioChain<T> Given<T>(
+        ScenarioContext ctx,
+        string title,
+        Func<CancellationToken, Task<T>> setup) =>
+        Seed(ctx, title, Wrap(setup));
 
     /// <summary>Starts a token-aware <c>Given</c> step with an explicit title and <see cref="ValueTask"/> setup.</summary>
     /// <typeparam name="T">The type produced by the setup function.</typeparam>
-    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object, string?, ITraitBridge?)"/>.</param>
+    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object,string,ITraitBridge,ScenarioOptions)"/>.</param>
     /// <param name="title">Human-friendly step title.</param>
     /// <param name="setup">ValueTask-producing factory that observes a <see cref="CancellationToken"/>.</param>
     /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
-    public static ScenarioChain<T> Given<T>(ScenarioContext ctx, string title, Func<CancellationToken, ValueTask<T>> setup)
-        => ScenarioChain<T>.Seed(ctx, title, setup);
+    public static ScenarioChain<T> Given<T>(
+        ScenarioContext ctx,
+        string title,
+        Func<CancellationToken, ValueTask<T>> setup) =>
+        Seed(ctx, title, Wrap(setup));
 
     /// <summary>Starts a <c>Given</c> step using a default title derived from <typeparamref name="T"/>.</summary>
     /// <typeparam name="T">The type produced by the setup function.</typeparam>
-    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object, string?, ITraitBridge?)"/>.</param>
+    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object,string,ITraitBridge,ScenarioOptions)"/>.</param>
     /// <param name="setup">Synchronous factory for the initial value.</param>
     /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
-    public static ScenarioChain<T> Given<T>(ScenarioContext ctx, Func<T> setup)
-        => ScenarioChain<T>.Seed(ctx, $"Given {typeof(T).Name}", _ => VT.From(setup()));
+    public static ScenarioChain<T> Given<T>(
+        ScenarioContext ctx,
+        Func<T> setup) =>
+        Seed(ctx, AutoTitle<T>(), Wrap(setup));
 
     /// <summary>Starts a <c>Given</c> step with a default title and <see cref="ValueTask"/> setup.</summary>
     /// <typeparam name="T">The type produced by the setup function.</typeparam>
-    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object, string?, ITraitBridge?)"/>.</param>
+    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object,string,ITraitBridge,ScenarioOptions)"/>.</param>
     /// <param name="setup">ValueTask-producing factory for the initial value.</param>
     /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
-    public static ScenarioChain<T> Given<T>(ScenarioContext ctx, Func<ValueTask<T>> setup)
-        => ScenarioChain<T>.Seed(ctx, $"Given {typeof(T).Name}", _ => setup());
+    public static ScenarioChain<T> Given<T>(
+        ScenarioContext ctx,
+        Func<ValueTask<T>> setup) =>
+        Seed(ctx, AutoTitle<T>(), Wrap(setup));
 
     /// <summary>Starts a <c>Given</c> step with a default title and asynchronous setup.</summary>
     /// <typeparam name="T">The type produced by the setup function.</typeparam>
-    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object, string?, ITraitBridge?)"/>.</param>
+    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object,string,ITraitBridge,ScenarioOptions)"/>.</param>
     /// <param name="setup">Asynchronous factory for the initial value.</param>
     /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
-    public static ScenarioChain<T> Given<T>(ScenarioContext ctx, Func<Task<T>> setup)
-        => ScenarioChain<T>.Seed(ctx, $"Given {typeof(T).Name}", _ => VT.From(setup()));
+    public static ScenarioChain<T> Given<T>(
+        ScenarioContext ctx,
+        Func<Task<T>> setup) =>
+        Seed(ctx, AutoTitle<T>(), Wrap(setup));
 
     /// <summary>Starts a token-aware <c>Given</c> step with a default title and asynchronous setup.</summary>
     /// <typeparam name="T">The type produced by the setup function.</typeparam>
-    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object, string?, ITraitBridge?)"/>.</param>
+    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object,string,ITraitBridge,ScenarioOptions)"/>.</param>
     /// <param name="setup">Asynchronous factory that observes a <see cref="CancellationToken"/>.</param>
     /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
-    public static ScenarioChain<T> Given<T>(ScenarioContext ctx, Func<CancellationToken, Task<T>> setup)
-        => ScenarioChain<T>.Seed(ctx, $"Given {typeof(T).Name}", ct => VT.From(setup(ct)));
+    public static ScenarioChain<T> Given<T>(
+        ScenarioContext ctx,
+        Func<CancellationToken, Task<T>> setup) =>
+        Seed(ctx, AutoTitle<T>(), Wrap(setup));
 
     /// <summary>Starts a token-aware <c>Given</c> step with a default title and <see cref="ValueTask"/> setup.</summary>
     /// <typeparam name="T">The type produced by the setup function.</typeparam>
-    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object, string?, ITraitBridge?)"/>.</param>
+    /// <param name="ctx">Scenario context created by <see cref="CreateContext(object,string,ITraitBridge,ScenarioOptions)"/>.</param>
     /// <param name="setup">ValueTask-producing factory that observes a <see cref="CancellationToken"/>.</param>
     /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
-    public static ScenarioChain<T> Given<T>(ScenarioContext ctx, Func<CancellationToken, ValueTask<T>> setup)
-        => ScenarioChain<T>.Seed(ctx, $"Given {typeof(T).Name}", setup);
+    public static ScenarioChain<T> Given<T>(
+        ScenarioContext ctx,
+        Func<CancellationToken, ValueTask<T>> setup) =>
+        Seed(ctx, AutoTitle<T>(), Wrap(setup));
+
+    /// <summary>
+    /// A fluent builder for constructing a <see cref="ScenarioContext"/> with feature, method,
+    /// and scenario metadata and tags.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This internal class is used by <see cref="Bdd.CreateContext(object,string,ITraitBridge,ScenarioOptions)"/>
+    /// to populate a <see cref="ScenarioContext"/> with information discovered from attributes
+    /// on the test class (<see cref="FeatureAttribute"/>, <see cref="TagAttribute"/>), the test
+    /// method (<see cref="ScenarioAttribute"/>, <see cref="TagAttribute"/>), and from
+    /// <see cref="ScenarioOptions"/> provided by the caller.
+    /// </para>
+    /// <para>
+    /// The builder pattern allows chaining multiple enrichment steps before returning the
+    /// fully populated context via <see cref="Build"/>.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// var ctx = ScenarioContextBuilder.Create("Math", "Basic math operations", "Adds numbers",
+    ///     new NullTraitBridge(), new ScenarioOptions())
+    ///     .WithFeature(typeof(MyTests))
+    ///     .WithMethod(typeof(MyTests).GetMethod(nameof(MyTests.MyTestMethod)))
+    ///     .WithScenario(new ScenarioAttribute("Adds numbers", Tags = new[] { "math", "smoke" }))
+    ///     .Build();
+    /// </code>
+    /// </example>
+    /// <seealso cref="ScenarioContext"/>
+    /// <seealso cref="Bdd.CreateContext(object,string,ITraitBridge,ScenarioOptions)"/>
+    /// <seealso cref="FeatureAttribute"/>
+    /// <seealso cref="ScenarioAttribute"/>
+    /// <seealso cref="TagAttribute"/>
+    internal sealed class ScenarioContextBuilder
+    {
+        private readonly ScenarioContext _ctx;
+
+        /// <summary>
+        /// Initializes a new builder instance with the specified feature, scenario name,
+        /// trait bridge, and options.
+        /// </summary>
+        /// <param name="featureName">The logical name of the feature under test.</param>
+        /// <param name="featureDescription">Optional human-readable feature description.</param>
+        /// <param name="scenarioName">The name of the scenario, typically the test method name or <see cref="ScenarioAttribute.Name"/>.</param>
+        /// <param name="traitBridge">The trait bridge used to register tags/categories with the underlying test framework.</param>
+        /// <param name="options">Scenario-level options controlling behavior such as <c>ContinueOnError</c>.</param>
+        private ScenarioContextBuilder(
+            string featureName,
+            string? featureDescription,
+            string scenarioName,
+            ITraitBridge traitBridge,
+            ScenarioOptions options)
+            => _ctx = new ScenarioContext(
+                featureName,
+                featureDescription,
+                scenarioName,
+                traitBridge,
+                options);
+
+        /// <summary>
+        /// Creates a new <see cref="ScenarioContextBuilder"/> pre-initialized with basic feature,
+        /// scenario, trait bridge, and option metadata.
+        /// </summary>
+        /// <param name="featureName">The logical name of the feature under test.</param>
+        /// <param name="featureDescription">Optional human-readable feature description.</param>
+        /// <param name="scenarioName">The name of the scenario.</param>
+        /// <param name="traitBridge">The trait bridge for propagating tags.</param>
+        /// <param name="options">Scenario-level options.</param>
+        /// <returns>A new <see cref="ScenarioContextBuilder"/> that can be further enriched with feature/method/scenario tags.</returns>
+        public static ScenarioContextBuilder Create(
+            string featureName,
+            string? featureDescription,
+            string scenarioName,
+            ITraitBridge traitBridge,
+            ScenarioOptions options)
+            => new(featureName, featureDescription, scenarioName, traitBridge, options);
+
+        /// <summary>
+        /// Adds any <see cref="TagAttribute"/> values declared on the specified feature type.
+        /// </summary>
+        /// <param name="feature">
+        /// The <see cref="System.Type"/> representing the test class (feature) under test,
+        /// or <see langword="null"/> to skip feature-level tags.
+        /// </param>
+        /// <returns>The same <see cref="ScenarioContextBuilder"/> for fluent chaining.</returns>
+        /// <remarks>
+        /// This method uses <see cref="MemberInfo.GetCustomAttributes{T}(bool)"/> to retrieve all
+        /// <see cref="TagAttribute"/> instances and adds their names to the context.
+        /// </remarks>
+        public ScenarioContextBuilder WithFeature(Type? feature)
+        {
+            var featureTags = feature?
+                .GetCustomAttributes<TagAttribute>(inherit: true)
+                .Select(t => t.Name) ?? [];
+
+            _ctx.AddTags(featureTags);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds any <see cref="TagAttribute"/> values declared on the specified test method.
+        /// </summary>
+        /// <param name="method">
+        /// The <see cref="MethodInfo"/> representing the test method, or <see langword="null"/> to skip method-level tags.
+        /// </param>
+        /// <returns>The same <see cref="ScenarioContextBuilder"/> for fluent chaining.</returns>
+        /// <remarks>
+        /// This method uses <see cref="MemberInfo.GetCustomAttributes{T}(bool)"/> to retrieve
+        /// all <see cref="TagAttribute"/> instances from the method and adds their names to the context.
+        /// </remarks>
+        public ScenarioContextBuilder WithMethod(MethodInfo? method)
+        {
+            var methodTags = method?
+                .GetCustomAttributes<TagAttribute>(inherit: true)
+                .Select(t => t.Name) ?? [];
+
+            _ctx.AddTags(methodTags);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds any tags defined in the provided <see cref="ScenarioAttribute"/>.
+        /// </summary>
+        /// <param name="scenarioAttr">
+        /// The <see cref="ScenarioAttribute"/> describing the scenario, or <see langword="null"/>
+        /// to skip scenario-level tags.
+        /// </param>
+        /// <returns>The same <see cref="ScenarioContextBuilder"/> for fluent chaining.</returns>
+        /// <remarks>
+        /// Tags defined here are appended to any feature- or method-level tags already added.
+        /// </remarks>
+        public ScenarioContextBuilder WithScenario(ScenarioAttribute? scenarioAttr)
+        {
+            if (scenarioAttr?.Tags is { Length: > 0 })
+                _ctx.AddTags(scenarioAttr.Tags);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Finalizes the builder and returns the constructed <see cref="ScenarioContext"/>.
+        /// </summary>
+        /// <returns>A fully populated <see cref="ScenarioContext"/> with feature, scenario, and tag metadata.</returns>
+        public ScenarioContext Build() => _ctx;
+    }
 }
