@@ -42,7 +42,7 @@ public sealed class ScenarioContext
     public string ScenarioName { get; }
 
     /// <summary>All tags attached via <see cref="TagAttribute"/> on class/method or <see cref="ScenarioAttribute.Tags"/>.</summary>
-    public IReadOnlyList<string> Tags => _tags.ToList();
+    public IReadOnlyCollection<string> Tags => _tags.ToList();
 
     /// <summary>All recorded steps in execution order.</summary>
     public IReadOnlyList<StepResult> Steps => _steps;
