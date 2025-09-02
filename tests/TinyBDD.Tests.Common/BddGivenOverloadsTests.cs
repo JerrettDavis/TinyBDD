@@ -3,7 +3,9 @@ namespace TinyBDD.Tests.Common;
 public class BddGivenOverloadsTests
 {
     [Feature("GivenOverloads")]
-    private sealed class Host {}
+    private sealed class Host
+    {
+    }
 
     [Scenario("Given(ctx, Func<T>) without title uses default and executes")]
     [Fact]
@@ -32,5 +34,30 @@ public class BddGivenOverloadsTests
         Assert.Equal("Given String", ctx.Steps[0].Title);
         ctx.AssertPassed();
     }
-}
 
+    [Scenario("Given(ctx, string, Func<T>) with title executes")]
+    [Fact]
+    public async Task Given_WithTitle_Sync()
+    {
+        var ctx = Bdd.CreateContext(new Host());
+        await Bdd.Given(ctx, "start", () => 5)
+            .When("noop", (_, _) => Task.CompletedTask)
+            .Then("ok", () => Task.CompletedTask);
+
+        Assert.Equal("start", ctx.Steps[0].Title);
+        ctx.AssertPassed();
+    }
+    
+    [Scenario("Given(ctx, Func<CancellationToken, ValueTask<T>>) without title uses default and executes")]
+    [Fact]
+    public async Task Given_NoTitle_ValueTask()
+    {
+        var ctx = Bdd.CreateContext(new Host());
+        await Bdd.Given(ctx, _ => new ValueTask<string>("abc"))
+            .When("noop", (_, _) => Task.CompletedTask)
+            .Then("ok", () => Task.CompletedTask);
+        
+        Assert.Equal("Given String", ctx.Steps[0].Title);
+        ctx.AssertPassed();   
+    }
+}

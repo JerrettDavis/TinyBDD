@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <PackageReference Include="xunit.abstractions" />
+      <PackageReference Include="xunit.extensibility.core" />
     </ItemGroup>
 
 </Project>

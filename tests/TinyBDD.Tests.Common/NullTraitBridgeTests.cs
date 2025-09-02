@@ -5,7 +5,7 @@ public class NullTraitBridgeTests
     [Fact]
     public void AddTag_Does_Not_Throw_And_Tags_Are_Still_In_Context()
     {
-        var ctx = new ScenarioContext("F", null, "S", new NullTraitBridge());
+        var ctx = new ScenarioContext("F", null, "S", new NullTraitBridge(), new ScenarioOptions());
         ctx.AddTag("a");
         ctx.AddTag("b");
 
