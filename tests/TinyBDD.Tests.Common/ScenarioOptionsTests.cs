@@ -118,7 +118,13 @@ public class ScenarioOptionsTests
 
         // only the failing step should be present (no skipped Then)
         Assert.Contains(ctx.Steps, s => s.Kind == "When" && s.Title == "long" && s.Error is not null);
-        Assert.DoesNotContain(ctx.Steps, s => s.Kind == "Then" && s.Title == "reached" && s.Error is not null && s.Error.Message == "Skipped due to previous failure.");
+        // Assert that there are no "Then" steps with error
+        Assert.DoesNotContain(ctx.Steps, s => s.Kind == "Then" && s.Title == "reached" && s.Error is not null);
+        // If any "Then" step with error exists, ensure its error message is not "Skipped due to previous failure."
+        foreach (var step in ctx.Steps.Where(s => s.Kind == "Then" && s.Title == "reached" && s.Error is not null))
+        {
+            Assert.NotEqual("Skipped due to previous failure.", step.Error.Message);
+        }
     }
     
     
