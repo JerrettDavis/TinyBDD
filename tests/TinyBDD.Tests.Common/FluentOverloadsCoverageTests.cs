@@ -43,7 +43,7 @@ public class FluentOverloadsCoverageTests
         await Bdd.Given(ctx, "start", () => 1)
             .When("act async", _ => Task.CompletedTask)
             .Then("ok", () => Task.CompletedTask)
-            .AssertPassed();;
+            .AssertPassed();
     }
 
     [Scenario("When async action with token (default title)")]
@@ -55,7 +55,7 @@ public class FluentOverloadsCoverageTests
         await Bdd.Given(ctx, "start", () => 1)
             .When((_, _) => Task.CompletedTask)
             .Then("ok", () => Task.CompletedTask)
-            .AssertPassed();;
+            .AssertPassed();
     }
 
     [Scenario("When side-effect Action<T> with title")]
@@ -96,7 +96,7 @@ public class FluentOverloadsCoverageTests
         await Bdd.Given(ctx, "start2", () => 4)
             .Then("plus 1", (v, _) => Task.FromResult(v + 1))
             .And("== 5", v => v == 5)
-            .AssertPassed();;
+            .AssertPassed();
     }
 
     [Scenario("Untyped Then with synchronous predicate bool")]

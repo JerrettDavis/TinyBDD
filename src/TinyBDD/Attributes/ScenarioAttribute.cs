@@ -4,7 +4,7 @@ namespace TinyBDD;
 /// Marks a test method as a BDD <c>Scenario</c>, optionally providing a friendly name and tags.
 /// </summary>
 /// <remarks>
-/// The attribute is read by <see cref="Bdd.CreateContext(object, string?, ITraitBridge?)"/> to resolve
+/// The attribute is read by <see cref="Bdd.CreateContext(object,string,ITraitBridge,ScenarioOptions)"/> to resolve
 /// the scenario name and to collect tags alongside any <see cref="TagAttribute"/>s.
 /// </remarks>
 /// <example>

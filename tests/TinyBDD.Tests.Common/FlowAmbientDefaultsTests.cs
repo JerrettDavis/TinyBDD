@@ -62,7 +62,7 @@ public class FlowAmbientDefaultsTests
             .Given(_ => Task.FromResult(4))
             .When("id", x => x)
             .Then("== 4", v => v == 4)
-            .AssertPassed();;
+            .AssertPassed();
     }
 }
 

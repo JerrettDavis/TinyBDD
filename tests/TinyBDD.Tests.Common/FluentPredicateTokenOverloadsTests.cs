@@ -34,7 +34,7 @@ public class FluentPredicateTokenOverloadsTests
         await Bdd.Given(ctx, "start2", () => 1)
             .When("noop", (_, _) => Task.CompletedTask)
             .Then(_ => Task.FromResult(true))
-            .AssertPassed();;
+            .AssertPassed();
     }
 
     [Scenario("Typed ThenBuilder And/But with token-aware boolean predicates")]
