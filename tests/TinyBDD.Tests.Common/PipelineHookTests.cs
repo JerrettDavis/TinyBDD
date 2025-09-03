@@ -214,4 +214,25 @@ public class PipelineHookTests
         Assert.Equal(StepPhase.When, m2.Phase);
         Assert.Equal(StepWord.But, m2.Word);
     }
+    
+    
+    [Scenario("StepResult should be populated with appropriate property when the operation is cancelled")]
+    [Fact]
+    public async Task StepResult_Populated_With_Cancelled_On_Operation_Cancelled()
+    {
+        var ctx = NewContext();
+        var pipe = new Pipeline(ctx);
+        var tokenSource = new CancellationTokenSource(TimeSpan.FromMilliseconds(200));
+        pipe.Enqueue(StepPhase.Given, StepWord.Primary, "start", Const(1));
+        pipe.Enqueue(StepPhase.When, StepWord.Primary, "act", Const(2));
+        pipe.Enqueue(StepPhase.When, StepWord.Primary, "wait", async (v,ct) =>
+        {
+             await Task.Delay(1000, ct);
+             return v;
+        });
+        await Assert.ThrowsAsync<OperationCanceledException>(async () => await pipe.RunAsync(tokenSource.Token));
+        var result = ctx.Steps.Last();
+        Assert.NotNull(result.Error);
+        Assert.IsType<OperationCanceledException>(result.Error);
+    }
 }

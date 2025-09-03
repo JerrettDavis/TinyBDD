@@ -9,23 +9,18 @@ public class ScenarioContextAssertsInvalidOperationTests(ITestOutputHelper outpu
     [Scenario("AssertPassed throws when any step failed")]
     [Fact]
     public async Task AssertPassed_Throws_When_Any_Step_Failed()
-    {
-        await Flow.Given("wire", () => 1)
-            .When("noop", _ => Task.CompletedTask)
-            .Then("should fail", v => v == 999); // false -> recorded failure
-
-        Assert.Throws<InvalidOperationException>(() => Scenario.AssertPassed());
-    }
+        => await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await Given("wire", () => 1)
+                .When("noop", _ => Task.CompletedTask)
+                .Then("should fail", v => v == 999)
+                .AssertPassed()); // false -> recorded failure
 
     [Scenario("AssertFailed throws when all steps passed")]
     [Fact]
     public async Task AssertFailed_Throws_When_All_Steps_Passed()
-    {
-        await Flow.Given("wire", () => 1)
-            .When("noop", _ => Task.CompletedTask)
-            .Then("ok", v => v == 1);
-
-        Assert.Throws<InvalidOperationException>(() => Scenario.AssertFailed());
-    }
+        => await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await Given("wire", () => 1)
+                .When("noop", _ => Task.CompletedTask)
+                .Then("ok", v => v == 1)
+                .AssertFailed());
 }
-

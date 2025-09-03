@@ -35,7 +35,7 @@ public readonly struct ThenChain<T>
     /// Gets an awaiter that executes the queued scenario steps when awaited.
     /// </summary>
     /// <returns>The awaiter for the underlying asynchronous execution.</returns>
-    public ValueTaskAwaiter GetAwaiter() => _p.RunAsync(default).GetAwaiter();
+    public ValueTaskAwaiter GetAwaiter() => _p.RunAsync(CancellationToken.None).GetAwaiter();
 
     /// <summary>Adds an <c>And</c> assertion with a synchronous action and explicit title.</summary>
     /// <param name="title">Display title for the assertion step.</param>
@@ -452,5 +452,33 @@ public readonly struct ThenChain<T>
             return s;
         });
         return this;
+    }
+
+    /// <summary>Completes the chain and asserts that all previous steps passed.</summary>
+    /// <remarks>
+    /// This method is functionally equivalent to calling the extension method <see cref="ScenarioContextAsserts.AssertPassed(ScenarioContext)"/>
+    /// on the underlying <see cref="ScenarioContext"/>. It is provided for convenience to
+    /// allow fluent chaining at the end of a scenario.
+    /// </remarks>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <exception cref="InvalidOperationException">Thrown when at least one step failed.</exception>
+    public async Task AssertPassed(CancellationToken cancellationToken = default)
+    {
+        await _p.RunAsync(cancellationToken);
+        _p.Context.AssertPassed();
+    }
+    
+    /// <summary>Completes the chain and asserts that any previous steps failed.</summary>
+    /// <remarks>
+    /// This method is functionally equivalent to calling the extension method <see cref="ScenarioContextAsserts.AssertFailed(ScenarioContext)"/>
+    /// on the underlying <see cref="ScenarioContext"/>. It is provided for convenience to
+    /// allow fluent chaining at the end of a scenario.
+    /// </remarks>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <exception cref="InvalidOperationException">Thrown when no step failed.</exception>   
+    public async Task AssertFailed(CancellationToken cancellationToken = default)
+    {
+        await _p.RunAsync(cancellationToken);
+        _p.Context.AssertFailed();
     }
 }

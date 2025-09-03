@@ -12,13 +12,12 @@ namespace TinyBDD.MSTest;
 /// <see cref="TinyBdd_Cleanup"/>, it emits a Gherkin report and clears the ambient context.
 /// </remarks>
 [Feature("Unnamed Feature")]
-public abstract class TinyBddMsTestBase
+public abstract class TinyBddMsTestBase : TestBase
 {
     /// <summary>Provided by MSTest; used for logging and trait bridging.</summary>
     public TestContext TestContext { get; set; } = null!;
 
-    /// <summary>The current scenario context for the running test.</summary>
-    protected ScenarioContext Scenario => Ambient.Current.Value!;
+    protected override IBddReporter Reporter => new MsTestBddReporter();
 
     /// <summary>Initializes the TinyBDD ambient context and trait bridge.</summary>
     [TestInitialize]
@@ -63,14 +62,5 @@ public abstract class TinyBddMsTestBase
     /// <summary>Writes a Gherkin report and clears the ambient context.</summary>
     [TestCleanup]
     public void TinyBdd_Cleanup()
-    {
-        var ctx = Ambient.Current.Value;
-        if (ctx is not null)
-        {
-            var reporter = new MsTestBddReporter();
-            GherkinFormatter.Write(ctx, reporter);
-        }
-
-        Ambient.Current.Value = null;
-    }
+        => CleanUp();
 }

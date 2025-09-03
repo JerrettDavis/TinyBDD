@@ -8,11 +8,8 @@ public class OrderTests(ITestOutputHelper output) : TinyBddXunitBase(output)
     [Scenario("A cool scenario with all the whistles", "Tag1", "Tag2")]
     [Fact]
     public async Task TestScenario()
-    {
-        await Flow.Given("wire", () => 1)
+        => await Given("wire", () => 1)
             .When("act", (x, _) => Task.FromResult(x + 1))
-            .Then("assert", v => Task.FromResult(v == 2));
-
-        Scenario.AssertPassed();
-    }
+            .Then("assert", v => Task.FromResult(v == 2))
+            .AssertPassed();
 }

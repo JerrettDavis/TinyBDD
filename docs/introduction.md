@@ -1,6 +1,5 @@
 # Introduction
 
-
 TinyBDD is a tiny, fluent BDD helper for .NET tests. It gives you a clean Given/When/Then style without tying you to a specific test framework.
 
 <img src="images/tinyBDD.png" alt="TinyBDD" width="110" align="right" />
@@ -27,8 +26,8 @@ What a scenario looks like
 var ctx = Bdd.CreateContext(this); // reads [Feature]/[Scenario] and method/test attributes
 await Bdd.Given(ctx, "numbers", () => new[]{1,2,3})
          .When("sum", (arr, _) => Task.FromResult(arr.Sum()))
-         .Then("> 0", sum => sum > 0);
-ctx.AssertPassed();
+         .Then("> 0", sum => sum > 0)
+         .AssertPassed();
 ```
 
 - Ambient (inherit a base class or set Ambient.Current):
@@ -36,7 +35,8 @@ ctx.AssertPassed();
 ```csharp
 await Flow.Given(() => 1)
           .When("double", x => x * 2)
-          .Then("== 2", v => v == 2);
+          .Then("== 2", v => v == 2)
+          .AssertPassed();
 ```
 
 Attributes and tags

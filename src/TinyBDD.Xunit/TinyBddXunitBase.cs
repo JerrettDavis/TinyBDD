@@ -12,9 +12,11 @@ namespace TinyBDD.Xunit;
 /// </remarks>
 [Feature("Unnamed Feature")]
 [UseTinyBdd]
-public abstract class TinyBddXunitBase : IDisposable
+public abstract class TinyBddXunitBase : TestBase, IDisposable
 {
     private readonly ITestOutputHelper _output;
+    
+    protected override IBddReporter Reporter => new XunitBddReporter(_output);
 
     /// <summary>Initializes the base with xUnit's <see cref="ITestOutputHelper"/> and sets up TinyBDD context.</summary>
     protected TinyBddXunitBase(ITestOutputHelper output)
@@ -24,21 +26,11 @@ public abstract class TinyBddXunitBase : IDisposable
         var ctx = Bdd.CreateContext(this, traits: traits);
         Ambient.Current.Value = ctx;
     }
-
-    /// <summary>The current scenario context for the running test.</summary>
-    protected ScenarioContext Scenario => Ambient.Current.Value!;
-
+    
     /// <summary>Writes a Gherkin report and clears the ambient context.</summary>
     public void Dispose()
     {
-        var ctx = Ambient.Current.Value;
-        if (ctx is not null)
-        {
-            var reporter = new XunitBddReporter(_output);
-            GherkinFormatter.Write(ctx, reporter);
-        }
-
-        Ambient.Current.Value = null; // tidy up
+        CleanUp();
         
         GC.SuppressFinalize(this);
     }

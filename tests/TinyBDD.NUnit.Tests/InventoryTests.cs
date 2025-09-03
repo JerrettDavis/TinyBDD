@@ -8,41 +8,43 @@ public class InventoryTests : TinyBddNUnitBase
     [Scenario("A cool scenario with all the whistles", "Tag1", "Tag2")]
     [Test]
     public async Task TestScenario()
-    {
-        await Flow.Given("wire", () => 1)
+        => await Given("wire", () => 1)
             .When("act", (x, _) => Task.FromResult(x + 1))
-            .Then("assert", v => { Assert.That(v, Is.EqualTo(2)); return Task.CompletedTask; });
+            .Then("assert", v => { Assert.That(v, Is.EqualTo(2)); return Task.CompletedTask; })
+            .AssertPassed();
 
-        Scenario.AssertPassed();
-    }
-
-    // If you prefer the explicit param style:
     [Scenario("Explicit from(context)")]
     [Test]
     public async Task TestScenario_With_From_Context()
     {
         var context = Scenario; // or Ambient.Current.Value!
-        await Flow.From(context)
+        await From(context)
             .Given("wire", () => 1)
             .When("act", (x, _) => Task.FromResult(x + 1))
-            .Then("assert", v => { Assert.That(v, Is.EqualTo(2)); return Task.CompletedTask; });
-
-        context.AssertPassed();
+            .Then("assert", v => { Assert.That(v, Is.EqualTo(2)); return Task.CompletedTask; })
+            .AssertPassed();
     }
-    
-    
 
-    // If you prefer the explicit param style:
     [Scenario("Explicit from(context)")]
     [Test]
     public async Task TestScenario_With_From_Context_Tasks()
     {
         var context = Scenario; // or Ambient.Current.Value!
-        await Flow.From(context)
+        await From(context)
             .Given("wire", _ => Task.FromResult(1))
             .When("act", (x, _) => Task.FromResult(x + 1))
-            .Then("assert", v => { Assert.That(v, Is.EqualTo(2)); return Task.CompletedTask; });
+            .Then("assert", v => { Assert.That(v, Is.EqualTo(2)); return Task.CompletedTask; })
+            .AssertPassed();
+    }
 
-        context.AssertPassed();
+    [Scenario("Use Base Scenario")]
+    [Test]
+    public async Task TestScenario_With_From_Tasks()
+    {
+        await From()
+            .Given("wire", _ => Task.FromResult(1))
+            .When("act", (x, _) => Task.FromResult(x + 1))
+            .Then("assert", v => { Assert.That(v, Is.EqualTo(2)); return Task.CompletedTask; })
+            .AssertPassed();
     }
 }

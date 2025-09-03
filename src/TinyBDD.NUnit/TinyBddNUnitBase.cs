@@ -13,11 +13,10 @@ namespace TinyBDD.NUnit;
 /// </remarks>
 [Feature("Unnamed Feature")]
 [UseTinyBdd]
-public abstract class TinyBddNUnitBase
+public abstract class TinyBddNUnitBase : TestBase
 {
-    /// <summary>The current scenario context for the running test.</summary>
-    protected ScenarioContext Scenario => Ambient.Current.Value!;
-
+    protected override IBddReporter Reporter => new NUnitBddReporter();
+    
     /// <summary>Initializes the TinyBDD ambient context and trait bridge.</summary>
     [SetUp]
     public void TinyBdd_SetUp()
@@ -30,13 +29,5 @@ public abstract class TinyBddNUnitBase
     /// <summary>Writes a Gherkin report and clears the ambient context.</summary>
     [TearDown]
     public void TinyBdd_TearDown()
-    {
-        var ctx = Ambient.Current.Value;
-        if (ctx is not null)
-        {
-            var reporter = new NUnitBddReporter();
-            GherkinFormatter.Write(ctx, reporter);
-        }
-        Ambient.Current.Value = null;
-    }
+        => CleanUp();
 }

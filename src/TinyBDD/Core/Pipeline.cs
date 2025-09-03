@@ -109,6 +109,11 @@ internal sealed class Pipeline(ScenarioContext ctx)
     private object? _state;
     private StepPhase _lastPhase = StepPhase.Given;
     private readonly Queue<Step> _steps = new();
+    
+    /// <summary>
+    /// Gets the owning <see cref="ScenarioContext"/>.
+    /// </summary>
+    internal ScenarioContext Context => ctx;
 
     /// <summary>
     /// Optional hook invoked immediately before a step executes.
@@ -303,7 +308,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
                     Kind = kind,
                     Title = title,
                     Elapsed = sw.Elapsed,
-                    Error = err
+                    Error = CaptureCancel()
                 };
 
                 if (captured)
@@ -313,6 +318,13 @@ internal sealed class Pipeline(ScenarioContext ctx)
 
                 ctx.AddStep(result);
                 AfterStep?.Invoke(ctx, result);
+            }
+
+            Exception? CaptureCancel()
+            {
+                return err ?? (canceled
+                    ? new OperationCanceledException()
+                    : null);
             }
         }
     }
