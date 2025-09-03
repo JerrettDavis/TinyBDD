@@ -15,10 +15,10 @@ public class BddGivenOverloadsTests
 
         await Bdd.Given(ctx, () => 5)
             .When("noop", (_, _) => Task.CompletedTask)
-            .Then("ok", () => Task.CompletedTask);
+            .Then("ok", () => Task.CompletedTask)
+            .AssertPassed();
 
         Assert.Equal("Given Int32", ctx.Steps[0].Title);
-        ctx.AssertPassed();
     }
 
     [Scenario("Given(ctx, Func<CancellationToken,Task<T>>) without title uses default and executes")]
@@ -29,10 +29,10 @@ public class BddGivenOverloadsTests
 
         await Bdd.Given(ctx, _ => Task.FromResult("abc"))
             .When("noop", (_, _) => Task.CompletedTask)
-            .Then("ok", () => Task.CompletedTask);
+            .Then("ok", () => Task.CompletedTask)
+            .AssertPassed();
 
         Assert.Equal("Given String", ctx.Steps[0].Title);
-        ctx.AssertPassed();
     }
 
     [Scenario("Given(ctx, string, Func<T>) with title executes")]
@@ -42,10 +42,10 @@ public class BddGivenOverloadsTests
         var ctx = Bdd.CreateContext(new Host());
         await Bdd.Given(ctx, "start", () => 5)
             .When("noop", (_, _) => Task.CompletedTask)
-            .Then("ok", () => Task.CompletedTask);
+            .Then("ok", () => Task.CompletedTask)
+            .AssertPassed();
 
         Assert.Equal("start", ctx.Steps[0].Title);
-        ctx.AssertPassed();
     }
     
     [Scenario("Given(ctx, Func<CancellationToken, ValueTask<T>>) without title uses default and executes")]
@@ -55,9 +55,9 @@ public class BddGivenOverloadsTests
         var ctx = Bdd.CreateContext(new Host());
         await Bdd.Given(ctx, _ => new ValueTask<string>("abc"))
             .When("noop", (_, _) => Task.CompletedTask)
-            .Then("ok", () => Task.CompletedTask);
+            .Then("ok", () => Task.CompletedTask)
+            .AssertPassed();
         
         Assert.Equal("Given String", ctx.Steps[0].Title);
-        ctx.AssertPassed();   
     }
 }

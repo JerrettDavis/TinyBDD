@@ -21,9 +21,10 @@ Write expressive Given/When/Then tests that feel great and run anywhere (xUnit, 
 
 Ambient (with adapter base class or Ambient.Current set):
 ```csharp
-await Flow.Given(() => 1)
-          .When("double", x => x * 2)
-          .Then("== 2", v => v == 2);
+await Given(() => 1)
+     .When("double", x => x * 2)
+     .Then("== 2", v => v == 2)
+     .AssertPassed();
 ```
 
 Explicit (no base class required):
@@ -31,8 +32,8 @@ Explicit (no base class required):
 var ctx = Bdd.CreateContext(this);
 await Bdd.Given(ctx, "numbers", () => new[]{1,2,3})
          .When("sum", (arr, _) => Task.FromResult(arr.Sum()))
-         .Then("> 0", sum => sum > 0);
-ctx.AssertPassed();
+         .Then("> 0", sum => sum > 0)
+         .AssertPassed();
 ```
 
 ## Get started

@@ -16,8 +16,8 @@ public class FlowAmbientDefaultsTests
         {
             await Flow.Given(() => 1)
                 .When("id", x => x)
-                .Then("== 1", v => v == 1);
-            ctx.AssertPassed();
+                .Then("== 1", v => v == 1)
+                .AssertPassed();
         }
         finally { Ambient.Current.Value = prev; }
     }
@@ -33,8 +33,8 @@ public class FlowAmbientDefaultsTests
         {
             await Flow.Given(_ => Task.FromResult(2))
                 .When("id", x => x)
-                .Then("== 2", v => v == 2);
-            ctx.AssertPassed();
+                .Then("== 2", v => v == 2)
+                .AssertPassed();
         }
         finally { Ambient.Current.Value = prev; }
     }
@@ -48,9 +48,8 @@ public class FlowAmbientDefaultsTests
         await Flow.From(ctx)
             .Given(() => 3)
             .When("id", x => x)
-            .Then("== 3", v => v == 3);
-
-        ctx.AssertPassed();
+            .Then("== 3", v => v == 3)
+            .AssertPassed();
     }
 
     [Scenario("From(ctx).Given(Func<CancellationToken,Task<T>>) without title")]
@@ -62,9 +61,8 @@ public class FlowAmbientDefaultsTests
         await Flow.From(ctx)
             .Given(_ => Task.FromResult(4))
             .When("id", x => x)
-            .Then("== 4", v => v == 4);
-
-        ctx.AssertPassed();
+            .Then("== 4", v => v == 4)
+            .AssertPassed();
     }
 }
 

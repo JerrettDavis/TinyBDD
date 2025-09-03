@@ -98,7 +98,14 @@ public static class Flow
     /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
     public static ScenarioChain<T> Given<T>(Func<CancellationToken, Task<T>> setup)
         => Bdd.Given(Require(), setup);
-
+    
+    /// <summary>Starts a token-aware <c>Given</c> step with a default title and <see cref="ValueTask"/> setup.</summary>
+    /// <typeparam name="T">The type produced by the setup function.</typeparam>
+    /// <param name="setup">ValueTask-producing factory that observes a <see cref="CancellationToken"/>.</param>
+    /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
+    public static ScenarioChain<T> Given<T>(Func<CancellationToken, ValueTask<T>> setup)
+        => Bdd.Given(Require(), setup);
+    
     /// <summary>Creates a helper for starting chains from an explicit context.</summary>
     /// <param name="ctx">The scenario context to use for subsequent calls.</param>
     /// <returns>A <see cref="FromContext"/> helper bound to <paramref name="ctx"/>.</returns>

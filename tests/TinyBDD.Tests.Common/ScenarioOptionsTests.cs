@@ -14,7 +14,7 @@ public class ScenarioOptionsTests
             HaltOnFailedAssertion = true
         });
 
-        var ex = await Assert.ThrowsAsync<BddAssertException>(async () =>
+        await Assert.ThrowsAsync<BddAssertException>(async () =>
             await Bdd.Given(ctx, "start", () => 1)
                 .Then("fail", v => v == 2)
                 .And("after", _ => Task.CompletedTask));
@@ -36,12 +36,11 @@ public class ScenarioOptionsTests
 
         await Bdd.Given(ctx, "start", () => 1)
             .Then("fail", v => v == 2)
-            .And("after", _ => Task.CompletedTask);
+            .And("after", _ => Task.CompletedTask)
+            // We expect the And step to be recorded as failed
+            .AssertFailed();
 
-        // at least one failed step
-        ctx.AssertFailed();
-
-        var last = ctx.Steps.Last();
+        var last = ctx.Steps[^1];
         Assert.Equal("And", last.Kind);
         Assert.Equal("after", last.Title);
         Assert.Null(last.Error);
@@ -57,11 +56,11 @@ public class ScenarioOptionsTests
             MarkRemainingAsSkippedOnFailure = true
         });
 
-        var ex = await Assert.ThrowsAsync<BddStepException>(async () =>
+        await Assert.ThrowsAsync<BddStepException>(async () =>
             await Bdd.Given(ctx, "start", () => 1)
                 .When("long", Long)
                 .Then("reached", _ => Task.CompletedTask));
-
+        
         // the errored step should be the Then since they get marked with an InvalidOperationException
         var failed = ctx.Steps.Last(x => x.Error is not null);
         Assert.Equal("Then", failed.Kind);
@@ -123,7 +122,7 @@ public class ScenarioOptionsTests
         // If any "Then" step with error exists, ensure its error message is not "Skipped due to previous failure."
         foreach (var step in ctx.Steps.Where(s => s.Kind == "Then" && s.Title == "reached" && s.Error is not null))
         {
-            Assert.NotEqual("Skipped due to previous failure.", step.Error.Message);
+            Assert.NotEqual("Skipped due to previous failure.", step.Error!.Message);
         }
     }
     

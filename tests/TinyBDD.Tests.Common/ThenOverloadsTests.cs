@@ -10,9 +10,8 @@ public class ThenOverloadsTests
 
         await Bdd.Given(ctx, "wire", () => 1)
             .When("act", (x, _) => Task.FromResult(x + 1))
-            .Then("is two", v => Task.FromResult(v == 2));
-
-        ctx.AssertPassed();
+            .Then("is two", v => Task.FromResult(v == 2))
+            .AssertPassed();
     }
 
     [Scenario("Predicate fails")]
@@ -23,8 +22,7 @@ public class ThenOverloadsTests
 
         await Bdd.Given(ctx, "wire", () => 1)
             .When("act", (x, _) => Task.FromResult(x + 1))
-            .Then("is three", v => Task.FromResult(v == 3));
-
-        ctx.AssertFailed();
+            .Then("is three", v => Task.FromResult(v == 3))
+            .AssertFailed();
     }
 }

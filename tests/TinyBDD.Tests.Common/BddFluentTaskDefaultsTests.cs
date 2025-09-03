@@ -3,7 +3,9 @@ namespace TinyBDD.Tests.Common;
 public class BddFluentTaskDefaultsTests
 {
     [Feature("Defaults")]
-    private sealed class Host { }
+    private sealed class Host
+    {
+    }
 
     [Scenario("When async action without title (untyped When)")]
     [Fact]
@@ -13,9 +15,8 @@ public class BddFluentTaskDefaultsTests
 
         await Bdd.Given(ctx, "start", () => 1)
             .When(_ => Task.CompletedTask)
-            .Then("ok", () => Task.CompletedTask);
-
-        ctx.AssertPassed();
+            .Then("ok", () => Task.CompletedTask)
+            .AssertPassed();
     }
 
     [Scenario("When typed transform with token, default title")]
@@ -26,9 +27,8 @@ public class BddFluentTaskDefaultsTests
 
         await Bdd.Given(ctx, "start", () => 1)
             .When((v, _) => Task.FromResult(v + 1))
-            .Then("== 2", v => v == 2);
-
-        ctx.AssertPassed();
+            .Then("== 2", v => v == 2)
+            .AssertPassed();
     }
 
     [Scenario("When typed transform without token, default title")]
@@ -39,9 +39,8 @@ public class BddFluentTaskDefaultsTests
 
         await Bdd.Given(ctx, "start", () => 2)
             .When(v => Task.FromResult(v * 2))
-            .Then("== 4", v => v == 4);
-
-        ctx.AssertPassed();
+            .Then("== 4", v => v == 4)
+            .AssertPassed();
     }
 
     [Scenario("When side-effect action with token, default title")]
@@ -52,9 +51,8 @@ public class BddFluentTaskDefaultsTests
 
         await Bdd.Given(ctx, "list", () => new List<int>())
             .When(l => l.Add(3))
-            .Then("has item", l => l.Contains(3));
-
-        ctx.AssertPassed();
+            .Then("has item", l => l.Contains(3))
+            .AssertPassed();
     }
 
     [Scenario("Then after Given: explicit title no-token, default-title token, and default-title no-token")]
@@ -65,17 +63,18 @@ public class BddFluentTaskDefaultsTests
 
         // explicit title, no token
         await Bdd.Given(ctx, "start1", () => 10)
-            .Then("assert", _ => Task.CompletedTask);
+            .Then("assert", _ => Task.CompletedTask)
+            .AssertPassed();
 
         // default title, token-aware
         await Bdd.Given(ctx, "start2", () => 11)
-            .Then((_, _) => Task.CompletedTask);
+            .Then((_, _) => Task.CompletedTask)
+            .AssertPassed();
 
         // default title, no token
         await Bdd.Given(ctx, "start3", () => 12)
-            .Then(_ => Task.CompletedTask);
-
-        ctx.AssertPassed();
+            .Then(_ => Task.CompletedTask)
+            .AssertPassed();
     }
 
     [Scenario("Then after untyped When: default-title (token + no-token)")]
@@ -86,13 +85,13 @@ public class BddFluentTaskDefaultsTests
 
         await Bdd.Given(ctx, "prep1", () => 0)
             .When("noop", (_, _) => Task.CompletedTask)
-            .Then(_ => Task.CompletedTask);
+            .Then(_ => Task.CompletedTask)
+            .AssertPassed();
 
         await Bdd.Given(ctx, "prep2", () => 0)
             .When("noop", (_, _) => Task.CompletedTask)
-            .Then(() => Task.CompletedTask);
-
-        ctx.AssertPassed();
+            .Then(() => Task.CompletedTask)
+            .AssertPassed();
     }
 
     [Scenario("Then after typed When: default-title (token + no-token)")]
@@ -104,15 +103,15 @@ public class BddFluentTaskDefaultsTests
         await Bdd.Given(ctx, "start", () => 3)
             .When("double", (x, _) => Task.FromResult(x * 2))
             .Then((_, _) => Task.CompletedTask)
-            .And(_ => Task.CompletedTask) // also covers typed And default-title no-token
-            .But("token assert", (_, _) => Task.CompletedTask); // covers token assertion on But
+            .And(_ => Task.CompletedTask)                      // also covers typed And default-title no-token
+            .But("token assert", (_, _) => Task.CompletedTask) // covers token assertion on But
+            .AssertPassed();
 
         // also cover default-title typed Then no-token
         await Bdd.Given(ctx, "start2", () => 5)
             .When("noop", (x, _) => Task.FromResult(x))
-            .Then(_ => Task.CompletedTask);
-
-        ctx.AssertPassed();
+            .Then(_ => Task.CompletedTask)
+            .AssertPassed();
     }
 
     [Scenario("And/But default-title on untyped ThenBuilder")]
@@ -125,9 +124,8 @@ public class BddFluentTaskDefaultsTests
             .When("noop", (_, _) => Task.CompletedTask)
             .Then("ok", () => Task.CompletedTask)
             .And(_ => Task.CompletedTask)
-            .And(() => Task.CompletedTask);
-
-        ctx.AssertPassed();
+            .And(() => Task.CompletedTask)
+            .AssertPassed();
     }
 
     [Scenario("Predicate defaults: untyped Then (async + sync) with default titles")]
@@ -138,13 +136,13 @@ public class BddFluentTaskDefaultsTests
 
         await Bdd.Given(ctx, "prep1", () => 0)
             .When("noop", (_, _) => Task.CompletedTask)
-            .Then(() => Task.FromResult(true));
+            .Then(() => Task.FromResult(true))
+            .AssertPassed();
 
         await Bdd.Given(ctx, "prep2", () => 0)
             .When("noop", (_, _) => Task.CompletedTask)
-            .Then(() => true);
-
-        ctx.AssertPassed();
+            .Then(() => true)
+            .AssertPassed();
     }
 
     [Scenario("Predicate defaults: typed Then (token-async, async, sync) default titles")]
@@ -155,17 +153,18 @@ public class BddFluentTaskDefaultsTests
 
         await Bdd.Given(ctx, "start1", () => 4)
             .When("id", (x, _) => Task.FromResult(x))
-            .Then((v, _) => Task.FromResult(v == 4));
+            .Then((v, _) => Task.FromResult(v == 4))
+            .AssertPassed();
 
         await Bdd.Given(ctx, "start2", () => 6)
             .When("id", (x, _) => Task.FromResult(x))
-            .Then(v => Task.FromResult(v == 6));
+            .Then(v => Task.FromResult(v == 6))
+            .AssertPassed();
 
         await Bdd.Given(ctx, "start3", () => 7)
             .When("id", (x, _) => Task.FromResult(x))
-            .Then(v => v == 7);
-
-        ctx.AssertPassed();
+            .Then(v => v == 7)
+            .AssertPassed();
     }
 
     [Scenario("Predicate defaults on typed ThenBuilder: And/But default titles (sync/async)")]
@@ -180,9 +179,7 @@ public class BddFluentTaskDefaultsTests
             .And(_ => true) // default title sync predicate
             .But(_ => true) // default title sync predicate for But
             .And("async ok", _ => Task.FromResult(true))
-            .But("async ok", _ => Task.FromResult(true));
-
-        ctx.AssertPassed();
+            .But("async ok", _ => Task.FromResult(true))
+            .AssertPassed();
     }
 }
-

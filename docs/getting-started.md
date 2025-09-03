@@ -41,9 +41,8 @@ Pick your framework adapter plus the core library.
 
           await Bdd.Given(ctx, "numbers", () => new[]{1,2,3})
                    .When("sum", (arr, _) => Task.FromResult(arr.Sum()))
-                   .Then("> 0", sum => sum > 0);
-
-          ctx.AssertPassed();
+                   .Then("> 0", sum => sum > 0)
+                   .AssertPassed();
       }
   }
   ```
@@ -51,9 +50,10 @@ Pick your framework adapter plus the core library.
 2) Ambient (leaner syntax)
 - Set Ambient.Current once per test and call Flow.Given/When/Then, or inherit a base class that does it for you.
   ```csharp
-  await Flow.Given(() => 1)
-            .When("double", x => x * 2)
-            .Then("== 2", v => v == 2);
+  await Given(() => 1)
+       .When("double", x => x * 2)
+       .Then("== 2", v => v == 2)
+       .AssertPassed();
   ```
 
 ## Adapter quick starts
@@ -72,11 +72,10 @@ xUnit
       [Scenario("Double value"), Fact]
       public async Task Doubles()
       {
-          await Flow.Given(() => 2)
-                    .When("double", x => x * 2)
-                    .Then("== 4", v => v == 4);
-
-          Scenario.AssertPassed();
+          await Given(() => 2)
+               .When("double", x => x * 2)
+               .Then("== 4", v => v == 4)
+               .AssertPassed();
       }
   }
   ```
@@ -94,11 +93,10 @@ NUnit
       [Test]
       public async Task Doubles()
       {
-          await Flow.Given(() => 2)
-                    .When("double", x => x * 2)
-                    .Then("== 4", v => v == 4);
-
-          Scenario.AssertPassed();
+          await Given(() => 2)
+               .When("double", x => x * 2)
+               .Then("== 4", v => v == 4)
+               .AssertPassed();
       }
   }
   ```
@@ -117,11 +115,10 @@ MSTest
       [TestMethod]
       public async Task Doubles()
       {
-          await Flow.Given(() => 2)
-                    .When("double", x => x * 2)
-                    .Then("== 4", v => v == 4);
-
-          Scenario.AssertPassed();
+          await Given(() => 2)
+               .When("double", x => x * 2)
+               .Then("== 4", v => v == 4)
+               .AssertPassed();
       }
   }
   ```

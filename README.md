@@ -34,13 +34,12 @@ It is designed to:
 
 - **Readable BDD syntax**:
   ```csharp
-    await Flow.Given("a number", () => 5)
+    await Given("a number", () => 5)
         .When("doubled", x => x * 2)
         .Then(">= 10", v => v >= 10)
         .And("<= 20", v => v <= 20)
-        .But("!= 15", v => v != 15);
-
-    Scenario.AssertPassed();
+        .But("!= 15", v => v != 15)
+        .AssertPassed();
   ```
 - **Sync & Async Support**:
 
@@ -81,6 +80,12 @@ For MSTest:
 dotnet add package TinyBDD.MSTest
 ```
 
+For NUnit:
+
+```powershell
+dotnet add package TinyBDD.NUnit
+```
+
 For xUnit:
 
 ```powershell
@@ -105,11 +110,10 @@ public class MathTests : TinyBddMsTestBase
     [TestMethod]
     public async Task DoublingScenario()
     {
-        await Flow.Given("start with 5", () => 5)
-                  .When("doubled", x => x * 2)
-                  .Then("should be 10", v => v == 10);
-
-        Scenario.AssertPassed();
+        await Given("start with 5", () => 5)
+             .When("doubled", x => x * 2)
+             .Then("should be 10", v => v == 10)
+             .AssertPassed();
     }
 }
 ```
@@ -129,11 +133,10 @@ public class MathTests : TinyBddNUnitBase
     [Test]
     public async Task DoublingScenario()
     {
-        await Flow.Given("start with 5", () => 5)
-                  .When("doubled", x => x * 2)
-                  .Then("should be 10", v => v == 10);
-
-        Scenario.AssertPassed();
+        await Given("start with 5", () => 5)
+             .When("doubled", x => x * 2)
+             .Then("should be 10", v => v == 10)
+             .AssertPassed();
     }
 }
 ```
@@ -153,11 +156,10 @@ public class MathTests : TinyBddXunitBase
     [Fact]
     public async Task DoublingScenario()
     {
-        await Flow.Given("start with 5", () => 5)
-                  .When("doubled", x => x * 2)
-                  .Then("should be 10", v => v == 10);
-
-        Scenario.AssertPassed();
+        await Given("start with 5", () => 5) 
+             .When("doubled", x => x * 2)
+             .Then("should be 10", v => v == 10)
+             .AssertPassed();
     }
 }
 ```
@@ -198,10 +200,23 @@ In xUnit, tags are logged to the test output:
 
 ## Asserting Pass/Fail
 
-TinyBDD tracks step results internally. At the end of the scenario, call:
+TinyBDD tracks step results internally. At the end of the scenario, call one of the following methods:
 
 ```csharp
 Scenario.AssertPassed();
+
+Scenario.AssertFailed();
+
+// or use the fluent syntax:
+await Given("one", () => 1)
+    .When("add one", x => x + 1)
+    .Then("equals two", v => v == 2)
+    .AssertPassed();
+
+await Given("one", () => 1)
+    .When("add one", x => x + 1)
+    .Then("equals elevent", v => v == 11)
+    .AssertFailed();
 ```
 
 This ensures that all steps passed and throws if any failed.
@@ -233,13 +248,12 @@ When running a scenario, TinyBDD prints structured step output similar to Gherki
 For example:
 
 ```csharp
-await Flow.Given("start", () => 5)
+await Given("start", () => 5)
     .When("double", x => x * 2)
     .Then(">= 10", v => v >= 10)
     .And("<= 20 (async)", v => Task.FromResult(v <= 20))
-    .But("!= 11", v => v != 11);
-
-Scenario.AssertPassed();
+    .But("!= 11", v => v != 11)
+    .AssertPassed();
 ```
 
 Test output:
@@ -275,11 +289,10 @@ TinyBDD keeps **everything in one place**—your test class—while still produc
 For the smallest possible test:
 
 ```csharp
-await Flow.Given("one", () => 1)
+await Given("one", () => 1)
     .When("add one", x => x + 1)
-    .Then("equals two", v => v == 2);
-
-Scenario.AssertPassed();
+    .Then("equals two", v => v == 2)
+    .AssertPassed();
 ```
 
 Output:
@@ -333,7 +346,8 @@ Actual:   3
 
 * One **scenario** per test method.
 * Keep each step **single-purpose**—avoid hiding multiple unrelated actions in one step.
-* Use **`Scenario.AssertPassed()`** at the end of each test to ensure every step was explicitly checked.
+* Prefer creating functions, even local ones, to avoid unnecessary allocations, closure creation, garbage collection, and code cleanliness.
+* Use **`Scenario.AssertPassed()`** or the fluent **`ThenChain.AssertPassed()`**  at the end of each test to ensure every step was explicitly checked.
 * Use **tags** to group and filter tests.
 
 ----

@@ -4,7 +4,7 @@ namespace TinyBDD;
 /// Marks a test class as a BDD <c>Feature</c>, providing a human-friendly name and an optional description.
 /// </summary>
 /// <remarks>
-/// The attribute is read by <see cref="Bdd.CreateContext(object, string?, ITraitBridge?)"/> to populate
+/// The attribute is read by <see cref="Bdd.CreateContext(object,string,ITraitBridge,ScenarioOptions)"/> to populate
 /// <see cref="ScenarioContext.FeatureName"/> and <see cref="ScenarioContext.FeatureDescription"/>.
 /// </remarks>
 /// <example>

@@ -14,9 +14,8 @@ public class FluentPredicateTokenOverloadsTests
             .When("noop", (_, _) => Task.CompletedTask)
             .Then("ok-token", _ => Task.CompletedTask)
             .And("and-token", _ => Task.CompletedTask)
-            .But("but-token", _ => Task.CompletedTask);
-
-        ctx.AssertPassed();
+            .But("but-token", _ => Task.CompletedTask)
+            .AssertPassed();
     }
 
     [Scenario("Untyped Then with CancellationToken boolean predicate (title + default)")]
@@ -28,14 +27,14 @@ public class FluentPredicateTokenOverloadsTests
         // Title variant
         await Bdd.Given(ctx, "start", () => 1)
             .When("noop", (_, _) => Task.CompletedTask)
-            .Then("pred-token", _ => Task.FromResult(true));
+            .Then("pred-token", _ => Task.FromResult(true))
+            .AssertPassed();
 
         // Default title variant
         await Bdd.Given(ctx, "start2", () => 1)
             .When("noop", (_, _) => Task.CompletedTask)
-            .Then(_ => Task.FromResult(true));
-
-        ctx.AssertPassed();
+            .Then(_ => Task.FromResult(true))
+            .AssertPassed();
     }
 
     [Scenario("Typed ThenBuilder And/But with token-aware boolean predicates")]
@@ -48,9 +47,8 @@ public class FluentPredicateTokenOverloadsTests
             .When("double", x => x * 2)
             .Then(">= 4", v => v >= 4)
             .And("<= 4 token", (v, _) => Task.FromResult(v <= 4))
-            .But("!= 5 token", (v, _) => Task.FromResult(v != 5));
-
-        ctx.AssertPassed();
+            .But("!= 5 token", (v, _) => Task.FromResult(v != 5))
+            .AssertPassed();
     }
 }
 

@@ -1,6 +1,5 @@
 namespace TinyBDD.MSTest.Tests;
 
-using static Flow;
 
 [Feature("Login")]
 [TestClass]
@@ -12,9 +11,8 @@ public class LoginTests : TinyBddMsTestBase
     {
         await Given("completely real login", () => 1)
             .When("we do something", x => x + 1)
-            .Then("we have 2", v => v == 2);
-
-        Scenario.AssertPassed();
+            .Then("we have 2", v => v == 2)
+            .AssertPassed(TestContext.CancellationTokenSource.Token);
     }
 
 
@@ -24,9 +22,8 @@ public class LoginTests : TinyBddMsTestBase
     {
         await Given("completely real async login", () => 1)
             .When("we do something", x => Task.FromResult(x + 1))
-            .Then("we have 2", v => v == 2);
-
-        Scenario.AssertPassed();
+            .Then("we have 2", v => v == 2)
+            .AssertPassed(TestContext.CancellationTokenSource.Token);
     }
 
 
@@ -36,9 +33,8 @@ public class LoginTests : TinyBddMsTestBase
     {
         await Given("completely real login with async assert", () => 1)
             .When("we do something", x => Task.FromResult(x + 1))
-            .Then("we have 2", v => Task.FromResult(v == 2));
-
-        Scenario.AssertPassed();
+            .Then("we have 2", v => Task.FromResult(v == 2))
+            .AssertPassed(TestContext.CancellationTokenSource.Token);
     }
 
     [Scenario("An absolutely async real async login scenario with async assert", "Tag1", "Tag2")]
@@ -47,9 +43,8 @@ public class LoginTests : TinyBddMsTestBase
     {
         await Given("completely real login with async assert and no await", () => Task.FromResult(1))
             .When("we do something", (x, _) => Task.FromResult(x + 1))
-            .Then("we have 2", v => v == 2);
-
-        Scenario.AssertPassed();
+            .Then("we have 2", v => v == 2)
+            .AssertPassed(TestContext.CancellationTokenSource.Token);
     }
 
 
@@ -59,9 +54,8 @@ public class LoginTests : TinyBddMsTestBase
     {
         await Given("async given", () => Task.FromResult(1))
             .When("add one", x => Task.FromResult(x + 1))
-            .Then("equals 2", v => v == 2);
-
-        Scenario.AssertPassed();
+            .Then("equals 2", v => v == 2)
+            .AssertPassed(TestContext.CancellationTokenSource.Token);
     }
 
     [Scenario("Given sync; When async transform; Then async bool")]
@@ -70,9 +64,8 @@ public class LoginTests : TinyBddMsTestBase
     {
         await Given("sync given", () => 2)
             .When("halve", x => Task.FromResult(x / 2))
-            .Then("equals 1 (async)", v => Task.FromResult(v == 1));
-
-        Scenario.AssertPassed();
+            .Then("equals 1 (async)", v => Task.FromResult(v == 1))
+            .AssertPassed(TestContext.CancellationTokenSource.Token);
     }
 
     [Scenario("Given sync; When side-effect (Action); Then predicate on state")]
@@ -86,9 +79,8 @@ public class LoginTests : TinyBddMsTestBase
                 return list;
             })
             .Then("has one item", list => list.Count == 1)
-            .And("contains 42", list => list.Contains(42));
-
-        Scenario.AssertPassed();
+            .And("contains 42", list => list.Contains(42))
+            .AssertPassed(TestContext.CancellationTokenSource.Token);
     }
 
 
@@ -99,9 +91,8 @@ public class LoginTests : TinyBddMsTestBase
         // This will pass; flip predicate to 'v == 3' to see the message in action.
         await Given("start", () => 1)
             .When("add one", x => x + 1)
-            .Then("should be 2", v => v == 2);
-
-        Scenario.AssertPassed();
+            .Then("should be 2", v => v == 2)
+            .AssertPassed(TestContext.CancellationTokenSource.Token);
     }
 
     [Scenario("And/But chaining (sync + async predicates)")]
@@ -112,9 +103,8 @@ public class LoginTests : TinyBddMsTestBase
             .When("double", x => Task.FromResult(x * 2)) // 10
             .Then(">= 10", v => v >= 10)                 // sync
             .And("<= 20 (async)", v => Task.FromResult(v <= 20))
-            .But("!= 11", v => v != 11);
-
-        Scenario.AssertPassed();
+            .But("!= 11", v => v != 11)
+            .AssertPassed(TestContext.CancellationTokenSource.Token);
     }
 
     [Scenario("Cancel-aware overloads")]
@@ -123,9 +113,8 @@ public class LoginTests : TinyBddMsTestBase
     {
         await Given("token value", _ => Task.FromResult(3)) // Given(Func<CancellationToken, Task<T>>)
             .When("add with token", (x, _) => Task.FromResult(x + 2))
-            .Then("equals 5 (async, token)", (v, _) => Task.FromResult(v == 5));
-
-        Scenario.AssertPassed();
+            .Then("equals 5 (async, token)", (v, _) => Task.FromResult(v == 5))
+            .AssertPassed(TestContext.CancellationTokenSource.Token);
     }
 
     [Scenario("Mixed: Given async; When async; Then sync + And sync")]
@@ -135,9 +124,8 @@ public class LoginTests : TinyBddMsTestBase
         await Given("async start", () => Task.FromResult(10))
             .When("minus 3 async", x => Task.FromResult(x - 3)) // 7
             .Then(">= 7", v => v >= 7)
-            .And("== 7", v => v == 7);
-
-        Scenario.AssertPassed();
+            .And("== 7", v => v == 7)
+            .AssertPassed(TestContext.CancellationTokenSource.Token);
     }
 
     [Scenario("Transform via Given.Then(alias); Then predicate")]
@@ -146,9 +134,8 @@ public class LoginTests : TinyBddMsTestBase
     {
         await Given("start", () => 3)
             .Then("triple (transform)", (x, _) => Task.FromResult(x * 3)) // alias to When<TOut>
-            .And("== 9", v => v == 9);
-
-        Scenario.AssertPassed();
+            .And("== 9", v => v == 9)
+            .AssertPassed(TestContext.CancellationTokenSource.Token);
     }
 
     [Scenario("Make the previous 'invalid await' variant correct")]
@@ -157,8 +144,7 @@ public class LoginTests : TinyBddMsTestBase
     {
         await Given("async start", () => Task.FromResult(1))
             .When("add one", x => Task.FromResult(x + 1))
-            .Then("== 2", v => v == 2);
-
-        Scenario.AssertPassed();
+            .Then("== 2", v => v == 2)
+            .AssertPassed(TestContext.CancellationTokenSource.Token);
     }
 }

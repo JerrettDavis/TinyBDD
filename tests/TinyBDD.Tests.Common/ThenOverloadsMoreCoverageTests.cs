@@ -20,9 +20,8 @@ public class ThenOverloadsMoreCoverageTests
                 Assert.Equal(CancellationToken.None, ct);
                 return Task.CompletedTask;
             })
-            .And("still 42", _ => Task.CompletedTask);
-
-        ctx.AssertPassed();
+            .And("still 42", _ => Task.CompletedTask)
+            .AssertPassed();
     }
 
     [Scenario("Typed When->Then with token-aware assertion")]
@@ -38,9 +37,8 @@ public class ThenOverloadsMoreCoverageTests
                 Assert.Equal(10, v);
                 Assert.Equal(CancellationToken.None, ct);
                 return Task.CompletedTask;
-            });
-
-        ctx.AssertPassed();
+            })
+            .AssertPassed();
     }
 }
 

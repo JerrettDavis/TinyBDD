@@ -2,22 +2,17 @@ using System.Collections;
 
 namespace TinyBDD.MSTest.Tests;
 
-internal sealed class FakeTestContext : TestContext
+internal sealed class FakeTestContext(string? fqcn, string? testName) 
+    : TestContext
 {
     public override IDictionary Properties { get; } = new Dictionary<string, object>();
-    public override string? FullyQualifiedTestClassName { get; }
-    public override string? TestName { get; }
-    public List<string> Lines { get; } = new();
+    public override string? FullyQualifiedTestClassName { get; } = fqcn;
+    public override string? TestName { get; } = testName;
+    public List<string> Lines { get; } = [];
 
-    public FakeTestContext(string? fqcn, string? testName)
-    {
-        FullyQualifiedTestClassName = fqcn;
-        TestName = testName;
-    }
-
-    public override void Write(string format, params object[] args) => Lines.Add(string.Format(format, args));
-    public override void WriteLine(string format, params object[] args) => Lines.Add(string.Format(format, args));
-    public override void WriteLine(string message) => Lines.Add(message);
+    public override void Write(string format, params object?[] args) => Lines.Add(string.Format(format, args));
+    public override void WriteLine(string format, params object?[] args) => Lines.Add(string.Format(format, args));
+    public override void WriteLine(string? message) => Lines.Add(message ?? string.Empty);
 
     // --- Required abstract members we don't use in tests ---
     public override void AddResultFile(string fileName)
@@ -38,7 +33,6 @@ internal sealed class FakeTestContext : TestContext
     }
 }
 
-// Public driver that lets tests call init/cleanup manually
 public sealed class MsBaseDriver : TinyBddMsTestBase
 {
     public void SetContext(TestContext tc) => TestContext = tc;
@@ -47,7 +41,6 @@ public sealed class MsBaseDriver : TinyBddMsTestBase
     public ScenarioContext? Current => Ambient.Current.Value;
 }
 
-// Helper to get the FQCN string MSTest normally provides
 internal static class Fqcn
 {
     public static string Of<T>() => typeof(T).AssemblyQualifiedName!;
