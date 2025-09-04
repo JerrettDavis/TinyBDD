@@ -42,7 +42,6 @@ public sealed class ScenarioChain<T>
         return new ScenarioChain<T>(p);
     }
 
-
     // explicit title
     /// <summary>
     /// Adds a <c>When</c> transformation with an explicit title using a synchronous function.
@@ -84,7 +83,7 @@ public sealed class ScenarioChain<T>
     public ScenarioChain<TOut> When<TOut>(string title, Func<T, CancellationToken, Task<TOut>> effect) =>
         Transform(StepPhase.When, StepWord.Primary, title, ToCT(effect));
 
-    /// <summary>Adds a token-aware <c>When</c> side-effect with an explicit title using <see cref="ValueTask"/>. Keeps the current value.</summary>
+    /// <summary>Adds a token-aware <c>When</c> transformation with an explicit title.</summary>
     /// <typeparam name="TOut">The result of the side-effect action (ignored by the chain).</typeparam>
     /// <param name="title">Display title for this step.</param>
     /// <param name="f">Side-effect that observes a <see cref="CancellationToken"/>.</param>
@@ -249,7 +248,6 @@ public sealed class ScenarioChain<T>
     /// <returns>A new <see cref="ScenarioChain{TOut}"/> carrying the transformed value.</returns>
     public ScenarioChain<TOut> But<TOut>(string title, Func<T, Task<TOut>> f) =>
         TransformInherit(StepWord.But, title, ToCT(f));
-
 
     /// <summary>Adds a <c>But</c> transformation with an explicit title using <see cref="ValueTask"/>.</summary>
     /// <typeparam name="TOut">The result type of the transformation.</typeparam>
@@ -481,14 +479,12 @@ public sealed class ScenarioChain<T>
     public ThenChain<TOut> Then<TOut>(string title, Func<T, Task<TOut>> assertion) =>
         ThenAssert(title, (v, _) => assertion(v));
 
-
     /// <summary>Adds a <c>Then</c> step with an explicit title using an asynchronous assertion receiving the carried value.</summary>
     /// <param name="title">Display title for the assertion.</param>
     /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
     /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
     public ThenChain<T> Then(string title, Func<T, Task> assertion) =>
         ThenAssert(title, (v, _) => assertion(v));
-
 
     /// <summary>Adds a <c>Then</c> step with an explicit title using an asynchronous assertion receiving the carried value.</summary>
     /// <param name="title">Display title for the assertion.</param>
