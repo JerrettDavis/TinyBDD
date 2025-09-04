@@ -53,7 +53,7 @@ public sealed class ScenarioChain<T>
     public ScenarioChain<TOut> When<TOut>(string title, Func<T, TOut> f)
     {
         _p.Enqueue(StepPhase.When, StepWord.Primary, title, (s, _) => 
-            ValueTask.FromResult((object?)f((T)s!)));
+            new ValueTask<object?>(f((T)s!)));
         return new ScenarioChain<TOut>(_p);
     }
 
@@ -90,7 +90,7 @@ public sealed class ScenarioChain<T>
     /// <returns>A new <see cref="ScenarioChain{TOut}"/> carrying the transformed value.</returns>
     public ScenarioChain<TOut> When<TOut>(Func<T, TOut> f)
     {
-        _p.Enqueue(StepPhase.When, StepWord.Primary, "", (s, _) => ValueTask.FromResult((object?)f((T)s!)));
+        _p.Enqueue(StepPhase.When, StepWord.Primary, "", (s, _) => new ValueTask<object?>(f((T)s!)));
         return new ScenarioChain<TOut>(_p);
     }
 
@@ -143,7 +143,7 @@ public sealed class ScenarioChain<T>
         _p.Enqueue(StepPhase.When, StepWord.Primary, title, (s, _) =>
         {
             effect((T)s!);
-            return ValueTask.FromResult(s);
+            return new ValueTask<object?>((T)s!);
         });
         return this;
     }
@@ -220,7 +220,7 @@ public sealed class ScenarioChain<T>
         _p.Enqueue(StepPhase.When, StepWord.Primary, "", (s, _) =>
         {
             effect((T)s!);
-            return ValueTask.FromResult(s);
+            return new ValueTask<object?>((T)s!);
         });
         return this;
     }
@@ -284,7 +284,7 @@ public sealed class ScenarioChain<T>
     /// <returns>A new <see cref="ScenarioChain{TOut}"/> carrying the transformed value.</returns>
     public ScenarioChain<TOut> And<TOut>(string title, Func<T, TOut> f)
     {
-        _p.EnqueueInherit(title, (s, _) => ValueTask.FromResult((object?)f((T)s!)), StepWord.And);
+        _p.EnqueueInherit(title, (s, _) => new ValueTask<object?>(f((T)s!)), StepWord.And);
         return new ScenarioChain<TOut>(_p);
     }
 
@@ -339,7 +339,7 @@ public sealed class ScenarioChain<T>
     /// <returns>A new <see cref="ScenarioChain{TOut}"/> carrying the transformed value.</returns>
     public ScenarioChain<TOut> But<TOut>(string title, Func<T, TOut> f)
     {
-        _p.EnqueueInherit(title, (s, _) => ValueTask.FromResult((object?)f((T)s!)), StepWord.But);
+        _p.EnqueueInherit(title, (s, _) => new ValueTask<object?>(f((T)s!)), StepWord.But);
         return new ScenarioChain<TOut>(_p);
     }
 
@@ -393,7 +393,7 @@ public sealed class ScenarioChain<T>
     /// <returns>A new <see cref="ScenarioChain{TOut}"/> carrying the transformed value.</returns>
     public ScenarioChain<TOut> And<TOut>(Func<T, TOut> f)
     {
-        _p.EnqueueInherit("", (s, _) => ValueTask.FromResult((object?)f((T)s!)), StepWord.And);
+        _p.EnqueueInherit("", (s, _) => new ValueTask<object?>(f((T)s!)), StepWord.And);
         return new ScenarioChain<TOut>(_p);
     }
 
@@ -443,7 +443,7 @@ public sealed class ScenarioChain<T>
     /// <returns>A new <see cref="ScenarioChain{TOut}"/> carrying the transformed value.</returns>
     public ScenarioChain<TOut> But<TOut>(Func<T, TOut> f)
     {
-        _p.EnqueueInherit("", (s, _) => ValueTask.FromResult((object?)f((T)s!)), StepWord.But);
+        _p.EnqueueInherit("", (s, _) => new ValueTask<object?>(f((T)s!)), StepWord.But);
         return new ScenarioChain<TOut>(_p);
     }
 
@@ -496,7 +496,7 @@ public sealed class ScenarioChain<T>
         _p.EnqueueInherit(title, (s, _) =>
         {
             effect((T)s!);
-            return ValueTask.FromResult(s);
+            return new ValueTask<object?>((T)s!);
         }, StepWord.And);
         return this;
     }
@@ -566,7 +566,7 @@ public sealed class ScenarioChain<T>
         _p.EnqueueInherit(title, (s, _) =>
         {
             effect((T)s!);
-            return ValueTask.FromResult(s);
+            return new ValueTask<object?>((T)s!);
         }, StepWord.But);
         return this;
     }
@@ -635,7 +635,7 @@ public sealed class ScenarioChain<T>
         _p.EnqueueInherit("", (s, _) =>
         {
             effect((T)s!);
-            return ValueTask.FromResult(s);
+            return new ValueTask<object?>((T)s!);
         }, StepWord.And);
         return this;
     }
@@ -702,7 +702,8 @@ public sealed class ScenarioChain<T>
         _p.Enqueue(StepPhase.Then, StepWord.Primary, title, (s, _) =>
         {
             AssertUtil.Ensure(predicate(), title);
-            return ValueTask.FromResult(s);
+            return new ValueTask<object?>((T)s!);
+
         });
         return new ThenChain<T>(_p);
     }
@@ -717,7 +718,8 @@ public sealed class ScenarioChain<T>
         _p.Enqueue(StepPhase.Then, StepWord.Primary, title, (s, _) =>
         {
             AssertUtil.Ensure(predicate((T)s!), title);
-            return ValueTask.FromResult(s);
+            return new ValueTask<object?>((T)s!);
+
         });
         return new ThenChain<T>(_p);
     }
@@ -844,7 +846,9 @@ public sealed class ScenarioChain<T>
         _p.Enqueue(StepPhase.Then, StepWord.Primary, "", (s, _) =>
         {
             AssertUtil.Ensure(predicate((T)s!), "Then");
-            return ValueTask.FromResult(s);
+            
+            return new ValueTask<object?>((T)s!);
+
         });
         return new ThenChain<T>(_p);
     }
@@ -923,7 +927,8 @@ public sealed class ScenarioChain<T>
         _p.Enqueue(StepPhase.Then, StepWord.Primary, "", (s, _) =>
         {
             AssertUtil.Ensure(predicate(), "Then");
-            return ValueTask.FromResult(s);
+            return new ValueTask<object?>((T)s!);
+
         });
         return new ThenChain<T>(_p);
     }

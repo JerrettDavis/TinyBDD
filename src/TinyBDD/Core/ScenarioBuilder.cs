@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-
 namespace TinyBDD;
 
 
@@ -46,7 +45,7 @@ public readonly struct ThenChain<T>
         _p.Enqueue(StepPhase.Then, StepWord.And, title, (s, _) =>
         {
             assertion((T)s!);
-            return ValueTask.FromResult(s);
+            return new ValueTask<object?>((T)s!);
         });
         return this;
     }
@@ -131,7 +130,7 @@ public readonly struct ThenChain<T>
         _p.Enqueue(StepPhase.Then, StepWord.And, title, (s, _) =>
         {
             AssertUtil.Ensure(predicate((T)s!), title);
-            return ValueTask.FromResult(s);
+            return new ValueTask<object?>((T)s!);
         });
         return this;
     }
@@ -204,7 +203,8 @@ public readonly struct ThenChain<T>
         _p.Enqueue(StepPhase.Then, StepWord.And, "", (s, _) =>
         {
             assertion((T)s!);
-            return ValueTask.FromResult(s);
+            return new ValueTask<object?>((T)s!);
+
         });
         return this;
     }
@@ -283,7 +283,7 @@ public readonly struct ThenChain<T>
         _p.Enqueue(StepPhase.Then, StepWord.And, "", (s, _) =>
         {
             AssertUtil.Ensure(predicate((T)s!), "And");
-            return ValueTask.FromResult(s);
+            return new ValueTask<object?>((T)s!);
         });
         return this;
     }
@@ -354,7 +354,7 @@ public readonly struct ThenChain<T>
         _p.Enqueue(StepPhase.Then, StepWord.But, title, (s, _) =>
         {
             AssertUtil.Ensure(predicate((T)s!), title);
-            return ValueTask.FromResult(s);
+            return new ValueTask<object?>((T)s!);
         });
         return this;
     }
@@ -368,7 +368,7 @@ public readonly struct ThenChain<T>
         _p.Enqueue(StepPhase.Then, StepWord.But, "", (s, _) =>
         {
             AssertUtil.Ensure(predicate((T)s!), "But");
-            return ValueTask.FromResult(s);
+            return new ValueTask<object?>((T)s!);
         });
         return this;
     }
@@ -481,4 +481,15 @@ public readonly struct ThenChain<T>
         await _p.RunAsync(cancellationToken);
         _p.Context.AssertFailed();
     }
+
+    private ValueTask<TResult> ValueTaskFromResult<TResult>(TResult result)
+    {
+        #if NETSTANDARD2_1 
+        return new ValueTask<TResult>(result);
+        #else
+        return new ValueTask<TResult>(Task.FromResult(result));
+        #endif   
+    }
+
+    
 }
