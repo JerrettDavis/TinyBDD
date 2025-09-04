@@ -203,8 +203,6 @@ public readonly struct ThenChain<T>
         _p.Enqueue(StepPhase.Then, StepWord.And, "", (s, _) =>
         {
             assertion((T)s!);
-            return new ValueTask<object?>((T)s!);
-
         });
         return this;
     }
@@ -480,15 +478,6 @@ public readonly struct ThenChain<T>
     {
         await _p.RunAsync(cancellationToken);
         _p.Context.AssertFailed();
-    }
-
-    private ValueTask<TResult> ValueTaskFromResult<TResult>(TResult result)
-    {
-        #if NETSTANDARD2_1 
-        return new ValueTask<TResult>(result);
-        #else
-        return new ValueTask<TResult>(Task.FromResult(result));
-        #endif   
     }
 
     

@@ -846,9 +846,7 @@ public sealed class ScenarioChain<T>
         _p.Enqueue(StepPhase.Then, StepWord.Primary, "", (s, _) =>
         {
             AssertUtil.Ensure(predicate((T)s!), "Then");
-            
             return new ValueTask<object?>((T)s!);
-
         });
         return new ThenChain<T>(_p);
     }
@@ -927,8 +925,6 @@ public sealed class ScenarioChain<T>
         _p.Enqueue(StepPhase.Then, StepWord.Primary, "", (s, _) =>
         {
             AssertUtil.Ensure(predicate(), "Then");
-            return new ValueTask<object?>((T)s!);
-
         });
         return new ThenChain<T>(_p);
     }
