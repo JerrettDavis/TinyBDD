@@ -30,7 +30,6 @@ public class WhenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
             .Then("assert", v => v == 2)
             .AssertPassed();
 
-
     [Scenario("Supports When(title) with ValueTask(Task) factory (CancellationToken)")]
     [Fact]
     public async Task When_NoReturnValueTask_Func_CancellationToken()

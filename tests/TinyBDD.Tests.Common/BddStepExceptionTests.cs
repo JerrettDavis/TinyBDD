@@ -35,7 +35,6 @@ public class BddStepExceptionTests
         Assert.NotNull(lastItem.Error);
     }
 
-
     [Scenario("Exception wrapping with continue on error")]
     [Fact]
     public async Task Wraps_Inner_Exception_And_Logs_Failed_Step_On_ContinueOnError()

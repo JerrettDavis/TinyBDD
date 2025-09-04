@@ -35,7 +35,6 @@ public readonly struct ThenChain<T>
     /// <returns>The awaiter for the underlying asynchronous execution.</returns>
     public ValueTaskAwaiter GetAwaiter() => _p.RunAsync(CancellationToken.None).GetAwaiter();
 
-
     /// <summary>Adds an <c>And</c> assertion with a synchronous action and explicit title.</summary>
     /// <param name="title">Display title for the assertion step.</param>
     /// <param name="assertion">Assertion that may throw to indicate failure.</param>

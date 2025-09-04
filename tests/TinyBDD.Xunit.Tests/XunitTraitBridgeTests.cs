@@ -37,7 +37,6 @@ public class XunitTraitBridgeTests(ITestOutputHelper output)
         Assert.Contains("[TinyBDD] Tag: fast", log);
     }
 
-
     [Scenario("Reporter writes")]
     [Fact]
     public void Reporter_Writes_Lines()

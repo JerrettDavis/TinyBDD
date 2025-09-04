@@ -53,7 +53,6 @@ public sealed class ScenarioChain<T>
     public ScenarioChain<TOut> When<TOut>(string title, Func<T, TOut> effect) =>
         Transform(StepPhase.When, StepWord.Primary, title, ToCT(effect));
 
-
     /// <summary>
     /// Adds a <c>When</c> transformation with an explicit title using an asynchronous function.
     /// </summary>

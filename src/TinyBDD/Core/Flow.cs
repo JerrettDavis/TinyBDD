@@ -77,7 +77,6 @@ public static class Flow
     public static ScenarioChain<T> Given<T>(Func<T> setup)
         => Bdd.Given(Require(), setup);
 
-
     /// <summary>Starts a <c>Given</c> step with a default title and <see cref="ValueTask"/> setup.</summary>
     /// <typeparam name="T">The type produced by the setup function.</typeparam>
     /// <param name="setup">ValueTask-producing factory for the initial value.</param>

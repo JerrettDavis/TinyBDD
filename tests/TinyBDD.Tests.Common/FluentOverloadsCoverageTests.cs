@@ -32,7 +32,6 @@ public class FluentOverloadsCoverageTests
             .Then("== 7", v => v == 7)
             .AssertPassed();
     }
-    
 
     [Scenario("When async action with title (no token)")]
     [Fact]
@@ -81,7 +80,6 @@ public class FluentOverloadsCoverageTests
             .Then("count is 1", l => l.Count == 1)
             .AssertPassed();
     }
-    
 
     [Scenario("Direct Then transform after Given (alias) with and without token")]
     [Fact]
