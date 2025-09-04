@@ -1,6 +1,5 @@
 namespace TinyBDD.MSTest.Tests;
 
-
 [Feature("Login")]
 [TestClass]
 public class LoginTests : TinyBddMsTestBase
@@ -15,7 +14,6 @@ public class LoginTests : TinyBddMsTestBase
             .AssertPassed(TestContext.CancellationTokenSource.Token);
     }
 
-
     [Scenario("An absolutely real async login scenario", "Tag1", "Tag2")]
     [TestMethod]
     public async Task GivenACompletelyRealLogin_WhenWeDoSomethingAsync_ThenHave2()
@@ -25,7 +23,6 @@ public class LoginTests : TinyBddMsTestBase
             .Then("we have 2", v => v == 2)
             .AssertPassed(TestContext.CancellationTokenSource.Token);
     }
-
 
     [Scenario("An absolutely real async login scenario with async assert", "Tag1", "Tag2")]
     [TestMethod]
@@ -46,7 +43,6 @@ public class LoginTests : TinyBddMsTestBase
             .Then("we have 2", v => v == 2)
             .AssertPassed(TestContext.CancellationTokenSource.Token);
     }
-
 
     [Scenario("Given async; When sync transform; Then sync bool")]
     [TestMethod]
@@ -82,7 +78,6 @@ public class LoginTests : TinyBddMsTestBase
             .And("contains 42", list => list.Contains(42))
             .AssertPassed(TestContext.CancellationTokenSource.Token);
     }
-
 
     [Scenario("Then with custom fail message")]
     [TestMethod]

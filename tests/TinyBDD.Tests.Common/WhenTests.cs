@@ -30,7 +30,6 @@ public class WhenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
             .Then("assert", v => v == 2)
             .AssertPassed();
 
-
     [Scenario("Supports When(title) with ValueTask(Task) factory (CancellationToken)")]
     [Fact]
     public async Task When_NoReturnValueTask_Func_CancellationToken()
@@ -100,7 +99,7 @@ public class WhenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
     public async Task When_Title_SideEffect_ValueTask()
         => await Given("wire", () => 1)
             .When("side-effect vt", _ => new ValueTask())
-            .Then("assert", v => v.IsCompleted)
+            .Then("assert", v => v == 1)
             .AssertPassed();
 
     [Scenario("Supports When(title) side-effect ValueTask with CancellationToken (keeps T)")]

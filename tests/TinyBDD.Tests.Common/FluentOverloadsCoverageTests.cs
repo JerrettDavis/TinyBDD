@@ -32,7 +32,6 @@ public class FluentOverloadsCoverageTests
             .Then("== 7", v => v == 7)
             .AssertPassed();
     }
-    
 
     [Scenario("When async action with title (no token)")]
     [Fact]

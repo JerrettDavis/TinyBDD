@@ -1,6 +1,7 @@
 # Introduction
 
-TinyBDD is a tiny, fluent BDD helper for .NET tests. It gives you a clean Given/When/Then style without tying you to a specific test framework.
+TinyBDD is a tiny, fluent BDD helper for .NET tests. It gives you a clean Given/When/Then style without tying you to a
+specific test framework.
 
 <img src="images/tinyBDD.png" alt="TinyBDD" width="110" align="right" />
 
@@ -13,8 +14,8 @@ Why TinyBDD
 Core ideas
 
 - Two entry points
-  - Explicit: create a ScenarioContext with Bdd.CreateContext and pass it around
-  - Ambient: set Ambient.Current (or inherit a TinyBDD base class) and use Flow
+    - Explicit: create a ScenarioContext with Bdd.CreateContext and pass it around
+    - Ambient: set Ambient.Current (or inherit a TinyBDD base class) and use Flow
 - Cross-framework: adapters only handle output and tag bridging; assertions and flow stay the same
 - Minimal assertions: bring your favorite assertion library; TinyBDD only needs a bool predicate or action per step
 
@@ -33,10 +34,10 @@ await Bdd.Given(ctx, "numbers", () => new[]{1,2,3})
 - Ambient (inherit a base class or set Ambient.Current):
 
 ```csharp
-await Flow.Given(() => 1)
-          .When("double", x => x * 2)
-          .Then("== 2", v => v == 2)
-          .AssertPassed();
+await Given(() => 1)
+      .When("double", x => x * 2)
+      .Then("== 2", v => v == 2)
+      .AssertPassed();
 ```
 
 Attributes and tags

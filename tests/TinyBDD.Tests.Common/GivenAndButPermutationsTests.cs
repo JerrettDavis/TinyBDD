@@ -353,7 +353,6 @@ public class GivenAndButPermutationsTests(
             .Then("== 1", v => v == 1)
             .AssertPassed();
 
-
     [Scenario("Given -> But(title) side-effect Task(token) -> Then")]
     [Fact]
     public async Task Given_But_Title_SideEffect_TaskToken_Then()

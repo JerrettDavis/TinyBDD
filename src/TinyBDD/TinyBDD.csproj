@@ -11,4 +11,13 @@
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
     </ItemGroup>
 
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net9.0'">
+        <Compile Remove="Parser.Platform.NetLegacy.cs"/>
+    </ItemGroup>
+
+    <!-- For netstandard2.1, exclude the modern platform file -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+        <Compile Remove="Parser.Platform.NetModern.cs"/>
+    </ItemGroup>
+
 </Project>
