@@ -42,9 +42,10 @@ jobs:
         run: |
           dotnet test TinyBDD.sln \
             --configuration Release \
-            --no-build \
             --collect:"XPlat Code Coverage" \
-            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Include="[TinyBDD*]*" \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Exclude="[*Tests]*"
 
       - name: Install ReportGenerator
         run: dotnet tool update -g dotnet-reportgenerator-globaltool
@@ -57,7 +58,8 @@ jobs:
             -reports:"$REPORTS" \
             -targetdir:"coverage-report" \
             -reporttypes:"HtmlInline;Cobertura;TextSummary;lcov;Badges" \
-            -assemblyfilters:"+TinyBDD*;-*Tests*"
+            -assemblyfilters:"+TinyBDD*;-*Tests*" \
+            -filefilters:"-**/*.Tests/*;-**/*Tests*/**"
           echo "COVERAGE_SUMMARY<<EOF" >> $GITHUB_ENV
           cat coverage-report/Summary.txt >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
