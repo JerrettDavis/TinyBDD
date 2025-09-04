@@ -48,10 +48,10 @@ public sealed class ScenarioChain<T>
     /// </summary>
     /// <typeparam name="TOut">The result type of the transformation.</typeparam>
     /// <param name="title">Display title for this step.</param>
-    /// <param name="effect">Transformation function from <typeparamref name="T"/> to <typeparamref name="TOut"/>.</param>
+    /// <param name="f">Transformation function from <typeparamref name="T"/> to <typeparamref name="TOut"/>.</param>
     /// <returns>A new <see cref="ScenarioChain{TOut}"/> carrying the transformed value.</returns>
-    public ScenarioChain<TOut> When<TOut>(string title, Func<T, TOut> effect) =>
-        Transform(StepPhase.When, StepWord.Primary, title, ToCT(effect));
+    public ScenarioChain<TOut> When<TOut>(string title, Func<T, TOut> f) =>
+        Transform(StepPhase.When, StepWord.Primary, title, ToCT(f));
 
     /// <summary>
     /// Adds a <c>When</c> transformation with an explicit title using an asynchronous function.
@@ -64,7 +64,7 @@ public sealed class ScenarioChain<T>
         Transform(StepPhase.When, StepWord.Primary, title, ToCT(f));
 
     /// <summary>
-    /// Adds a <c>When</c> side-effect with an explicit title using a <see cref="ValueTask"/>. Keeps the current value type.
+    /// Adds a <c>When</c> transformation with an explicit title using a <see cref="ValueTask"/>.
     /// </summary>
     /// <typeparam name="TOut">The result of the side-effect action (ignored by the chain).</typeparam>
     /// <param name="title">Display title for this step.</param>
