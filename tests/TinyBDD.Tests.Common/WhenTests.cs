@@ -125,4 +125,50 @@ public class WhenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
             .When((_, _) => new ValueTask())
             .Then("assert", v => v == 1)
             .AssertPassed();
+    
+    
+    [Scenario("When directly after Given with And-chaining for more Whens")]
+    [Fact]
+    public Task Given_When_And_Then()
+        => Given("wire", () => 1)
+            .When("act 1", (x, _) => Task.FromResult(x + 1))
+            .And("act 2", (x, _) => Task.FromResult(x + 2))
+            .And("act 3", (x, _) => Task.FromResult(x + 3))
+            .Then("assert", (x, _) => Task.FromResult(x == 7))
+            .AssertPassed();
+
+    [Scenario("When directly after Given with And-chaining, and bad assumptions")]
+    [Fact]
+    public Task Given_When_And_Then_BadAssumptions()
+        => Given("wire", () => 1)
+            .When("act 1", (x, _) => Task.FromResult(x + 1))
+            .And("act 2", x => x + 2)
+            .And("act 3", (x, _) => Task.FromResult(x + 3))
+            .Then("assert", (x, _) => Task.FromResult(x == 8))
+            .AssertFailed();
+
+    [Scenario("When directly after Given with And-but-chaining.")]
+    [Fact]
+    public Task Given_When_And_But_Then()
+        => Given("wire", () => 1)
+            .When("act 1", (x, _) => Task.FromResult(x + 1))
+            .And("act 2", (x, _) => Task.FromResult(x + 2))
+            .But("act 3", (x, _) => Task.FromResult(x + 3))
+            .But("act 4", (x, _) => Task.FromResult(x + 4))
+            .Then("assert", (x, _) => Task.FromResult(x == 11))
+            .AssertPassed();
+
+    [Scenario("Given some action, When some action, But some action, Then(string, Func<ValueTask)")]
+    [Fact]
+    public Task Given_When_But_Then_String_Func_ValueTask()
+        => Given("wire", () => 0)
+            .When("act 1", (x, _) => Task.FromResult(x + 1))
+            .But("act 2", (x, _) => Task.FromResult(x + 2))
+            .But(_ => { })
+            .But(_ => Task.CompletedTask)
+            .But(_ => ValueTask.CompletedTask)
+            .But((_, _) => Task.CompletedTask)
+            .But((_, _) => ValueTask.CompletedTask)
+            .Then("assert", (x, _) => Task.FromResult(x == 3))
+            .AssertPassed();
 }

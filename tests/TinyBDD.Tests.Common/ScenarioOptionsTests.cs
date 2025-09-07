@@ -125,9 +125,9 @@ public class ScenarioOptionsTests
             Assert.NotEqual("Skipped due to previous failure.", step.Error!.Message);
         }
     }
-    
-    
-    async Task<int> Long(int v, CancellationToken ct)
+
+
+    private static async Task<int> Long(int v, CancellationToken ct)
     {
         await Task.Delay(200, ct);
         return v;

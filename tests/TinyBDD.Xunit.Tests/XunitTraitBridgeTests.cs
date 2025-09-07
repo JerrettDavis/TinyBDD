@@ -1,18 +1,6 @@
-using System.Text;
 using Xunit.Abstractions;
 
 namespace TinyBDD.Xunit.Tests;
-
-public sealed class FakeOutput : ITestOutputHelper
-{
-    private readonly StringBuilder _sb = new();
-    public void WriteLine(string message) => _sb.AppendLine(message);
-
-    public void WriteLine(string format, params object[] args) =>
-        _sb.AppendLine(string.Format(format, args));
-
-    public override string ToString() => _sb.ToString();
-}
 
 [Feature("Xunit adapter")]
 public class XunitTraitBridgeTests(ITestOutputHelper output)

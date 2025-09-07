@@ -201,7 +201,10 @@ internal sealed class Pipeline(ScenarioContext ctx)
         => Enqueue(_lastPhase, word, title, exec);
 
     /// <summary>
-    /// Executes all enqueued steps in FIFO order, recording results to <paramref name="ctx"/>.
+    /// Executes all enqueued steps in FIFO order, recording results to <paramref>
+    ///     <name>ctx</name>
+    /// </paramref>
+    /// .
     /// </summary>
     /// <param name="ct">Cancellation token that aborts execution between or during steps.</param>
     /// <remarks>
