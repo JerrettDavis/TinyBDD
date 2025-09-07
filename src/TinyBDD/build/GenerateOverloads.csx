@@ -77,8 +77,16 @@ string Render(MethodSpec m)
     sb.AppendLine("    /// <summary>");
     sb.AppendLine("    /// " + m.Summary);
     sb.AppendLine("    /// </summary>");
-    foreach (var x in m.XmlExtras) sb.AppendLine("    /// " + x);
-
+    
+    foreach (var x in m.XmlExtras)
+    {
+        var line = x?.TrimStart() ?? "";
+        if (line.Length == 0) continue;
+        // If caller already provided a "/// ..." line, don't add another "///"
+        sb.AppendLine(line.StartsWith("///") ? "    " + line
+                                             : "    /// " + line);
+    }
+    
     var paramList = string.Join(", ", m.Parameters.Select(p => $"{p.Type} {p.Name}"));
     sb.AppendLine($"    public {m.ReturnType} {m.Name}{m.Generics}({paramList}) =>");
     sb.AppendLine($"        {m.Body};");
@@ -482,7 +490,13 @@ string BddGen_Render(BddGenMethod m)
   sb.AppendLine("    /// <summary>");
   sb.AppendLine("    /// " + m.Summary);
   sb.AppendLine("    /// </summary>");
-  foreach (var line in m.Xml) sb.AppendLine("    /// " + line);
+  foreach (var line in m.Xml)
+  {
+    var l = line?.TrimStart() ?? "";
+    if (l.Length == 0) continue;
+    sb.AppendLine(l.StartsWith("///") ? "    " + l
+                                      : "    /// " + l);
+  }
 
   var @params = string.Join(", ", m.Params.Select(p => $"{p.Type} {p.Name}"));
   sb.AppendLine($"    public static {m.ReturnType} {m.Name}{m.Generics}({@params}) =>");
@@ -795,11 +809,134 @@ public static partial class Bdd
   Console.WriteLine($@"Wrote {path}");
 }
 
+
+// ===== ThenChain generation (And/But assertions) =============================
+
+// Summary text specialized for ThenChain's And/But assertion steps
+string TC_Summary(string wordName, Kind kind, Title title, Async @async, Token token)
+{
+    var ttl = title == Title.Explicit ? "with an explicit title" : "with a default title";
+    return kind switch
+    {
+        Kind.Predicate => $"Adds an <c>{wordName}</c> boolean assertion {ttl}{(token==Token.Token ? " observing a token." : "")}",
+        Kind.Assert    => $"Adds an <c>{wordName}</c> assertion {ttl}{(token==Token.Token ? " observing a token." : "")}",
+        _ => ""
+    };
+}
+
+MethodSpec TC_MakeAndOrButPredicate(string wordName, string wordEnum, Title title, Async @async, Token token, string sig)
+{
+    var wrapTitle = title == Title.Explicit ? "title" : $"nameof({wordName})";
+    return new(
+        TC_Summary(wordName, Kind.Predicate, title, @async, token),
+        XmlExtras(Kind.Predicate, title),
+        "ThenChain<T>",
+        wordName,
+        "",
+        Params(title, sig, Kind.Predicate, explicitName: "predicate"),
+        // Step title metadata uses TitleArg(title); predicate's failure label uses wrapTitle
+        $"Add({wordEnum}, {TitleArg(title)}, Wrap({wrapTitle}, predicate))"
+    );
+}
+
+MethodSpec TC_MakeAndOrButAssert(string wordName, string wordEnum, Title title, Async @async, Token token, string sig)
+{
+    return new(
+        TC_Summary(wordName, Kind.Assert, title, @async, token),
+        XmlExtras(Kind.Assert, title),
+        "ThenChain<T>",
+        wordName,
+        "",
+        Params(title, sig, Kind.Assert, explicitName: "assertion"),
+        $"Add({wordEnum}, {TitleArg(title)}, Wrap(assertion))"
+    );
+}
+
+// No-value assertion (Func<Task>) — matches your manual surface
+MethodSpec TC_MakeAndOrButAssertNoValue(string wordName, string wordEnum, Title title)
+{
+    return new(
+        $"Adds a <c>{wordName}</c> assertion {(title==Title.Explicit? "with an explicit title":"with a default title")} (no value parameter).",
+        XmlExtras(Kind.Assert, title, noValue:true),
+        "ThenChain<T>",
+        wordName,
+        "",
+        Params(title, "Func<Task>", Kind.Assert, explicitName: "assertion"),
+        $"Add({wordEnum}, {TitleArg(title)}, Wrap(assertion))"
+    );
+}
+
+// Synchronous Action<T> assertion — also part of your manual surface
+MethodSpec TC_MakeAndOrButAssertAction(string wordName, string wordEnum, Title title)
+{
+    return new(
+        $"Adds a <c>{wordName}</c> assertion {(title==Title.Explicit? "with an explicit title":"with a default title")} using a synchronous action.",
+        XmlExtras(Kind.Assert, title),
+        "ThenChain<T>",
+        wordName,
+        "",
+        Params(title, "Action<T>", Kind.Assert, explicitName: "assertion"),
+        $"Add({wordEnum}, {TitleArg(title)}, Wrap(assertion))"
+    );
+}
+
+void Emit_ThenChain_AndBut()
+{
+    string Build(string wordName, string wordEnum)
+    {
+        // Predicates: sync, Task<bool>, ValueTask<bool>, token-aware Task/ValueTask
+        var preds =
+            Titles
+                .SelectMany(t => Asyncs, (title, @async) => new { title, @async })
+                .SelectMany(k => Tokens, (k, token) =>
+                {
+                    var ok = TrySig(Step.Then, Kind.Predicate, k.@async, token, out var sig);
+                    return new { k.title, k.@async, token, ok, sig };
+                })
+                .Where(x => x.ok)
+                .Select(x => TC_MakeAndOrButPredicate(wordName, wordEnum, x.title, x.@async, x.token, x.sig));
+
+        // Assertions with value: Task/ValueTask (+ token-aware)
+        var assertsWithValue =
+            Titles
+                .SelectMany(t => new[] { Async.Task, Async.ValueTask }, (title, @async) => new { title, @async })
+                .SelectMany(k => Tokens, (k, token) =>
+                {
+                    var ok = TrySig(Step.Then, Kind.Assert, k.@async, token, out var sig);
+                    return new { k.title, k.@async, token, ok, sig };
+                })
+                .Where(x => x.ok)
+                .Select(x => TC_MakeAndOrButAssert(wordName, wordEnum, x.title, x.@async, x.token, x.sig));
+
+        // No-value assertion (Func<Task>) — explicit + auto
+        var assertsNoValue =
+            Titles.Select(title => TC_MakeAndOrButAssertNoValue(wordName, wordEnum, title));
+
+        // Synchronous Action<T> assertion — explicit + auto
+        var actionSync =
+            Titles.Select(title => TC_MakeAndOrButAssertAction(wordName, wordEnum, title));
+
+        return string.Concat(preds.Select(Render))
+             + string.Concat(assertsWithValue.Select(Render))
+             + string.Concat(assertsNoValue.Select(Render))
+             + string.Concat(actionSync.Select(Render));
+    }
+
+    var file =
+        "// <auto-generated/>\nnamespace TinyBDD;\npublic readonly partial struct ThenChain<T>\n{\n" +
+        Build("And", "StepWord.And") +
+        Build("But", "StepWord.But") +
+        "}\n";
+
+    File.WriteAllText(Path.Combine(outDir, "ThenChain.AndBut.g.cs"), file);
+}
+
 // ==================== /BDD.Given generator ====================
 
 // ===== Run all =====
 Emit_When();
 Emit_AndBut();
 Emit_Then();
+Emit_ThenChain_AndBut(); 
 BddGen_Emit(projectDir);
 Console.WriteLine($"Wrote {outDir}");

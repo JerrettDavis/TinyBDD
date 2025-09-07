@@ -33,7 +33,7 @@ namespace TinyBDD;
 public sealed partial class ScenarioChain<T>
 {
     private readonly Pipeline _p;
-    private ScenarioChain(Pipeline p) => _p = p;
+    internal ScenarioChain(Pipeline p) => _p = p;
 
     internal static ScenarioChain<T> Seed(ScenarioContext ctx, string title, Func<CancellationToken, ValueTask<T>> fn)
     {

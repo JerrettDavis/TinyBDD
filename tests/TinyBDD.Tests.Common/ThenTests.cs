@@ -126,6 +126,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
             .When("+1", x => x + 1)
             .Then(v => v == 10)
             .And(v => new ValueTask<bool>(v == 10))
+            .But(v => new ValueTask<bool>(v == 10))
             .AssertPassed();
 
     [Scenario("Then -> But(default) sync predicate and action")]
@@ -136,6 +137,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
             .Then(v => v == 10)
             .But(v => v <= 10)
             .And("noop", _ => { })
+            .But("noop", _ => { })
             .AssertPassed();
 
     // --- And(title) ValueTask assertion ---
@@ -146,6 +148,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
             .When("identity", x => x)
             .Then("> 0", v => v > 0)
             .And("vt ok", _ => new ValueTask())
+            .But("vt ok", _ => new ValueTask())
             .AssertPassed();
 
     // --- And(title) ValueTask assertion with CancellationToken ---
@@ -156,6 +159,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
             .When("identity", x => x)
             .Then("> 0", v => v > 0)
             .And("vt token ok", (_, _) => new ValueTask())
+            .But("vt token ok", (_, _) => new ValueTask())
             .AssertPassed();
 
     // --- And(title) ValueTask<bool> predicate ---
@@ -166,6 +170,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
             .When("+5", x => x + 5)
             .Then(">= 20", v => v >= 20)
             .And("== 20 vt", v => new ValueTask<bool>(v == 20))
+            .But("== 20 vt", v => new ValueTask<bool>(v == 20))
             .AssertPassed();
 
     // --- And(title) ValueTask<bool> predicate with CancellationToken ---
@@ -176,6 +181,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
             .When("/3", x => x / 3)
             .Then("> 0", v => v > 0)
             .And("== 10 vt token", (v, _) => new ValueTask<bool>(v == 10))
+            .But("== 10 vt token", (v, _) => new ValueTask<bool>(v == 10))
             .AssertPassed();
 
     // --- And(default) Action assertion ---
@@ -189,6 +195,10 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
             {
                 /* no-op */
             })
+            .But(_ =>
+            {
+                
+            })
             .AssertPassed();
 
     // --- And(default) Task assertion with CancellationToken ---
@@ -199,6 +209,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
             .When("identity", x => x)
             .Then(v => v == 7)
             .And((_, _) => Task.CompletedTask)
+            .But((_, _) => Task.CompletedTask)
             .AssertPassed();
 
     // --- And(default) ValueTask assertion ---
@@ -209,6 +220,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
             .When("identity", x => x)
             .Then(v => v == 8)
             .And(_ => new ValueTask())
+            .But(_ => new ValueTask())
             .AssertPassed();
 
     // --- And(default) ValueTask assertion with CancellationToken ---
@@ -219,6 +231,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
             .When("identity", x => x)
             .Then(v => v == 9)
             .And((_, _) => new ValueTask())
+            .But((_, _) => new ValueTask())
             .AssertPassed();
 
     // --- And(default) Task<bool> predicate ---
@@ -229,6 +242,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
             .When("+4", x => x + 4)
             .Then(v => v == 7)
             .And(v => Task.FromResult(v == 7))
+            .But(v => Task.FromResult(v == 7))
             .AssertPassed();
 
     // --- And(default) Task<bool> predicate with CancellationToken ---
@@ -239,6 +253,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
             .When("+3", x => x + 3)
             .Then(v => v == 15)
             .And((v, _) => Task.FromResult(v == 15))
+            .But((v, _) => Task.FromResult(v == 15))
             .AssertPassed();
 
     // --- And(default) ValueTask<bool> predicate with CancellationToken ---
@@ -249,6 +264,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
             .When("+4", x => x + 4)
             .Then(v => v == 20)
             .And((v, _) => new ValueTask<bool>(v == 20))
+            .But((v, _) => new ValueTask<bool>(v == 20))
             .AssertPassed();
 
     // --- But(default) Task (no value) ---
