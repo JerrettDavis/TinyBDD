@@ -33,16 +33,14 @@ jobs:
             global.json
 
       - name: Restore
-        run: dotnet restore --use-lock-file
-
-      - name: Install dotnet-script
         run: |
-          dotnet tool update -g dotnet-script
-          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+          dotnet restore --use-lock-file
+          dotnet tool restore
 
       - name: Drift check (generated files)
         shell: bash
         run: |
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
           set -euo pipefail
           git config --global core.autocrlf false
           # Re-generate
@@ -136,12 +134,9 @@ jobs:
             global.json
 
       - name: Restore
-        run: dotnet restore --use-lock-file
-        
-      - name: Install dotnet-script
         run: |
-          dotnet tool update -g dotnet-script
-          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+          dotnet restore --use-lock-file
+          dotnet tool restore
 
       - name: Drift check (generated files)
         shell: bash
