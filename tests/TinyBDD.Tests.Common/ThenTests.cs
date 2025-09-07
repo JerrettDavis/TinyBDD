@@ -280,4 +280,109 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
             .Then(v => v == 6)
             .But((_, _) => Task.CompletedTask)
             .AssertPassed();
+
+    [Scenario("Predicate passes")]
+    [Fact]
+    public Task Then_Predicate_Passes() =>
+        Given("wire", () => 1)
+            .When("act", (x, _) => Task.FromResult(x + 1))
+            .Then("is two", v => Task.FromResult(v == 2))
+            .AssertPassed();
+
+    [Scenario("Predicate fails")]
+    [Fact]
+    public Task Then_Predicate_Fails() =>
+        Given("wire", () => 1)
+            .When("act", (x, _) => Task.FromResult(x + 1))
+            .Then("is three", v => Task.FromResult(v == 3))
+            .AssertFailed();
+
+
+    [Scenario("Then(string, Func<T,ValueTask<bool>>)")]
+    [Fact]
+    public async Task Then_String_Func_ValueTaskBool()
+        => await Given("seed", () => 1)
+            .When("identity", x => x)
+            .Then("== 1", v => new ValueTask<bool>(v == 1))
+            .AssertPassed();
+
+    [Scenario("Then(string,Func<T,ValueTask>")]
+    [Fact]
+    public Task Then_String_Func_ValueTask()
+        => Given("seed", () => 1)
+            .When("identity", x => x)
+            .Then("effect", v => new ValueTask())
+            .And("== 1", v => v == 1)
+            .AssertPassed();
+
+    [Scenario("Then(string,Func<T,CancellationToken,ValueTask>)")]
+    [Fact]
+    public Task Then_String_Func_Token_ValueTask()
+        => Given("seed", () => 1)
+            .When("identity", x => x)
+            .Then("effect", (v, _) => new ValueTask())
+            .And("== 1", v => v == 1)
+            .AssertPassed();
+
+    [Scenario("Then(string,Func<ValueTask>)")]
+    [Fact]
+    public Task Then_String_Func_ValueTask_NoValue()
+        => Given("seed", () => 1)
+            .When("identity", x => x)
+            .Then("effect", () => new ValueTask())
+            .AssertPassed();
+
+    [Scenario("Then(Func<ValueTask>)")]
+    [Fact]
+    public Task Then_Func_ValueTask_NoValue()
+        => Given("seed", () => 1)
+            .When("identity", x => x)
+            .Then(() => new ValueTask())
+            .AssertPassed();
+    
+    [Scenario("Then(Func<T,Task<TOut>")]
+    [Fact]
+    public Task Then_Func_Task_NoValue()
+        => Given("seed", () => 1)
+            .When("identity", x => x)
+            .Then(Task.FromResult)
+            .And(v => v == 1)
+            .AssertPassed();
+    
+    [Scenario("Then(Func<T,CancellationToken,Task<TOut>>)")]
+    [Fact]
+    public Task Then_Func_Token_Task_NoValue()
+        => Given("seed", () => 1)
+            .When("identity", x => x)
+            .Then((v, _) => Task.FromResult(v))
+            .And(v => v == 1)
+            .AssertPassed();
+    
+    
+    [Scenario("Then directly after Given with token-aware assertion")]
+    [Fact]
+    public Task Given_Then_Assertion_With_Token() =>
+        Given("start", () => 42)
+            .Then("equals 42 (token)", (v, ct) =>
+            {
+                Assert.Equal(42, v);
+                Assert.Equal(CancellationToken.None, ct);
+                return Task.CompletedTask;
+            })
+            .And("still 42", _ => Task.CompletedTask)
+            .AssertPassed();
+    
+
+    [Scenario("Typed When->Then with token-aware assertion")]
+    [Fact]
+    public Task Typed_When_Then_With_Token()
+        => Given("start", () => 5)
+            .When("double", (x, _) => Task.FromResult(x * 2))
+            .Then("is 10 (token)", (v, ct) =>
+            {
+                Assert.Equal(10, v);
+                Assert.Equal(CancellationToken.None, ct);
+                return Task.CompletedTask;
+            })
+            .AssertPassed();
 }

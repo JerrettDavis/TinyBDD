@@ -35,6 +35,27 @@ jobs:
       - name: Restore
         run: dotnet restore --use-lock-file
 
+      - name: Install dotnet-script
+        run: |
+          dotnet tool update -g dotnet-script
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+      - name: Drift check (generated files)
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config --global core.autocrlf false
+          # Re-generate
+          dotnet script src/TinyBDD/build/GenerateOverloads.csx --no-cache
+          # Fail if anything under Generated/ changed
+          if ! git diff --quiet --exit-code -- src/TinyBDD/Generated; then
+            echo "::group::Generated diff"
+            git --no-pager diff -- src/TinyBDD/Generated
+            echo "::endgroup::"
+            echo "::error title=Generated files out of date::Run 'dotnet script src/TinyBDD/build/GenerateOverloads.csx --no-cache' and commit the results."
+            exit 1
+          fi
+
       - name: Build (Release)
         run: dotnet build TinyBDD.sln --configuration Release --no-restore /p:ContinuousIntegrationBuild=true
 
@@ -116,6 +137,25 @@ jobs:
 
       - name: Restore
         run: dotnet restore --use-lock-file
+        
+      - name: Install dotnet-script
+        run: |
+          dotnet tool update -g dotnet-script
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+      - name: Drift check (generated files)
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config --global core.autocrlf false
+          dotnet script src/TinyBDD/build/GenerateOverloads.csx --no-cache
+          if ! git diff --quiet --exit-code -- src/TinyBDD/Generated; then
+            echo "::group::Generated diff"
+            git --no-pager diff -- src/TinyBDD/Generated
+            echo "::endgroup::"
+            echo "::error title=Generated files out of date::Run 'dotnet script src/TinyBDD/build/GenerateOverloads.csx --no-cache' and commit the results."
+            exit 1
+          fi
 
       - name: Fetch tags
         run: git fetch --prune --tags

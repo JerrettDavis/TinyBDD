@@ -1,0 +1,5 @@
+# Hide from GitHub's language stats and reduce PR noise
+*.g.cs linguist-generated=true
+
+# Optional: collapse diffs for generated files (review output only when needed)
+*.g.cs -diff

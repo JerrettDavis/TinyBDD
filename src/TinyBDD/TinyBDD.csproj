@@ -5,17 +5,40 @@
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+        <MSBuildDisableInternalParallelism>true</MSBuildDisableInternalParallelism>
+
+        <OverloadsStamp>$(BaseIntermediateOutputPath)overloads.stamp</OverloadsStamp>
     </PropertyGroup>
 
+    <Target Name="GenerateOverloads"
+            BeforeTargets="BeforeBuild"
+            Condition="'$(DesignTimeBuild)' != 'true' AND
+                   ( '$(TargetFrameworks)' == '' OR '$(IsCrossTargetingBuild)' == 'true')"
+            Inputs="$(MSBuildProjectDirectory)\build\GenerateOverloads.csx"
+            Outputs="$(MSBuildProjectDirectory)\Generated\Bdd.Given.g.cs;
+                 $(MSBuildProjectDirectory)\Generated\ScenarioChain.When.g.cs;
+                 $(MSBuildProjectDirectory)\Generated\ScenarioChain.AndBut.g.cs;
+                 $(MSBuildProjectDirectory)\Generated\ScenarioChain.Then.g.cs">
+        <Exec Command="dotnet-script build\GenerateOverloads.csx --no-cache"/>
+    </Target>
+
     <ItemGroup>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+        <Compile Remove="Generated\**\*.g.cs"/>
+        <Compile Include="Generated\ScenarioChain.When.g.cs"/>
+        <Compile Include="Generated\ScenarioChain.AndBut.g.cs"/>
+        <Compile Include="Generated\ScenarioChain.Then.g.cs"/>
+        <Compile Include="Generated\Bdd.Given.g.cs"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net9.0'">
         <Compile Remove="Parser.Platform.NetLegacy.cs"/>
     </ItemGroup>
 
-    <!-- For netstandard2.1, exclude the modern platform file -->
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
         <Compile Remove="Parser.Platform.NetModern.cs"/>
     </ItemGroup>
