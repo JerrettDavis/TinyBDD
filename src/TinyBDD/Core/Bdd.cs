@@ -197,28 +197,28 @@ public static partial class Bdd
     private static Func<CancellationToken, ValueTask<T>> Wrap<T>(
         Func<T, CancellationToken, ValueTask> setup,
         T seed)
-        => ct =>
+        => async ct =>
         {
-            setup(seed, ct);
-            return new ValueTask<T>(seed);
+            await setup(seed, ct);
+            return seed;
         };
 
     private static Func<CancellationToken, ValueTask<T>> Wrap<T>(
         Func<CancellationToken, ValueTask> setup,
         T seed)
-        => ct =>
+        => async ct =>
         {
-            setup(ct);
-            return new ValueTask<T>(seed);
+            await setup(ct);
+            return seed;
         };
 
     private static Func<CancellationToken, ValueTask<T>> Wrap<T>(
         Func<CancellationToken, Task> setup,
         T seed)
-        => ct =>
+        => async ct =>
         {
-            setup(ct);
-            return new ValueTask<T>(seed);
+            await setup(ct);
+            return seed;
         };
 
     private static Func<CancellationToken, ValueTask<T>> Wrap<T>(Func<T> f)
