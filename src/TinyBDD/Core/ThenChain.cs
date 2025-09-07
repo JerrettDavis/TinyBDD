@@ -35,217 +35,6 @@ public readonly partial struct ThenChain<T>
     /// <returns>The awaiter for the underlying asynchronous execution.</returns>
     public ValueTaskAwaiter GetAwaiter() => _p.RunAsync(CancellationToken.None).GetAwaiter();
 
-    // /// <summary>Adds an <c>And</c> assertion with a synchronous action and explicit title.</summary>
-    // /// <param name="title">Display title for the assertion step.</param>
-    // /// <param name="assertion">Assertion that may throw to indicate failure.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // public ThenChain<T> And(string title, Action<T> assertion) =>
-    //     Add(StepWord.And, title, Wrap(assertion));
-    //
-    // /// <summary>Adds an <c>And</c> assertion with an asynchronous action and explicit title.</summary>
-    // /// <param name="title">Display title for the assertion step.</param>
-    // /// <param name="assertion">Asynchronous assertion that may throw to indicate failure.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // public ThenChain<T> And(string title, Func<Task> assertion) =>
-    //     Add(StepWord.And, title, Wrap(assertion));
-    //
-    // /// <summary>Adds an <c>And</c> assertion receiving the carried value, with explicit title.</summary>
-    // /// <param name="title">Display title for the assertion step.</param>
-    // /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // public ThenChain<T> And(string title, Func<T, Task> assertion) =>
-    //     Add(StepWord.And, title, Wrap(assertion));
-    //
-    // /// <summary>Adds an <c>And</c> assertion receiving the value and a cancellation token, with explicit title.</summary>
-    // /// <param name="title">Display title for the assertion step.</param>
-    // /// <param name="assertion">Asynchronous assertion that receives the carried value and a <see cref="CancellationToken"/>.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // public ThenChain<T> And(string title, Func<T, CancellationToken, Task> assertion) =>
-    //     Add(StepWord.And, title, Wrap(assertion));
-    //
-    // /// <summary>Adds an <c>And</c> assertion returning <see cref="ValueTask"/>, with explicit title.</summary>
-    // /// <param name="title">Display title for the assertion step.</param>
-    // /// <param name="assertion">Assertion that returns a <see cref="ValueTask"/>.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // public ThenChain<T> And(string title, Func<T, ValueTask> assertion) =>
-    //     Add(StepWord.And, title, Wrap(assertion));
-    //
-    // /// <summary>Adds an <c>And</c> assertion returning <see cref="ValueTask"/> and accepting a token, with explicit title.</summary>
-    // /// <param name="title">Display title for the assertion step.</param>
-    // /// <param name="assertion">Assertion that returns a <see cref="ValueTask"/> and observes a <see cref="CancellationToken"/>.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // public ThenChain<T> And(string title, Func<T, CancellationToken, ValueTask> assertion) =>
-    //     Add(StepWord.And, title, Wrap(assertion));
-    //
-    // /// <summary>Adds an <c>And</c> step using a synchronous boolean predicate. Throws when predicate is false.</summary>
-    // /// <param name="title">Display title for the step.</param>
-    // /// <param name="predicate">Synchronous predicate evaluated against the carried value.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // /// <exception cref="BddAssertException">Thrown when <paramref name="predicate"/> evaluates to <see langword="false"/>.</exception>
-    // public ThenChain<T> And(string title, Func<T, bool> predicate) =>
-    //     Add(StepWord.And, title, Wrap(title, predicate));
-    //
-    // /// <summary>Adds an <c>And</c> step using an asynchronous boolean predicate. Throws when predicate is false.</summary>
-    // /// <param name="title">Display title for the step.</param>
-    // /// <param name="predicate">Asynchronous predicate evaluated against the carried value.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // /// <exception cref="BddAssertException">Thrown when the predicate evaluates to <see langword="false"/>.</exception>
-    // public ThenChain<T> And(string title, Func<T, Task<bool>> predicate) =>
-    //     Add(StepWord.And, title, Wrap(title, predicate));
-    //
-    // /// <summary>Adds an <c>And</c> step using an asynchronous boolean predicate with token. Throws when predicate is false.</summary>
-    // /// <param name="title">Display title for the step.</param>
-    // /// <param name="predicate">Token-aware asynchronous predicate evaluated against the carried value.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // /// <exception cref="BddAssertException">Thrown when the predicate evaluates to <see langword="false"/>.</exception>
-    // public ThenChain<T> And(string title, Func<T, CancellationToken, Task<bool>> predicate) =>
-    //     Add(StepWord.And, title, Wrap(title, predicate));
-    //
-    // /// <summary>Adds an <c>And</c> step using a <see cref="ValueTask{Boolean}"/> predicate. Throws when predicate is false.</summary>
-    // /// <param name="title">Display title for the step.</param>
-    // /// <param name="predicate">Predicate evaluated against the carried value.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // /// <exception cref="BddAssertException">Thrown when the predicate evaluates to <see langword="false"/>.</exception>
-    // public ThenChain<T> And(string title, Func<T, ValueTask<bool>> predicate) =>
-    //     Add(StepWord.And, title, Wrap(title, predicate));
-    //
-    // /// <summary>Adds an <c>And</c> step using a token-aware <see cref="ValueTask{Boolean}"/> predicate. Throws when predicate is false.</summary>
-    // /// <param name="title">Display title for the step.</param>
-    // /// <param name="predicate">Predicate evaluated against the carried value and <see cref="CancellationToken"/>.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // /// <exception cref="BddAssertException">Thrown when the predicate evaluates to <see langword="false"/>.</exception>
-    // public ThenChain<T> And(string title, Func<T, CancellationToken, ValueTask<bool>> predicate) =>
-    //     Add(StepWord.And, title, Wrap(title, predicate));
-    //
-    // /// <summary>Adds an <c>And</c> assertion with a synchronous action and a default title.</summary>
-    // /// <param name="assertion">Assertion that may throw to indicate failure.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // public ThenChain<T> And(Action<T> assertion) =>
-    //     Add(StepWord.And, string.Empty, Wrap(assertion));
-    //
-    // /// <summary>Adds an <c>And</c> assertion with an asynchronous action and a default title.</summary>
-    // /// <param name="assertion">Asynchronous assertion that may throw to indicate failure.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // public ThenChain<T> And(Func<Task> assertion) =>
-    //     Add(StepWord.And, string.Empty, Wrap(assertion));
-    //
-    // /// <summary>Adds an <c>And</c> assertion receiving the carried value, with a default title.</summary>
-    // /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // public ThenChain<T> And(Func<T, Task> assertion) =>
-    //     Add(StepWord.And, string.Empty, Wrap(assertion));
-    //
-    // /// <summary>Adds an <c>And</c> assertion receiving a token, with a default title.</summary>
-    // /// <param name="assertion">Asynchronous assertion that observes a <see cref="CancellationToken"/>.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // public ThenChain<T> And(Func<T, CancellationToken, Task> assertion) =>
-    //     Add(StepWord.And, string.Empty, Wrap(assertion));
-    //
-    // /// <summary>Adds an <c>And</c> assertion returning <see cref="ValueTask"/>, with a default title.</summary>
-    // /// <param name="assertion">Assertion that returns a <see cref="ValueTask"/>.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // public ThenChain<T> And(Func<T, ValueTask> assertion) =>
-    //     Add(StepWord.And, string.Empty, Wrap(assertion));
-    //
-    // /// <summary>Adds an <c>And</c> assertion returning <see cref="ValueTask"/> and accepting a token, with a default title.</summary>
-    // /// <param name="assertion">Assertion that returns a <see cref="ValueTask"/> and observes a <see cref="CancellationToken"/>.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // public ThenChain<T> And(Func<T, CancellationToken, ValueTask> assertion) =>
-    //     Add(StepWord.And, string.Empty, Wrap(assertion));
-    //
-    // /// <summary>Adds an <c>And</c> step using a synchronous boolean predicate with a default title.</summary>
-    // /// <param name="predicate">Synchronous predicate evaluated against the carried value.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // /// <exception cref="BddAssertException">Thrown when the predicate evaluates to <see langword="false"/>.</exception>
-    // public ThenChain<T> And(Func<T, bool> predicate) =>
-    //     Add(StepWord.And, string.Empty, Wrap(nameof(And), predicate));
-    //
-    // /// <summary>Adds an <c>And</c> step using an asynchronous boolean predicate with a default title.</summary>
-    // /// <param name="predicate">Asynchronous predicate evaluated against the carried value.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // /// <exception cref="BddAssertException">Thrown when the predicate evaluates to <see langword="false"/>.</exception>
-    // public ThenChain<T> And(Func<T, Task<bool>> predicate) =>
-    //     Add(StepWord.And, string.Empty, Wrap(nameof(And), predicate));
-    //
-    // /// <summary>Adds an <c>And</c> step using a token-aware asynchronous boolean predicate with a default title.</summary>
-    // /// <param name="predicate">Asynchronous predicate evaluated against the carried value and <see cref="CancellationToken"/>.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // /// <exception cref="BddAssertException">Thrown when the predicate evaluates to <see langword="false"/>.</exception>
-    // public ThenChain<T> And(Func<T, CancellationToken, Task<bool>> predicate) =>
-    //     Add(StepWord.And, string.Empty, Wrap(nameof(And), predicate));
-    //
-    // /// <summary>Adds an <c>And</c> step using a <see cref="ValueTask{Boolean}"/> predicate with a default title.</summary>
-    // /// <param name="predicate">Predicate evaluated against the carried value.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // /// <exception cref="BddAssertException">Thrown when the predicate evaluates to <see langword="false"/>.</exception>
-    // public ThenChain<T> And(Func<T, ValueTask<bool>> predicate) =>
-    //     Add(StepWord.And, string.Empty, Wrap(nameof(And), predicate));
-    //
-    // /// <summary>Adds an <c>And</c> step using a token-aware <see cref="ValueTask{Boolean}"/> predicate with a default title.</summary>
-    // /// <param name="predicate">Predicate evaluated against the carried value and <see cref="CancellationToken"/>.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // /// <exception cref="BddAssertException">Thrown when the predicate evaluates to <see langword="false"/>.</exception>
-    // public ThenChain<T> And(Func<T, CancellationToken, ValueTask<bool>> predicate) =>
-    //     Add(StepWord.And, string.Empty, Wrap(nameof(And), predicate));
-    //
-    // /// <summary>Adds a <c>But</c> step using a synchronous boolean predicate with explicit title.</summary>
-    // /// <param name="title">Display title for the step.</param>
-    // /// <param name="predicate">Synchronous predicate evaluated against the carried value.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // /// <exception cref="BddAssertException">Thrown when the predicate evaluates to <see langword="false"/>.</exception>
-    // public ThenChain<T> But(string title, Func<T, bool> predicate) =>
-    //     Add(StepWord.But, title, Wrap(title, predicate));
-    //
-    // /// <summary>Adds a <c>But</c> step using a synchronous boolean predicate with a default title.</summary>
-    // /// <param name="predicate">Synchronous predicate evaluated against the carried value.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // /// <exception cref="BddAssertException">Thrown when the predicate evaluates to <see langword="false"/>.</exception>
-    // public ThenChain<T> But(Func<T, bool> predicate) =>
-    //     Add(StepWord.But, string.Empty, Wrap(nameof(But), predicate));
-    //
-    // /// <summary>Adds a <c>But</c> step using an asynchronous assertion with explicit title.</summary>
-    // /// <param name="title">Display title for the step.</param>
-    // /// <param name="assertion">Asynchronous assertion that may throw to indicate failure.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // public ThenChain<T> But(string title, Func<Task> assertion) =>
-    //     Add(StepWord.But, title, Wrap(assertion));
-    //
-    // /// <summary>Adds a <c>But</c> step using an asynchronous assertion that receives the value, with explicit title.</summary>
-    // /// <param name="title">Display title for the step.</param>
-    // /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // public ThenChain<T> But(
-    //     string title,
-    //     Func<T, Task> assertion) =>
-    //     Add(StepWord.But, title, Wrap(assertion));
-    //
-    // /// <summary>Adds a <c>But</c> step using an asynchronous assertion that receives the value and token, with explicit title.</summary>
-    // /// <param name="title">Display title for the step.</param>
-    // /// <param name="assertion">Asynchronous assertion that observes a <see cref="CancellationToken"/>.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // public ThenChain<T> But(
-    //     string title,
-    //     Func<T, CancellationToken, Task> assertion) =>
-    //     Add(StepWord.But, title, Wrap(assertion));
-    //
-    // /// <summary>Adds a <c>But</c> step using an asynchronous assertion with a default title.</summary>
-    // /// <param name="assertion">Asynchronous assertion that may throw to indicate failure.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // public ThenChain<T> But(Func<Task> assertion) =>
-    //     Add(StepWord.But, string.Empty, Wrap(assertion));
-    //
-    // /// <summary>Adds a <c>But</c> step using an asynchronous assertion that receives the value, with a default title.</summary>
-    // /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // public ThenChain<T> But(Func<T, Task> assertion) =>
-    //     Add(StepWord.But, string.Empty, Wrap(assertion));
-    //
-    // /// <summary>Adds a <c>But</c> step using an asynchronous assertion that receives the value and token, with a default title.</summary>
-    // /// <param name="assertion">Asynchronous assertion that observes a <see cref="CancellationToken"/>.</param>
-    // /// <returns>The same chain for further composition.</returns>
-    // public ThenChain<T> But(Func<T, CancellationToken, Task> assertion) =>
-    //     Add(StepWord.But, string.Empty, Wrap(assertion));
-
     /// <summary>Completes the chain and asserts that all previous steps passed.</summary>
     /// <remarks>
     /// This method is functionally equivalent to calling the extension method <see cref="ScenarioContextAsserts.AssertPassed(ScenarioContext)"/>
@@ -256,7 +45,7 @@ public readonly partial struct ThenChain<T>
     /// <exception cref="InvalidOperationException">Thrown when at least one step failed.</exception>
     public async Task AssertPassed(CancellationToken cancellationToken = default)
     {
-        await _p.RunAsync(cancellationToken);
+        await _p.RunAsync(cancellationToken).ConfigureAwait(false);
         _p.Context.AssertPassed();
     }
 
@@ -270,15 +59,18 @@ public readonly partial struct ThenChain<T>
     /// <exception cref="InvalidOperationException">Thrown when no step failed.</exception>   
     public async Task AssertFailed(CancellationToken cancellationToken = default)
     {
-        await _p.RunAsync(cancellationToken);
+        await _p.RunAsync(cancellationToken).ConfigureAwait(false);
         _p.Context.AssertFailed();
     }
-    
+
     private ScenarioChain<TOut> WhenTransform<TOut>(
         string? title,
         Func<T, CancellationToken, ValueTask<TOut>> f)
     {
-        _p.Enqueue(StepPhase.When, StepWord.Primary, title ?? "",
+        _p.Enqueue(
+            StepPhase.When,
+            StepWord.Primary,
+            title ?? "",
             async (s, ct) => await f((T)s!, ct).ConfigureAwait(false));
         return new ScenarioChain<TOut>(_p);
     }
@@ -360,29 +152,50 @@ public readonly partial struct ThenChain<T>
 
     // ---------- Adapters for transforms/effects (same shapes as ScenarioChain) ----------
     private static Func<T, CancellationToken, ValueTask<TOut>> ToCT<TOut>(Func<T, TOut> f)
-        => (v, _) => new ValueTask<TOut>(f(v));
+        => (v, ct) =>
+        {
+            ct.ThrowIfCancellationRequested();
+            return new ValueTask<TOut>(f(v));
+        };
 
     private static Func<T, CancellationToken, ValueTask<TOut>> ToCT<TOut>(Func<T, Task<TOut>> f)
-        => async (v, _) => await f(v).ConfigureAwait(false);
+        => async (v, ct) =>
+        {
+            ct.ThrowIfCancellationRequested();
+            return await f(v).ConfigureAwait(false);
+        };
 
     private static Func<T, CancellationToken, ValueTask<TOut>> ToCT<TOut>(Func<T, ValueTask<TOut>> f)
-        => (v, _) => f(v);
+        => (v, ct) =>
+        {
+            ct.ThrowIfCancellationRequested();
+            return f(v);
+        };
 
     private static Func<T, CancellationToken, ValueTask<TOut>> ToCT<TOut>(Func<T, CancellationToken, Task<TOut>> f)
         => async (v, ct) => await f(v, ct).ConfigureAwait(false);
 
     private static Func<T, CancellationToken, ValueTask> ToCT(Action<T> f)
-        => (v, _) =>
+        => (v, ct) =>
         {
+            ct.ThrowIfCancellationRequested();
             f(v);
             return default;
         };
 
     private static Func<T, CancellationToken, ValueTask> ToCT(Func<T, Task> f)
-        => async (v, _) => await f(v).ConfigureAwait(false);
+        => async (v, ct) =>
+        {
+            ct.ThrowIfCancellationRequested();
+            await f(v).ConfigureAwait(false);
+        };
 
     private static Func<T, CancellationToken, ValueTask> ToCT(Func<T, ValueTask> f)
-        => (v, _) => f(v);
+        => (v, ct) =>
+        {
+            ct.ThrowIfCancellationRequested();
+            return f(v);
+        };
 
     private static Func<T, CancellationToken, ValueTask> ToCT(Func<T, CancellationToken, Task> f)
         => async (v, ct) => await f(v, ct).ConfigureAwait(false);
