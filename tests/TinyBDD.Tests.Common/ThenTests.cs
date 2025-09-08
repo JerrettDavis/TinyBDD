@@ -414,7 +414,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
             .Then(v => { })
             .AssertPassed();
 
-    [Scenario("Then(string,Action")]
+    [Scenario("Then(string,Action)")]
     [Fact]
     public Task Then_String_Action_NoValue_NoToken()
         => Given("seed", () => 1)
@@ -422,7 +422,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
             .Then("effect", () => { })
             .AssertPassed();
 
-    [Scenario("Then(Action")]
+    [Scenario("Then(Action)")]
     [Fact]
     public Task Then_Action_NoValue_NoToken()
         => Given("seed", () => 1)
