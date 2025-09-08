@@ -224,6 +224,40 @@ public sealed partial class ScenarioChain<T>
         ThenAssert(string.Empty, (_, _) => assertion());
 
     /// <summary>
+    /// Adds a <c>Then</c> assertion with an explicit title using a synchronous action.
+    /// </summary>
+    /// <param name="title">Display title for the assertion.</param>
+    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> Then(string title, Action<T> assertion) =>
+        ThenAssert(title, ToCT(assertion));
+
+    /// <summary>
+    /// Adds a <c>Then</c> assertion with a default title using a synchronous action.
+    /// </summary>
+    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> Then(Action<T> assertion) =>
+        ThenAssert(string.Empty, ToCT(assertion));
+
+    /// <summary>
+    /// Adds a <c>Then</c> assertion with an explicit title (no value parameter) using a synchronous action.
+    /// </summary>
+    /// <param name="title">Display title for the assertion.</param>
+    /// <param name="assertion">Asynchronous assertion.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> Then(string title, Action assertion) =>
+        ThenAssert(title, ToCT(assertion));
+
+    /// <summary>
+    /// Adds a <c>Then</c> assertion with a default title (no value parameter) using a synchronous action.
+    /// </summary>
+    /// <param name="assertion">Asynchronous assertion.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> Then(Action assertion) =>
+        ThenAssert(string.Empty, ToCT(assertion));
+
+    /// <summary>
     /// Adds a <c>Then</c> transform that returns a value used only for assertion side-effects.
     /// </summary>
     /// <typeparam name="TOut">The result produced by the assertion delegate (ignored by the chain).</typeparam>
