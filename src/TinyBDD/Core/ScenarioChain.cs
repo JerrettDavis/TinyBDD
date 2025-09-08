@@ -163,17 +163,35 @@ public sealed partial class ScenarioChain<T>
         => f;
 
     private static Func<T, CancellationToken, ValueTask> ToCT(Action<T> f)
-        => (v, _) =>
+        => (v, ct) =>
         {
+            ct.ThrowIfCancellationRequested();
             f(v);
+            return default;
+        };
+    
+    
+    private static Func<T, CancellationToken, ValueTask> ToCT(Action f)
+        => (_, ct) =>
+        {
+            ct.ThrowIfCancellationRequested();
+            f();
             return default;
         };
 
     private static Func<T, CancellationToken, ValueTask> ToCT(Func<T, Task> f)
-        => async (v, _) => await f(v).ConfigureAwait(false);
+        => async (v, ct) =>
+        {
+            ct.ThrowIfCancellationRequested();
+            await f(v).ConfigureAwait(false);
+        };
 
     private static Func<T, CancellationToken, ValueTask> ToCT(Func<T, ValueTask> f)
-        => (v, _) => f(v);
+        => (v, ct) =>
+        {
+            ct.ThrowIfCancellationRequested();
+            return f(v);
+        };
 
     private static Func<T, CancellationToken, ValueTask> ToCT(Func<T, CancellationToken, Task> f)
         => async (v, ct) => await f(v, ct).ConfigureAwait(false);
