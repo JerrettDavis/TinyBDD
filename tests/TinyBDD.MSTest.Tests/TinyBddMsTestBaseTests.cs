@@ -1,5 +1,3 @@
-// TinyBDD.MSTest.Tests/TinyBddMsTestBaseTests.cs
-
 namespace TinyBDD.MSTest.Tests;
 
 [Feature("MSTest base coverage")]

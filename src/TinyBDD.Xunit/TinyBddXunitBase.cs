@@ -23,6 +23,7 @@ public abstract class TinyBddXunitBase : TestBase, IDisposable
     {
         _output = output;
         var traits = new XunitTraitBridge(output);
+        
         var ctx = Bdd.CreateContext(this, traits: traits);
         Ambient.Current.Value = ctx;
     }

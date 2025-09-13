@@ -48,7 +48,17 @@ public sealed class UseTinyBddAttribute : BeforeAfterTestAttribute
     {
         Bdd.Register(AmbientTestMethodResolver.Instance);
         AmbientTestMethodResolver.Set(methodUnderTest);
+        
+        var ctx = Ambient.Current.Value!;
+        Ambient.Current.Value = Bdd.CreateContext(
+            methodUnderTest.DeclaringType!,
+            MethodNameResolver(methodUnderTest),
+            traits: ctx.TraitBridge);
     }
+    
+    private static string MethodNameResolver(MethodInfo methodUnderTest)
+        => methodUnderTest.GetCustomAttribute<ScenarioAttribute>()?.Name
+           ?? methodUnderTest.Name;
 
     /// <inheritdoc />
     public override void After(
