@@ -50,8 +50,6 @@ public sealed class UseTinyBddAttribute : BeforeAfterTestAttribute
         Ambient.Current.Value = Bdd.ReconfigureContext(ctx, context =>
         {
             context.ScenarioName = MethodNameResolver(methodUnderTest);
-
-            return context;
         });
     }
 

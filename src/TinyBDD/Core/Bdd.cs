@@ -85,7 +85,7 @@ public static partial class Bdd
 
     public static ScenarioContext ReconfigureContext(
         ScenarioContext ctx,
-        Func<ScenarioContextPrototype, ScenarioContextPrototype> configure)
+        Action<ScenarioContextPrototype> configure)
         => ScenarioContextBuilder.FromContext(ctx, configure)
             .Build();
 
@@ -329,7 +329,7 @@ public static partial class Bdd
 
         public static ScenarioContextBuilder FromContext(
             ScenarioContext ctx,
-            Func<ScenarioContextPrototype,ScenarioContextPrototype> configure)
+            Action<ScenarioContextPrototype> configure)
 
         {
             var proto = new ScenarioContextPrototype
@@ -340,14 +340,14 @@ public static partial class Bdd
                 TraitBridge = ctx.TraitBridge,
                 Options = ctx.Options
             };
-            var prototype = configure(proto);
-            prototype.Validate();
+            configure(proto);
+            proto.Validate();
             return new ScenarioContextBuilder(
-                prototype.FeatureName!,
-                prototype.FeatureDescription,
-                prototype.ScenarioName!,
-                prototype.TraitBridge!,
-                prototype.Options!);
+                proto.FeatureName,
+                proto.FeatureDescription,
+                proto.ScenarioName,
+                proto.TraitBridge,
+                proto.Options);
         }
 
         /// <summary>

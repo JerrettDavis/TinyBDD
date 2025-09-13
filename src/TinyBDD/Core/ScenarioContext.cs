@@ -121,22 +121,22 @@ public class ScenarioContextPrototype
     public ITraitBridge? TraitBridge { get; set; }
     public ScenarioOptions? Options { get; set; }
 
-    public void ValidateFeatureName()
+    private void ValidateFeatureName()
         => Throw.ValidationExceptionIf(
             string.IsNullOrWhiteSpace(FeatureName),
             "Feature name must be specified.");
 
-    public void ValidateScenarioName()
+    private void ValidateScenarioName()
         => Throw.ValidationExceptionIf(
             string.IsNullOrWhiteSpace(ScenarioName),
             "Scenario name must be specified.");
 
-    public void ValidateTraitBridge()
+    private void ValidateTraitBridge()
         => Throw.ValidationExceptionIf(
             TraitBridge is null,
             "Trait bridge must be specified.");
 
-    public void ValidateOptions()
+    private void ValidateOptions()
         => Throw.ValidationExceptionIf(
             Options is null,
             "Scenario options must be specified.");
