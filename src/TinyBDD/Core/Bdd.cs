@@ -83,6 +83,19 @@ public static partial class Bdd
             .Build();
     }
 
+
+    /// <summary>
+    /// Reconfigures a scenario context by applying a configuration action to its prototype.
+    /// </summary>
+    /// <param name="ctx">The existing scenario context that will be reconfigured.</param>
+    /// <param name="configure">An action delegate used to configure the ScenarioContextPrototype. This allows customization of the prototype before building the new context.</param>
+    /// <returns>A new instance of ScenarioContext created with the specified configuration applied, based on the original context and the configuration action.</returns>
+    public static ScenarioContext ReconfigureContext(
+        ScenarioContext ctx,
+        Action<ScenarioContextPrototype> configure)
+        => ScenarioContextBuilder.FromContext(ctx, configure)
+            .Build();
+
     private static string ResolveScenarioName(
         string? scenarioName,
         ScenarioAttribute? scenarioAttr,
@@ -322,6 +335,37 @@ public static partial class Bdd
             => new(featureName, featureDescription, scenarioName, traitBridge, options);
 
         /// <summary>
+        /// Creates a new <see cref="ScenarioContextBuilder"/> pre-initialized with basic feature,
+        /// scenario, trait bridge, and option metadata.
+        /// </summary>
+        /// <param name="ctx">The existing scenario context that will be used as a base for the new context.</param>
+        /// <param name="configure">An action delegate used to configure the ScenarioContextPrototype. This allows customization of the prototype before building the new context.</param>
+        /// <returns>A new <see cref="ScenarioContextBuilder"/> that can be further enriched with feature/method/scenario tags.</returns>
+        public static ScenarioContextBuilder FromContext(
+            ScenarioContext ctx,
+            Action<ScenarioContextPrototype> configure)
+
+        {
+            var proto = new ScenarioContextPrototype
+            {
+                FeatureName = ctx.FeatureName,
+                FeatureDescription = ctx.FeatureDescription,
+                ScenarioName = ctx.ScenarioName,
+                TraitBridge = ctx.TraitBridge,
+                Options = ctx.Options
+            };
+            configure(proto);
+            proto.Validate();
+            return new ScenarioContextBuilder(
+                    proto.FeatureName,
+                    proto.FeatureDescription,
+                    proto.ScenarioName,
+                    proto.TraitBridge,
+                    proto.Options)
+                .WithTags(proto.Tags);
+        }
+
+        /// <summary>
         /// Adds any <see cref="TagAttribute"/> values declared on the specified feature type.
         /// </summary>
         /// <param name="feature">
@@ -380,6 +424,20 @@ public static partial class Bdd
             if (scenarioAttr?.Tags is { Length: > 0 })
                 _ctx.AddTags(scenarioAttr.Tags);
 
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the specified tags to the context.
+        /// </summary>
+        /// <param name="tags">The tags to add.</param>
+        /// <returns>The same <see cref="ScenarioContextBuilder"/> for fluent chaining.</returns>
+        /// <remarks>
+        /// Tags added here are appended to any feature- or method-level tags already added.
+        /// </remarks>       
+        public ScenarioContextBuilder WithTags(params IEnumerable<string> tags)
+        {
+            _ctx.AddTags(tags);
             return this;
         }
 
