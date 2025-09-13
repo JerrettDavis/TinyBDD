@@ -83,6 +83,12 @@ public static partial class Bdd
             .Build();
     }
 
+    public static ScenarioContext ReconfigureContext(
+        ScenarioContext ctx,
+        Func<ScenarioContextPrototype, ScenarioContextPrototype> configure)
+        => ScenarioContextBuilder.FromContext(ctx, configure)
+            .Build();
+
     private static string ResolveScenarioName(
         string? scenarioName,
         ScenarioAttribute? scenarioAttr,
@@ -320,6 +326,29 @@ public static partial class Bdd
             ITraitBridge traitBridge,
             ScenarioOptions options)
             => new(featureName, featureDescription, scenarioName, traitBridge, options);
+
+        public static ScenarioContextBuilder FromContext(
+            ScenarioContext ctx,
+            Func<ScenarioContextPrototype,ScenarioContextPrototype> configure)
+
+        {
+            var proto = new ScenarioContextPrototype
+            {
+                FeatureName = ctx.FeatureName,
+                FeatureDescription = ctx.FeatureDescription,
+                ScenarioName = ctx.ScenarioName,
+                TraitBridge = ctx.TraitBridge,
+                Options = ctx.Options
+            };
+            var prototype = configure(proto);
+            prototype.Validate();
+            return new ScenarioContextBuilder(
+                prototype.FeatureName!,
+                prototype.FeatureDescription,
+                prototype.ScenarioName!,
+                prototype.TraitBridge!,
+                prototype.Options!);
+        }
 
         /// <summary>
         /// Adds any <see cref="TagAttribute"/> values declared on the specified feature type.

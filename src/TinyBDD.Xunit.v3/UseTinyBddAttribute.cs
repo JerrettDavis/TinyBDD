@@ -50,10 +50,12 @@ public sealed class UseTinyBddAttribute : BeforeAfterTestAttribute
         AmbientTestMethodResolver.Set(methodUnderTest);
         
         var ctx = Ambient.Current.Value!;
-        Ambient.Current.Value = Bdd.CreateContext(
-            methodUnderTest.DeclaringType!,
-            MethodNameResolver(methodUnderTest),
-            traits: ctx.TraitBridge);
+        Ambient.Current.Value = Bdd.ReconfigureContext(ctx, context =>
+        {
+            context.ScenarioName = MethodNameResolver(methodUnderTest);
+
+            return context;
+        });
     }
     
     private static string MethodNameResolver(MethodInfo methodUnderTest)

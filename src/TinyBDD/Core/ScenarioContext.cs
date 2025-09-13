@@ -1,3 +1,5 @@
+using TinyBDD.Extensions;
+
 namespace TinyBDD;
 
 /// <summary>
@@ -54,7 +56,7 @@ public sealed class ScenarioContext
     /// Bridge for integrating tags/categories with a host test framework.
     /// </summary>
     public ITraitBridge TraitBridge { get; }
-    
+
     /// <summary>
     /// Scenario options. See <see cref="ScenarioOptions"/>.
     /// </summary>   
@@ -97,7 +99,7 @@ public sealed class ScenarioContext
     /// </summary>
     /// <param name="tags">Array of string values representing the tags to be added. Each tag must be a non-empty string.</param>
     public void AddTags(params string[] tags) => Array.ForEach(tags, AddTag);
-    
+
     /// <summary>
     /// Adds one or more tags to the scenario context in bulk.
     /// </summary>
@@ -108,4 +110,42 @@ public sealed class ScenarioContext
     /// Adds a recorded step to <see cref="Steps"/>. Intended for internal use by the framework.
     /// </summary>
     internal void AddStep(StepResult s) => _steps.Add(s);
+}
+
+public class ScenarioContextPrototype
+{
+    public string? FeatureName { get; set; }
+    public string? FeatureDescription { get; set; }
+    public string? ScenarioName { get; set; }
+    public List<string> Tags { get; } = new();
+    public ITraitBridge? TraitBridge { get; set; }
+    public ScenarioOptions? Options { get; set; }
+
+    public void ValidateFeatureName()
+        => Throw.ValidationExceptionIf(
+            string.IsNullOrWhiteSpace(FeatureName),
+            "Feature name must be specified.");
+
+    public void ValidateScenarioName()
+        => Throw.ValidationExceptionIf(
+            string.IsNullOrWhiteSpace(ScenarioName),
+            "Scenario name must be specified.");
+
+    public void ValidateTraitBridge()
+        => Throw.ValidationExceptionIf(
+            TraitBridge is null,
+            "Trait bridge must be specified.");
+
+    public void ValidateOptions()
+        => Throw.ValidationExceptionIf(
+            Options is null,
+            "Scenario options must be specified.");
+
+    public void Validate()
+    {
+        ValidateFeatureName();
+        ValidateScenarioName();
+        ValidateTraitBridge();
+        ValidateOptions();
+    }
 }
