@@ -26,7 +26,7 @@ public class BddContextReconfigurationTests(ITestOutputHelper output) : TinyBddX
                 (ScenarioContext Context, Func<ScenarioContext> Reconfigure) (c)
                     => c with { Reconfigure = () => Bdd.ReconfigureContext(c.Context, o => o.TraitBridge = null) })
             .Then("the context should throw an exception", f => Assert.Throws<ArgumentException>(f.Reconfigure))
-            .When("The context is ste to have an invalid options",
+            .When("The context is set to have an invalid options",
                 (ScenarioContext Context, Func<ScenarioContext> Reconfigure) (c)
                     => c with { Reconfigure = () => Bdd.ReconfigureContext(c.Context, o => o.Options = null) })
             .Then("the context should throw an exception", f => Assert.Throws<ArgumentException>(f.Reconfigure))
