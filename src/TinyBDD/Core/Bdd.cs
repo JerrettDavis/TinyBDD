@@ -83,6 +83,13 @@ public static partial class Bdd
             .Build();
     }
 
+ 
+    /// <summary>
+    /// Reconfigures a scenario context by applying a configuration action to its prototype.
+    /// </summary>
+    /// <param name="ctx">The existing scenario context that will be reconfigured.</param>
+    /// <param name="configure">An action delegate used to configure the ScenarioContextPrototype. This allows customization of the prototype before building the new context.</param>
+    /// <returns>A new instance of ScenarioContext created with the specified configuration applied, based on the original context and the configuration action.</returns>
     public static ScenarioContext ReconfigureContext(
         ScenarioContext ctx,
         Action<ScenarioContextPrototype> configure)
