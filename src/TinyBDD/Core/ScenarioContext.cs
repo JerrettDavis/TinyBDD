@@ -117,7 +117,7 @@ public class ScenarioContextPrototype
     public string? FeatureName { get; set; }
     public string? FeatureDescription { get; set; }
     public string? ScenarioName { get; set; }
-    public List<string> Tags { get; } = new();
+    public List<string> Tags { get; } = [];
     public ITraitBridge? TraitBridge { get; set; }
     public ScenarioOptions? Options { get; set; }
 
