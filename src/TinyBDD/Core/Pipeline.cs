@@ -276,6 +276,13 @@ internal sealed class Pipeline(ScenarioContext ctx)
                 if (haltOnFailedAssert)
                     throw;
             }
+            catch (TinyBDD.Assertions.TinyBddAssertionException ex)
+            {
+                // Fluent assertion failure (Expect.That/For) should be treated like an assertion failure.
+                err = ex;
+                if (haltOnFailedAssert)
+                    throw;
+            }
             catch (Exception ex)
             {
                 // Non-assert failures.
