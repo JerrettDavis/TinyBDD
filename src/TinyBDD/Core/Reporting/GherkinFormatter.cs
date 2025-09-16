@@ -103,20 +103,6 @@ public static class GherkinFormatter
             {
                 reporter.WriteLine($"    Error: {s.Error.GetType().Name}: {s.Error.Message}");
                 // If this error is or contains a TinyBddAssertionException, include structured expected/actual info
-                //                if (s.Error is TinyBDD.Assertions.TinyBddAssertionException tex)
-                //                {
-                //                    string fmt(object? v) => v is null ? "null" : v is string sv ? $"\"{sv}\"" : v.ToString();
-                //                    if (tex.Subject is not null)
-                //                        reporter.WriteLine($"    Subject: {tex.Subject}");
-                //                    if (tex.Expected is not null)
-                //                        reporter.WriteLine($"    Expected: {fmt(tex.Expected)}");
-                //                    if (tex.Actual is not null)
-                //                        reporter.WriteLine($"    Actual: {fmt(tex.Actual)}");
-                //                    if (!string.IsNullOrWhiteSpace(tex.Because))
-                //                        reporter.WriteLine($"    Because: {tex.Because}");
-                //                    if (!string.IsNullOrWhiteSpace(tex.WithHint))
-                //                        reporter.WriteLine($"    Hint: {tex.WithHint}");
-                //                }
                 // walk inner exceptions to find a TinyBddAssertionException, if present
                 Exception? inner = s.Error;
                 TinyBDD.Assertions.TinyBddAssertionException? tex = null;
