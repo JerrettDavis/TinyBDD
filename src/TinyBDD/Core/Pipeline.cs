@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using TinyBDD.Assertions;
 
 namespace TinyBDD;
 
@@ -65,7 +66,7 @@ internal static class AssertUtil
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Ensure(bool ok, string title)
     {
-        if (!ok) throw new BddAssertException($"Assertion failed: {title}");
+        if (!ok) throw new TinyBddAssertionException($"Assertion failed: {title}");
     }
 }
 
@@ -247,6 +248,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
             Exception? err = null;
             var canceled = false;
             var captured = false;
+            var input = _state; // capture input before executing
 
             BeforeStep?.Invoke(ctx, new StepMetadata(kind, title, step.Phase, step.Word));
 
@@ -268,13 +270,6 @@ internal sealed class Pipeline(ScenarioContext ctx)
                 // Cooperative cancellation from the caller; record and rethrow after finally.
                 canceled = true;
                 err = null;
-            }
-            catch (BddAssertException ex)
-            {
-                // Then/verification failure. Record and optionally halt depending on options.
-                err = ex;
-                if (haltOnFailedAssert)
-                    throw;
             }
             catch (TinyBDD.Assertions.TinyBddAssertionException ex)
             {
@@ -326,7 +321,12 @@ internal sealed class Pipeline(ScenarioContext ctx)
 
                 captured = true;
 
+                // Record step timing/result
                 ctx.AddStep(result);
+                // Record IO and update current item pointer
+                ctx.AddIO(new StepIO(kind, title, input, _state));
+                ctx.CurrentItem = _state;
+
                 AfterStep?.Invoke(ctx, result);
             }
 

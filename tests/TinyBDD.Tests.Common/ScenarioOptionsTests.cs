@@ -1,3 +1,5 @@
+using TinyBDD.Assertions;
+
 namespace TinyBDD.Tests.Common;
 
 public class ScenarioOptionsTests
@@ -14,7 +16,7 @@ public class ScenarioOptionsTests
             HaltOnFailedAssertion = true
         });
 
-        await Assert.ThrowsAsync<BddAssertException>(async () =>
+        await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
             await Bdd.Given(ctx, "start", () => 1)
                 .Then("fail", v => v == 2)
                 .And("after", _ => Task.CompletedTask));
