@@ -49,8 +49,15 @@ public sealed class ScenarioContext
     /// <summary>All recorded steps in execution order.</summary>
     public IReadOnlyList<StepResult> Steps => _steps;
 
+    /// <summary>Running log of per-step inputs and outputs.</summary>
+    public IReadOnlyList<StepIO> IO => _io;
+
+    /// <summary>The current carried item (latest successful state).</summary>
+    public object? CurrentItem { get; internal set; }
+
     private readonly List<StepResult> _steps = new();
     private readonly HashSet<string> _tags = new();
+    private readonly List<StepIO> _io = new();
 
     /// <summary>
     /// Bridge for integrating tags/categories with a host test framework.
@@ -110,6 +117,11 @@ public sealed class ScenarioContext
     /// Adds a recorded step to <see cref="Steps"/>. Intended for internal use by the framework.
     /// </summary>
     internal void AddStep(StepResult s) => _steps.Add(s);
+
+    /// <summary>
+    /// Records input/output for a step. Intended for internal use by the framework.
+    /// </summary>
+    internal void AddIO(StepIO io) => _io.Add(io);
 }
 
 public class ScenarioContextPrototype
