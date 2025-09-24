@@ -4,7 +4,6 @@ _layout: landing
 
 # TinyBDD — Fluent BDD for .NET, zero ceremony
 
-
 Write expressive Given/When/Then tests that feel great and run anywhere (xUnit, NUnit, MSTest) without framework lock-in.
 
 ## Why TinyBDD
@@ -13,6 +12,8 @@ Write expressive Given/When/Then tests that feel great and run anywhere (xUnit, 
 
 - Tiny core you can read in minutes
 - Fluent, async-first chains (Given/When/Then/And/But)
+- Deferred fluent expectations (`Expect.For/That`) — compose reasons/hints, throw only when awaited
+- Automatic Step IO lineage (inputs/outputs + current item tracked)
 - Works with any assertion library
 - Adapters for xUnit, NUnit, MSTest (optional)
 - Gherkin-style reporting to your test output
@@ -36,8 +37,15 @@ await Bdd.Given(ctx, "numbers", () => new[]{1,2,3})
          .AssertPassed();
 ```
 
-## Get started
+## Documentation Map
 - Introduction: [introduction.md](introduction.md)
 - Getting Started: [getting-started.md](getting-started.md)
+- Fundamentals (BDD & Gherkin): [bdd-fundamentals.md](bdd-fundamentals.md)
+- BDD + TDD Workflow: [tdd-via-bdd.md](tdd-via-bdd.md)
+- Expectations & Assertions: [assertions-and-expectations.md](assertions-and-expectations.md)
+- Step IO & State Tracking: [step-io-and-state.md](step-io-and-state.md)
+- Tips & Tricks: [tips-and-tricks.md](tips-and-tricks.md)
+- Extensibility & Advanced: [advanced-usage.md](advanced-usage.md)
+- API Reference: [api/](api/)
 
 Tip: add [Feature], [Scenario], and [Tag] to make reports shine. Base classes emit Gherkin output automatically.
