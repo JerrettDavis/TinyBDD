@@ -1,18 +1,8 @@
-- name: Introduction
-  href: introduction.md
-- name: Getting Started
-  href: getting-started.md
-- name: Fundamentals (BDD & Gherkin)
-  href: bdd-fundamentals.md
-- name: BDD + TDD Workflow
-  href: tdd-via-bdd.md
-- name: Expectations & Assertions
-  href: assertions-and-expectations.md
-- name: Step IO & State Tracking
-  href: step-io-and-state.md
-- name: Tips & Tricks
-  href: tips-and-tricks.md
-- name: Extensibility & Advanced
-  href: advanced-usage.md
+- name: Home
+  href: index.md
+  
+- name: User Guide
+  href: user-guide/
+    
 - name: API
   href: api/

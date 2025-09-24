@@ -38,14 +38,13 @@ await Bdd.Given(ctx, "numbers", () => new[]{1,2,3})
 ```
 
 ## Documentation Map
-- Introduction: [introduction.md](introduction.md)
-- Getting Started: [getting-started.md](getting-started.md)
-- Fundamentals (BDD & Gherkin): [bdd-fundamentals.md](bdd-fundamentals.md)
-- BDD + TDD Workflow: [tdd-via-bdd.md](tdd-via-bdd.md)
-- Expectations & Assertions: [assertions-and-expectations.md](assertions-and-expectations.md)
-- Step IO & State Tracking: [step-io-and-state.md](step-io-and-state.md)
-- Tips & Tricks: [tips-and-tricks.md](tips-and-tricks.md)
-- Extensibility & Advanced: [advanced-usage.md](advanced-usage.md)
-- API Reference: [api/](api/)
+- Introduction: [introduction.md](/user-guide/index.md)
+- Getting Started: [getting-started.md](/user-guide/getting-started.md)
+- Fundamentals (BDD & Gherkin): [bdd-fundamentals.md](/user-guide/bdd-fundamentals.md)
+- BDD + TDD Workflow: [tdd-via-bdd.md](/user-guide/tdd-via-bdd.md)
+- Expectations & Assertions: [assertions-and-expectations.md](/user-guide/assertions-and-expectations.md)
+- Step IO & State Tracking: [step-io-and-state.md](/user-guide/step-io-and-state.md)
+- Tips & Tricks: [tips-and-tricks.md](/user-guide/tips-and-tricks.md)
+- Extensibility & Advanced: [advanced-usage.md](/user-guide/advanced-usage.md)
 
 Tip: add [Feature], [Scenario], and [Tag] to make reports shine. Base classes emit Gherkin output automatically.

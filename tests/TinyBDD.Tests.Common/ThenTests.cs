@@ -324,7 +324,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
     public Task Then_String_Func_ValueTask()
         => Given("seed", () => 1)
             .When("identity", x => x)
-            .Then("effect", v => new ValueTask())
+            .Then("effect", _ => new ValueTask())
             .And("== 1", v => v == 1)
             .AssertPassed();
 
@@ -333,7 +333,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
     public Task Then_String_Func_Token_ValueTask()
         => Given("seed", () => 1)
             .When("identity", x => x)
-            .Then("effect", (v, _) => new ValueTask())
+            .Then("effect", (_, _) => new ValueTask())
             .And("== 1", v => v == 1)
             .AssertPassed();
 
@@ -404,14 +404,14 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
     public Task Then_String_Action_NoValue()
         => Given("seed", () => 1)
             .When("identity", x => x)
-            .Then("effect", v => { })
+            .Then("effect", _ => { })
             .AssertPassed();
 
     [Scenario("Then(Action<T>)")]
     [Fact]
     public Task Then_Action_NoValue()
         => Given("seed", () => 1)
-            .Then(v => { })
+            .Then(_ => { })
             .AssertPassed();
 
     [Scenario("Then(string,Action)")]
