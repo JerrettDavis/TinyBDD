@@ -58,11 +58,11 @@ internal static class KindStrings
 internal static class AssertUtil
 {
     /// <summary>
-    /// Throws <see cref="BddAssertException"/> if the provided condition is <see langword="false"/>.
+    /// Throws <see cref="TinyBddAssertionException"/> if the provided condition is <see langword="false"/>.
     /// </summary>
     /// <param name="ok">Condition to validate.</param>
     /// <param name="title">Assertion title used for error reporting.</param>
-    /// <exception cref="BddAssertException">Thrown when <paramref name="ok"/> is <see langword="false"/>.</exception>
+    /// <exception cref="TinyBddAssertionException">Thrown when <paramref name="ok"/> is <see langword="false"/>.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Ensure(bool ok, string title)
     {
@@ -85,7 +85,7 @@ internal static class AssertUtil
 /// </para>
 /// <list type="bullet">
 ///   <item><description><see cref="ScenarioOptions.ContinueOnError"/> — continue executing after non-assert exceptions.</description></item>
-///   <item><description><see cref="ScenarioOptions.HaltOnFailedAssertion"/> — rethrow <see cref="BddAssertException"/> failures immediately.</description></item>
+///   <item><description><see cref="ScenarioOptions.HaltOnFailedAssertion"/> — rethrow <see cref="TinyBddAssertionException"/> failures immediately.</description></item>
 ///   <item><description><see cref="ScenarioOptions.StepTimeout"/> — optional per-step timeout.</description></item>
 ///   <item><description><see cref="ScenarioOptions.MarkRemainingAsSkippedOnFailure"/> — mark enqueued steps as skipped when aborting.</description></item>
 /// </list>
@@ -216,7 +216,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
     /// <see cref="ScenarioOptions.MarkRemainingAsSkippedOnFailure"/> is enabled, remaining steps are recorded as skipped.
     /// </para>
     /// <para>
-    /// If <see cref="ScenarioOptions.HaltOnFailedAssertion"/> is <see langword="true"/>, a <see cref="BddAssertException"/>
+    /// If <see cref="ScenarioOptions.HaltOnFailedAssertion"/> is <see langword="true"/>, a <see cref="TinyBddAssertionException"/>
     /// will be rethrown immediately after recording, halting the pipeline. Otherwise the failure is recorded and
     /// execution continues according to <see cref="ScenarioOptions.ContinueOnError"/>.
     /// </para>
@@ -271,7 +271,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
                 canceled = true;
                 err = null;
             }
-            catch (TinyBDD.Assertions.TinyBddAssertionException ex)
+            catch (TinyBddAssertionException ex)
             {
                 // Fluent assertion failure (Expect.That/For) should be treated like an assertion failure.
                 err = ex;

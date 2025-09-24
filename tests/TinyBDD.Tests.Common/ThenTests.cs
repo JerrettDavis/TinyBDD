@@ -434,7 +434,7 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
     public async Task Then_ImplicitValueTask_From_ExpectThat_Succeeds()
         => await Given("seed", () => 2)
             .When("double", x => x * 2)
-            .Then("is 4 via Expect.That", v => TinyBDD.Assertions.Expect.That(v, "result").ToBe(4))
+            .Then("is 4 via Expect.That", v => Assertions.Expect.That(v, "result").ToBe(4))
             .AssertPassed();
 
     [Scenario("Then can return Expect.That() (implicit ValueTask) and fail")]
@@ -442,6 +442,6 @@ public class ThenTests(ITestOutputHelper output) : TinyBddXunitBase(output)
     public async Task Then_ImplicitValueTask_From_ExpectThat_Fails()
         => await Given("seed", () => 2)
             .When("double", x => x * 2)
-            .Then("is 5 via Expect.That", v => TinyBDD.Assertions.Expect.That(v, "result").ToBe(5))
+            .Then("is 5 via Expect.That", v => Assertions.Expect.That(v, "result").ToBe(5))
             .AssertFailed();
 }

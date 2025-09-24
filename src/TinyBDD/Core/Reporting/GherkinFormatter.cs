@@ -99,37 +99,44 @@ public static class GherkinFormatter
             var status = s.Error is null ? "OK" : "FAIL";
             var ms = $"{(long)Math.Round(s.Elapsed.TotalMilliseconds)} ms";
             reporter.WriteLine($"  {s.Kind} {s.Title} [{status}] {ms}");
-            if (s.Error is not null)
+            if (s.Error is null)
+                continue;
+            
+            reporter.WriteLine($"    Error: {s.Error.GetType().Name}: {s.Error.Message}");
+            // If this error is or contains a TinyBddAssertionException, include structured expected/actual info
+            // walk inner exceptions to find a TinyBddAssertionException, if present
+            var inner = s.Error;
+            Assertions.TinyBddAssertionException? tex = null;
+            while (inner is not null)
             {
-                reporter.WriteLine($"    Error: {s.Error.GetType().Name}: {s.Error.Message}");
-                // If this error is or contains a TinyBddAssertionException, include structured expected/actual info
-                // walk inner exceptions to find a TinyBddAssertionException, if present
-                Exception? inner = s.Error;
-                TinyBDD.Assertions.TinyBddAssertionException? tex = null;
-                while (inner is not null)
+                if (inner is Assertions.TinyBddAssertionException t)
                 {
-                    if (inner is TinyBDD.Assertions.TinyBddAssertionException t)
-                    {
-                        tex = t;
-                        break;
-                    }
-                    inner = inner.InnerException;
+                    tex = t;
+                    break;
                 }
-
-                if (tex is not null)
-                {
-                    string fmt(object? v) => v is null ? "null" : v is string sv ? $"\"{sv}\"" : v.ToString();
-                    if (!string.IsNullOrWhiteSpace(tex.Subject))
-                        reporter.WriteLine($"    Subject: {tex.Subject}");
-                    // show Expected/Actual even if null to be explicit
-                    reporter.WriteLine($"    Expected: {fmt(tex.Expected)}");
-                    reporter.WriteLine($"    Actual: {fmt(tex.Actual)}");
-                    if (!string.IsNullOrWhiteSpace(tex.Because))
-                        reporter.WriteLine($"    Because: {tex.Because}");
-                    if (!string.IsNullOrWhiteSpace(tex.WithHint))
-                        reporter.WriteLine($"    Hint: {tex.WithHint}");
-                }
+                inner = inner.InnerException;
             }
+
+            if (tex is null)
+                continue;
+
+            if (!string.IsNullOrWhiteSpace(tex.Subject))
+                reporter.WriteLine($"    Subject: {tex.Subject}");
+            // show Expected/Actual even if null to be explicit
+            reporter.WriteLine($"    Expected: {Fmt(tex.Expected)}");
+            reporter.WriteLine($"    Actual: {Fmt(tex.Actual)}");
+            if (!string.IsNullOrWhiteSpace(tex.Because))
+                reporter.WriteLine($"    Because: {tex.Because}");
+            if (!string.IsNullOrWhiteSpace(tex.WithHint))
+                reporter.WriteLine($"    Hint: {tex.WithHint}");
+            continue;
+
+            string Fmt(object? v) => v switch
+            {
+                null => "null",
+                string sv => $"\"{sv}\"",
+                _ => v.ToString() ?? string.Empty
+            };
         }
     }
 }
