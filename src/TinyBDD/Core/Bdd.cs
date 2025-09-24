@@ -100,9 +100,11 @@ public static partial class Bdd
         string? scenarioName,
         ScenarioAttribute? scenarioAttr,
         MethodInfo? method) =>
-        !string.IsNullOrWhiteSpace(scenarioName) ? scenarioName :
-        !string.IsNullOrWhiteSpace(scenarioAttr?.Name) ? scenarioAttr.Name! :
-        method?.Name ?? "Scenario";
+        (!string.IsNullOrWhiteSpace(scenarioName) 
+            ? scenarioName 
+            : !string.IsNullOrWhiteSpace(scenarioAttr?.Name) 
+                ? scenarioAttr!.Name! 
+                : method?.Name) ?? "Scenario";
 
     private static MethodInfo? FindCurrentTestMethod() =>
         _resolver?.GetCurrentTestMethod() ?? FindByStackTrace();
@@ -112,11 +114,11 @@ public static partial class Bdd
     {
         var frames = new StackTrace().GetFrames();
 
-        foreach (var mi in frames.Select(f => f.GetMethod()).OfType<MethodInfo>())
+        foreach (var mi in frames?.Select(f => f.GetMethod()).OfType<MethodInfo>() ?? [])
             if (mi.GetCustomAttribute<ScenarioAttribute>() is not null)
                 return mi;
 
-        return frames
+        return frames?
             .Select(f => f.GetMethod())
             .OfType<MethodInfo>()
             .FirstOrDefault(HasAnyTestAttribute);

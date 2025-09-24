@@ -1,30 +1,29 @@
 using TinyBDD.Assertions;
+using Xunit;
 
 namespace TinyBDD.Tests.Common;
 
 public class TinyBddAssertionExceptionTests
 {
     [Fact]
-    public void Ctor_Message_Inner_Sets_Properties()
+    public void InnerException_Ctor_Sets_Properties()
     {
-        var inner = new InvalidOperationException("inner");
-        var ex = new TinyBddAssertionException("msg", inner);
+        var inner = new InvalidOperationException("inner boom");
+        var ex = new TinyBddAssertionException("outer boom", inner)
+        {
+            Expected = 42,
+            Actual = 41,
+            Subject = "answer",
+            Because = "we need life meaning",
+            WithHint = "check config"
+        };
 
-        Assert.Equal("msg", ex.Message);
+        Assert.Equal("outer boom", ex.Message);
         Assert.Same(inner, ex.InnerException);
-
-        // Exercise structured fields
-        ex.Expected = 1;
-        ex.Actual = 2;
-        ex.Subject = "sub";
-        ex.Because = "why";
-        ex.WithHint = "hint";
-
-        Assert.Equal(1, ex.Expected);
-        Assert.Equal(2, ex.Actual);
-        Assert.Equal("sub", ex.Subject);
-        Assert.Equal("why", ex.Because);
-        Assert.Equal("hint", ex.WithHint);
+        Assert.Equal(42, ex.Expected);
+        Assert.Equal(41, ex.Actual);
+        Assert.Equal("answer", ex.Subject);
+        Assert.Equal("we need life meaning", ex.Because);
+        Assert.Equal("check config", ex.WithHint);
     }
 }
-

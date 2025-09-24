@@ -3,13 +3,15 @@
 TinyBDD is a tiny, fluent BDD helper for .NET tests. It gives you a clean Given/When/Then style without tying you to a
 specific test framework.
 
-<img src="images/tinyBDD.png" alt="TinyBDD" width="110" align="right" />
+<img src="~/images/tinyBDD.png" alt="TinyBDD" width="110" align="right" />
 
 Why TinyBDD
 
 - Tiny: a small core you can read in minutes
 - Fluent: expressive chains for Given, When, Then, And, But
 - Pragmatic: first-class adapters for xUnit, NUnit, and MSTest, but works fine without them
+- Deferred fluent expectations: `Expect.For/That` let you compose `.Because()` / `.With()` / checks in any order and only throw when awaited
+- Built-in step lineage: every step’s input/output captured in `ScenarioContext.IO` plus `CurrentItem` pointer for post-mortem analysis
 
 Core ideas
 
@@ -50,6 +52,7 @@ Assertions made simple
 
 - Action-based: Then("works", () => Task.CompletedTask)
 - Predicate-based: Then("x == 2", v => v == 2) — throws BddAssertException on false
+- Fluent deferred: await Expect.For(value, "subject").Because("why").With("hint").ToBe(expected);
 - With or without CancellationToken, and available for And/But too
 
 Reporting
@@ -60,10 +63,18 @@ Reporting
 Design notes
 
 - Steps are recorded in ScenarioContext.Steps as they execute
+- Per-step Input/Output captured (ScenarioContext.IO) and latest CurrentItem maintained
 - Failures are captured and rethrown as BddStepException with the original exception as InnerException
 - Async-friendly by default; chains are Task-based and CancellationToken-friendly where it helps
 
 Where next
 
-- Read Getting Started to install and set up for your test framework
-- Browse the API reference for details and overloads
+- Introduction: [introduction.md](index.md)
+- Getting Started: [getting-started.md](getting-started.md)
+- Fundamentals (BDD & Gherkin): [bdd-fundamentals.md](bdd-fundamentals.md)
+- BDD + TDD Workflow: [tdd-via-bdd.md](tdd-via-bdd.md)
+- Expectations & Assertions: [assertions-and-expectations.md](assertions-and-expectations.md)
+- Step IO & State Tracking: [step-io-and-state.md](step-io-and-state.md)
+- Tips & Tricks: [tips-and-tricks.md](tips-and-tricks.md)
+- Extensibility & Advanced: [advanced-usage.md](advanced-usage.md)
+

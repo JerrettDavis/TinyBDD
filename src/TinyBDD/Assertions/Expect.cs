@@ -94,25 +94,25 @@ public readonly struct FluentPredicate<T>
     /// <summary>Adds an extra hint to be appended to messages.</summary>
     public FluentPredicate<T> With(string? hint) => new(_actual, _subject, _because, hint);
 
-    public bool ToBe(T expected, string? because = null)
+    public bool ToBe(T expected)
         => EqualityComparer<T>.Default.Equals(_actual, expected);
 
-    public bool ToEqual<TExpected>(TExpected expected, string? because = null)
+    public bool ToEqual<TExpected>(TExpected expected)
         => Equals(_actual, expected);
 
-    public bool ToBeTrue(string? because = null)
+    public bool ToBeTrue()
         => _actual is true;
 
-    public bool ToBeFalse(string? because = null)
+    public bool ToBeFalse()
         => _actual is false;
 
-    public bool ToBeNull(string? because = null)
+    public bool ToBeNull()
         => _actual is null;
 
-    public bool ToNotBeNull(string? because = null)
+    public bool ToNotBeNull()
         => _actual is not null;
 
-    public bool ToSatisfy(Func<T, bool> predicate, string? because = null)
+    public bool ToSatisfy(Func<T, bool> predicate)
         => predicate(_actual);
 
     public override string ToString()
@@ -122,19 +122,13 @@ public readonly struct FluentPredicate<T>
 /// <summary>
 /// Internal mutable state for a deferred assertion, enabling order-independent composition (Because/With before or after checks).
 /// </summary>
-internal sealed class FluentAssertionState<T>
+internal sealed class FluentAssertionState<T>(T actual, string? subject)
 {
-    public T Actual { get; }
-    public string? Subject { get; set; }
+    public T Actual { get; } = actual;
+    public string? Subject { get; set; } = subject;
     public string? Because { get; set; }
     public string? With { get; set; }
     public List<Func<ValueTask>> Checks { get; } = new();
-
-    public FluentAssertionState(T actual, string? subject)
-    {
-        Actual = actual;
-        Subject = subject;
-    }
 }
 
 /// <summary>
@@ -165,6 +159,12 @@ public sealed class FluentAssertion<T>(T actual, string? subject)
         return this;
     }
 
+    /// <summary>
+    /// Adds an equality check to the assertion with deferred throwing.
+    /// Uses <see cref="EqualityComparer{T}.Default"/> for comparison.
+    /// </summary>
+    /// <param name="expected">The expected value.</param>
+    /// <returns>The current assertion instance for further chaining.</returns>
     public FluentAssertion<T> ToBe(T expected)
     {
         _state.Checks.Add(() =>
@@ -176,6 +176,13 @@ public sealed class FluentAssertion<T>(T actual, string? subject)
         return this;
     }
 
+    /// <summary>
+    /// Adds an equality check to the assertion with deferred throwing.
+    /// Uses <see cref="EqualityComparer{T}.Default"/> for comparison.
+    /// </summary>
+    /// <param name="expected">The expected value.</param>
+    /// <typeparam name="TExpected">The expected value type, which may differ from <typeparamref name="T"/>.</typeparam>
+    /// <returns>The current assertion instance for further chaining.</returns>
     public FluentAssertion<T> ToEqual<TExpected>(TExpected expected)
     {
         _state.Checks.Add(() =>
@@ -187,7 +194,11 @@ public sealed class FluentAssertion<T>(T actual, string? subject)
         });
         return this;
     }
-
+    
+    /// <summary>
+    /// Adds a boolean true check to the assertion with deferred throwing.
+    /// </summary>
+    /// <returns>The current assertion instance for further chaining.</returns>
     public FluentAssertion<T> ToBeTrue()
     {
         _state.Checks.Add(() =>
@@ -199,6 +210,10 @@ public sealed class FluentAssertion<T>(T actual, string? subject)
         return this;
     }
 
+    /// <summary>
+    /// Adds a boolean false check to the assertion with deferred throwing.
+    /// </summary>
+    /// <returns>The current assertion instance for further chaining.</returns>
     public FluentAssertion<T> ToBeFalse()
     {
         _state.Checks.Add(() =>
@@ -210,6 +225,10 @@ public sealed class FluentAssertion<T>(T actual, string? subject)
         return this;
     }
 
+    /// <summary>
+    /// Adds a null check to the assertion with deferred throwing.
+    /// </summary>
+    /// <returns>The current assertion instance for further chaining.</returns>   
     public FluentAssertion<T> ToBeNull()
     {
         _state.Checks.Add(() =>
@@ -221,6 +240,10 @@ public sealed class FluentAssertion<T>(T actual, string? subject)
         return this;
     }
 
+    /// <summary>
+    /// Adds a non-null check to the assertion with deferred throwing.
+    /// </summary>
+    /// <returns>The current assertion instance for further chaining.</returns>  
     public FluentAssertion<T> ToNotBeNull()
     {
         _state.Checks.Add(() =>
@@ -232,6 +255,12 @@ public sealed class FluentAssertion<T>(T actual, string? subject)
         return this;
     }
 
+    /// <summary>
+    /// Adds a predicate check to the assertion with deferred throwing.
+    /// </summary>
+    /// <param name="predicate">The predicate to evaluate.</param>
+    /// <param name="description">An optional description to include in the failure message.</param>
+    /// <returns>The current assertion instance for further chaining.</returns> 
     public FluentAssertion<T> ToSatisfy(Func<T, bool> predicate, string? description = null)
     {
         _state.Checks.Add(() =>
@@ -280,7 +309,12 @@ public sealed class FluentAssertion<T>(T actual, string? subject)
     }
 
     private static string Fmt(object? value)
-        => value is null ? "null" : value is string s ? $"\"{s}\"" : value.ToString()!;
+        => value switch
+        {
+            null => "null",
+            string s => $"\"{s}\"",
+            _ => value.ToString() ?? string.Empty
+        };
 }
 
 /// <summary>English-readable predicate helpers on strings and enumerables for use inside Then/And predicate chains.</summary>
