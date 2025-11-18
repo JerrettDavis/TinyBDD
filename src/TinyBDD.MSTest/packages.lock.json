@@ -155,15 +155,6 @@
       }
     },
     ".NETFramework,Version=v4.8": {
-      "Microsoft.NETFramework.ReferenceAssemblies": {
-        "type": "Direct",
-        "requested": "[1.0.3, )",
-        "resolved": "1.0.3",
-        "contentHash": "vUc9Npcs14QsyOD01tnv/m8sQUnGTGOw1BCmKcv77LBJY7OxhJ+zJF7UD/sCL3lYNFuqmQEVlkfS4Quif6FyYg==",
-        "dependencies": {
-          "Microsoft.NETFramework.ReferenceAssemblies.net48": "1.0.3"
-        }
-      },
       "MSTest.TestFramework": {
         "type": "Direct",
         "requested": "[3.10.2, )",
@@ -173,11 +164,6 @@
           "MSTest.Analyzers": "3.10.2",
           "System.Threading.Tasks.Extensions": "4.5.4"
         }
-      },
-      "Microsoft.NETFramework.ReferenceAssemblies.net48": {
-        "type": "Transitive",
-        "resolved": "1.0.3",
-        "contentHash": "zMk4D+9zyiEWByyQ7oPImPN/Jhpj166Ky0Nlla4eXlNL8hI/BtSJsgR8Inldd4NNpIAH3oh8yym0W2DrhXdSLQ=="
       },
       "MSTest.Analyzers": {
         "type": "Transitive",
@@ -206,15 +192,6 @@
       }
     },
     ".NETFramework,Version=v4.8.1": {
-      "Microsoft.NETFramework.ReferenceAssemblies": {
-        "type": "Direct",
-        "requested": "[1.0.3, )",
-        "resolved": "1.0.3",
-        "contentHash": "vUc9Npcs14QsyOD01tnv/m8sQUnGTGOw1BCmKcv77LBJY7OxhJ+zJF7UD/sCL3lYNFuqmQEVlkfS4Quif6FyYg==",
-        "dependencies": {
-          "Microsoft.NETFramework.ReferenceAssemblies.net481": "1.0.3"
-        }
-      },
       "MSTest.TestFramework": {
         "type": "Direct",
         "requested": "[3.10.2, )",
@@ -224,11 +201,6 @@
           "MSTest.Analyzers": "3.10.2",
           "System.Threading.Tasks.Extensions": "4.5.4"
         }
-      },
-      "Microsoft.NETFramework.ReferenceAssemblies.net481": {
-        "type": "Transitive",
-        "resolved": "1.0.3",
-        "contentHash": "Vv/20vgHS7VglVOVh8J3Iz/MA+VYKVRp9f7r2qiKBMuzviTOmocG70yq0Q8T5OTmCONkEAIJwETD1zhEfLkAXQ=="
       },
       "MSTest.Analyzers": {
         "type": "Transitive",
@@ -342,6 +314,25 @@
         "dependencies": {
           "System.Runtime.CompilerServices.Unsafe": "4.5.3"
         }
+      }
+    },
+    "net10.0": {
+      "MSTest.TestFramework": {
+        "type": "Direct",
+        "requested": "[3.10.2, )",
+        "resolved": "3.10.2",
+        "contentHash": "8rigmjMCEGbpAjrRhl/vCW4b4SE9AENMu1Uzatdke+L88v4YjyUlU5336160+np5HkdC9hizXo73NVzlCj2bog==",
+        "dependencies": {
+          "MSTest.Analyzers": "3.10.2"
+        }
+      },
+      "MSTest.Analyzers": {
+        "type": "Transitive",
+        "resolved": "3.10.2",
+        "contentHash": "WS9GHohjOzf653bqCSxplq3T25LAwFVeVrgLuotTiPDu+bO5bD7RgvXbkLqRqZGE2Qyuk/dbQpqa18PYAMXjMg=="
+      },
+      "tinybdd": {
+        "type": "Project"
       }
     },
     "net8.0": {
