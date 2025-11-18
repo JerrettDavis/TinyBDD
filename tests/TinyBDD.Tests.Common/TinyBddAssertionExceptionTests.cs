@@ -1,5 +1,4 @@
 using TinyBDD.Assertions;
-using Xunit;
 
 namespace TinyBDD.Tests.Common;
 

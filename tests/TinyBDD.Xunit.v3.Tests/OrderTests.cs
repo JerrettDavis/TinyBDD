@@ -1,6 +1,4 @@
-using TinyBDD.Xunit.v3;
-
-namespace TinyBDD.Xunit.Tests;
+namespace TinyBDD.Xunit.v3.Tests;
 
 [Feature("Orders", "As a customer I can place an order")]
 public class OrderTests(ITestOutputHelper output) : TinyBddXunitBase(output)

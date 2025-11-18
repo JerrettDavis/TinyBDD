@@ -1,6 +1,4 @@
 
-using TinyBDD.Xunit.Tests;
-
 namespace TinyBDD.Xunit.v3.Tests;
 
 [Feature("Xunit adapter")]

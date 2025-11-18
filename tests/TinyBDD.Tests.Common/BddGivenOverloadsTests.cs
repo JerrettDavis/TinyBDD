@@ -530,7 +530,7 @@ public class BddGivenOverloadsTests(ITestOutputHelper output) : TinyBddXunitBase
     {
         var ctx = Bdd.CreateContext(new Host());
         await Bdd.Given(ctx, "start",
-                (_, __) => Task.CompletedTask,
+                (_, _) => Task.CompletedTask,
                 Task.FromResult(5))
             .When("noop", NoopAsync)
             .Then("ok", Is5)
@@ -544,7 +544,7 @@ public class BddGivenOverloadsTests(ITestOutputHelper output) : TinyBddXunitBase
     {
         var ctx = Bdd.CreateContext(new Host());
         await Bdd.Given(ctx, "start",
-                (_, __) => new ValueTask(),
+                (_, _) => new ValueTask(),
                 Task.FromResult(5))
             .When("noop", NoopAsync)
             .Then("ok", Is5)
