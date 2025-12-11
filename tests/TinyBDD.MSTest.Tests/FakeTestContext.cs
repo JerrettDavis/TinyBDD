@@ -2,12 +2,16 @@ using System.Collections;
 
 namespace TinyBDD.MSTest.Tests;
 
-internal sealed class FakeTestContext(string? fqcn, string? testName) 
+internal sealed class FakeTestContext(string fqcn, string testName) 
     : TestContext
 {
+    #if NET6_0_OR_GREATER
+    public override IDictionary<string, object?> Properties { get; } = new Dictionary<string, object?>();
+    #else
     public override IDictionary Properties { get; } = new Dictionary<string, object>();
-    public override string? FullyQualifiedTestClassName { get; } = fqcn;
-    public override string? TestName { get; } = testName;
+    #endif
+    public override string FullyQualifiedTestClassName { get; } = fqcn;
+    public override string TestName { get; } = testName;
     public List<string> Lines { get; } = [];
 
     public override void Write(string format, params object?[] args) => Lines.Add(string.Format(format, args));
