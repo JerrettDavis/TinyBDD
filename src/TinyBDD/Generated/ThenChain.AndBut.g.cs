@@ -12,6 +12,31 @@ public readonly partial struct ThenChain<T>
         Add(StepWord.And, title, Wrap(title, predicate));
 
     /// <summary>
+    /// Adds an <c>And</c> boolean assertion with a default title
+    /// </summary>
+    /// <param name="predicate">Predicate evaluated against the carried value.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> And(Func<T, bool> predicate) =>
+        Add(StepWord.And, string.Empty, Wrap(nameof(And), predicate));
+
+    /// <summary>
+    /// Adds a <c>And</c> assertion with an explicit title using a synchronous action.
+    /// </summary>
+    /// <param name="title">Display title for the assertion.</param>
+    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> And(string title, Action<T> assertion) =>
+        Add(StepWord.And, title, Wrap(assertion));
+
+    /// <summary>
+    /// Adds a <c>And</c> assertion with a default title using a synchronous action.
+    /// </summary>
+    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> And(Action<T> assertion) =>
+        Add(StepWord.And, string.Empty, Wrap(assertion));
+
+    /// <summary>
     /// Adds an <c>And</c> boolean assertion with an explicit title
     /// </summary>
     /// <param name="title">Display title for the assertion.</param>
@@ -28,6 +53,73 @@ public readonly partial struct ThenChain<T>
     /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
     public ThenChain<T> And(string title, Func<T, CancellationToken, Task<bool>> predicate) =>
         Add(StepWord.And, title, Wrap(title, predicate));
+
+    /// <summary>
+    /// Adds an <c>And</c> boolean assertion with a default title
+    /// </summary>
+    /// <param name="predicate">Predicate evaluated against the carried value.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> And(Func<T, Task<bool>> predicate) =>
+        Add(StepWord.And, string.Empty, Wrap(nameof(And), predicate));
+
+    /// <summary>
+    /// Adds an <c>And</c> boolean assertion with a default title observing a token.
+    /// </summary>
+    /// <param name="predicate">Predicate evaluated against the carried value.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> And(Func<T, CancellationToken, Task<bool>> predicate) =>
+        Add(StepWord.And, string.Empty, Wrap(nameof(And), predicate));
+
+    /// <summary>
+    /// Adds an <c>And</c> assertion with an explicit title
+    /// </summary>
+    /// <param name="title">Display title for the assertion.</param>
+    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> And(string title, Func<T, Task> assertion) =>
+        Add(StepWord.And, title, Wrap(assertion));
+
+    /// <summary>
+    /// Adds an <c>And</c> assertion with an explicit title observing a token.
+    /// </summary>
+    /// <param name="title">Display title for the assertion.</param>
+    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> And(string title, Func<T, CancellationToken, Task> assertion) =>
+        Add(StepWord.And, title, Wrap(assertion));
+
+    /// <summary>
+    /// Adds an <c>And</c> assertion with a default title
+    /// </summary>
+    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> And(Func<T, Task> assertion) =>
+        Add(StepWord.And, string.Empty, Wrap(assertion));
+
+    /// <summary>
+    /// Adds an <c>And</c> assertion with a default title observing a token.
+    /// </summary>
+    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> And(Func<T, CancellationToken, Task> assertion) =>
+        Add(StepWord.And, string.Empty, Wrap(assertion));
+
+    /// <summary>
+    /// Adds a <c>And</c> assertion with an explicit title (no value parameter).
+    /// </summary>
+    /// <param name="title">Display title for the assertion.</param>
+    /// <param name="assertion">Asynchronous assertion.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> And(string title, Func<Task> assertion) =>
+        Add(StepWord.And, title, Wrap(assertion));
+
+    /// <summary>
+    /// Adds a <c>And</c> assertion with a default title (no value parameter).
+    /// </summary>
+    /// <param name="assertion">Asynchronous assertion.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> And(Func<Task> assertion) =>
+        Add(StepWord.And, string.Empty, Wrap(assertion));
 
     /// <summary>
     /// Adds an <c>And</c> boolean assertion with an explicit title
@@ -52,30 +144,6 @@ public readonly partial struct ThenChain<T>
     /// </summary>
     /// <param name="predicate">Predicate evaluated against the carried value.</param>
     /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> And(Func<T, bool> predicate) =>
-        Add(StepWord.And, string.Empty, Wrap(nameof(And), predicate));
-
-    /// <summary>
-    /// Adds an <c>And</c> boolean assertion with a default title
-    /// </summary>
-    /// <param name="predicate">Predicate evaluated against the carried value.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> And(Func<T, Task<bool>> predicate) =>
-        Add(StepWord.And, string.Empty, Wrap(nameof(And), predicate));
-
-    /// <summary>
-    /// Adds an <c>And</c> boolean assertion with a default title observing a token.
-    /// </summary>
-    /// <param name="predicate">Predicate evaluated against the carried value.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> And(Func<T, CancellationToken, Task<bool>> predicate) =>
-        Add(StepWord.And, string.Empty, Wrap(nameof(And), predicate));
-
-    /// <summary>
-    /// Adds an <c>And</c> boolean assertion with a default title
-    /// </summary>
-    /// <param name="predicate">Predicate evaluated against the carried value.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
     public ThenChain<T> And(Func<T, ValueTask<bool>> predicate) =>
         Add(StepWord.And, string.Empty, Wrap(nameof(And), predicate));
 
@@ -86,24 +154,6 @@ public readonly partial struct ThenChain<T>
     /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
     public ThenChain<T> And(Func<T, CancellationToken, ValueTask<bool>> predicate) =>
         Add(StepWord.And, string.Empty, Wrap(nameof(And), predicate));
-
-    /// <summary>
-    /// Adds an <c>And</c> assertion with an explicit title
-    /// </summary>
-    /// <param name="title">Display title for the assertion.</param>
-    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> And(string title, Func<T, Task> assertion) =>
-        Add(StepWord.And, title, Wrap(assertion));
-
-    /// <summary>
-    /// Adds an <c>And</c> assertion with an explicit title observing a token.
-    /// </summary>
-    /// <param name="title">Display title for the assertion.</param>
-    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> And(string title, Func<T, CancellationToken, Task> assertion) =>
-        Add(StepWord.And, title, Wrap(assertion));
 
     /// <summary>
     /// Adds an <c>And</c> assertion with an explicit title
@@ -128,22 +178,6 @@ public readonly partial struct ThenChain<T>
     /// </summary>
     /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
     /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> And(Func<T, Task> assertion) =>
-        Add(StepWord.And, string.Empty, Wrap(assertion));
-
-    /// <summary>
-    /// Adds an <c>And</c> assertion with a default title observing a token.
-    /// </summary>
-    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> And(Func<T, CancellationToken, Task> assertion) =>
-        Add(StepWord.And, string.Empty, Wrap(assertion));
-
-    /// <summary>
-    /// Adds an <c>And</c> assertion with a default title
-    /// </summary>
-    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
     public ThenChain<T> And(Func<T, ValueTask> assertion) =>
         Add(StepWord.And, string.Empty, Wrap(assertion));
 
@@ -156,40 +190,6 @@ public readonly partial struct ThenChain<T>
         Add(StepWord.And, string.Empty, Wrap(assertion));
 
     /// <summary>
-    /// Adds a <c>And</c> assertion with an explicit title (no value parameter).
-    /// </summary>
-    /// <param name="title">Display title for the assertion.</param>
-    /// <param name="assertion">Asynchronous assertion.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> And(string title, Func<Task> assertion) =>
-        Add(StepWord.And, title, Wrap(assertion));
-
-    /// <summary>
-    /// Adds a <c>And</c> assertion with a default title (no value parameter).
-    /// </summary>
-    /// <param name="assertion">Asynchronous assertion.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> And(Func<Task> assertion) =>
-        Add(StepWord.And, string.Empty, Wrap(assertion));
-
-    /// <summary>
-    /// Adds a <c>And</c> assertion with an explicit title using a synchronous action.
-    /// </summary>
-    /// <param name="title">Display title for the assertion.</param>
-    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> And(string title, Action<T> assertion) =>
-        Add(StepWord.And, title, Wrap(assertion));
-
-    /// <summary>
-    /// Adds a <c>And</c> assertion with a default title using a synchronous action.
-    /// </summary>
-    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> And(Action<T> assertion) =>
-        Add(StepWord.And, string.Empty, Wrap(assertion));
-
-    /// <summary>
     /// Adds an <c>But</c> boolean assertion with an explicit title
     /// </summary>
     /// <param name="title">Display title for the assertion.</param>
@@ -197,6 +197,31 @@ public readonly partial struct ThenChain<T>
     /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
     public ThenChain<T> But(string title, Func<T, bool> predicate) =>
         Add(StepWord.But, title, Wrap(title, predicate));
+
+    /// <summary>
+    /// Adds an <c>But</c> boolean assertion with a default title
+    /// </summary>
+    /// <param name="predicate">Predicate evaluated against the carried value.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> But(Func<T, bool> predicate) =>
+        Add(StepWord.But, string.Empty, Wrap(nameof(But), predicate));
+
+    /// <summary>
+    /// Adds a <c>But</c> assertion with an explicit title using a synchronous action.
+    /// </summary>
+    /// <param name="title">Display title for the assertion.</param>
+    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> But(string title, Action<T> assertion) =>
+        Add(StepWord.But, title, Wrap(assertion));
+
+    /// <summary>
+    /// Adds a <c>But</c> assertion with a default title using a synchronous action.
+    /// </summary>
+    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> But(Action<T> assertion) =>
+        Add(StepWord.But, string.Empty, Wrap(assertion));
 
     /// <summary>
     /// Adds an <c>But</c> boolean assertion with an explicit title
@@ -215,6 +240,73 @@ public readonly partial struct ThenChain<T>
     /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
     public ThenChain<T> But(string title, Func<T, CancellationToken, Task<bool>> predicate) =>
         Add(StepWord.But, title, Wrap(title, predicate));
+
+    /// <summary>
+    /// Adds an <c>But</c> boolean assertion with a default title
+    /// </summary>
+    /// <param name="predicate">Predicate evaluated against the carried value.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> But(Func<T, Task<bool>> predicate) =>
+        Add(StepWord.But, string.Empty, Wrap(nameof(But), predicate));
+
+    /// <summary>
+    /// Adds an <c>But</c> boolean assertion with a default title observing a token.
+    /// </summary>
+    /// <param name="predicate">Predicate evaluated against the carried value.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> But(Func<T, CancellationToken, Task<bool>> predicate) =>
+        Add(StepWord.But, string.Empty, Wrap(nameof(But), predicate));
+
+    /// <summary>
+    /// Adds an <c>But</c> assertion with an explicit title
+    /// </summary>
+    /// <param name="title">Display title for the assertion.</param>
+    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> But(string title, Func<T, Task> assertion) =>
+        Add(StepWord.But, title, Wrap(assertion));
+
+    /// <summary>
+    /// Adds an <c>But</c> assertion with an explicit title observing a token.
+    /// </summary>
+    /// <param name="title">Display title for the assertion.</param>
+    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> But(string title, Func<T, CancellationToken, Task> assertion) =>
+        Add(StepWord.But, title, Wrap(assertion));
+
+    /// <summary>
+    /// Adds an <c>But</c> assertion with a default title
+    /// </summary>
+    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> But(Func<T, Task> assertion) =>
+        Add(StepWord.But, string.Empty, Wrap(assertion));
+
+    /// <summary>
+    /// Adds an <c>But</c> assertion with a default title observing a token.
+    /// </summary>
+    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> But(Func<T, CancellationToken, Task> assertion) =>
+        Add(StepWord.But, string.Empty, Wrap(assertion));
+
+    /// <summary>
+    /// Adds a <c>But</c> assertion with an explicit title (no value parameter).
+    /// </summary>
+    /// <param name="title">Display title for the assertion.</param>
+    /// <param name="assertion">Asynchronous assertion.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> But(string title, Func<Task> assertion) =>
+        Add(StepWord.But, title, Wrap(assertion));
+
+    /// <summary>
+    /// Adds a <c>But</c> assertion with a default title (no value parameter).
+    /// </summary>
+    /// <param name="assertion">Asynchronous assertion.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> But(Func<Task> assertion) =>
+        Add(StepWord.But, string.Empty, Wrap(assertion));
 
     /// <summary>
     /// Adds an <c>But</c> boolean assertion with an explicit title
@@ -239,30 +331,6 @@ public readonly partial struct ThenChain<T>
     /// </summary>
     /// <param name="predicate">Predicate evaluated against the carried value.</param>
     /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> But(Func<T, bool> predicate) =>
-        Add(StepWord.But, string.Empty, Wrap(nameof(But), predicate));
-
-    /// <summary>
-    /// Adds an <c>But</c> boolean assertion with a default title
-    /// </summary>
-    /// <param name="predicate">Predicate evaluated against the carried value.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> But(Func<T, Task<bool>> predicate) =>
-        Add(StepWord.But, string.Empty, Wrap(nameof(But), predicate));
-
-    /// <summary>
-    /// Adds an <c>But</c> boolean assertion with a default title observing a token.
-    /// </summary>
-    /// <param name="predicate">Predicate evaluated against the carried value.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> But(Func<T, CancellationToken, Task<bool>> predicate) =>
-        Add(StepWord.But, string.Empty, Wrap(nameof(But), predicate));
-
-    /// <summary>
-    /// Adds an <c>But</c> boolean assertion with a default title
-    /// </summary>
-    /// <param name="predicate">Predicate evaluated against the carried value.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
     public ThenChain<T> But(Func<T, ValueTask<bool>> predicate) =>
         Add(StepWord.But, string.Empty, Wrap(nameof(But), predicate));
 
@@ -273,24 +341,6 @@ public readonly partial struct ThenChain<T>
     /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
     public ThenChain<T> But(Func<T, CancellationToken, ValueTask<bool>> predicate) =>
         Add(StepWord.But, string.Empty, Wrap(nameof(But), predicate));
-
-    /// <summary>
-    /// Adds an <c>But</c> assertion with an explicit title
-    /// </summary>
-    /// <param name="title">Display title for the assertion.</param>
-    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> But(string title, Func<T, Task> assertion) =>
-        Add(StepWord.But, title, Wrap(assertion));
-
-    /// <summary>
-    /// Adds an <c>But</c> assertion with an explicit title observing a token.
-    /// </summary>
-    /// <param name="title">Display title for the assertion.</param>
-    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> But(string title, Func<T, CancellationToken, Task> assertion) =>
-        Add(StepWord.But, title, Wrap(assertion));
 
     /// <summary>
     /// Adds an <c>But</c> assertion with an explicit title
@@ -315,22 +365,6 @@ public readonly partial struct ThenChain<T>
     /// </summary>
     /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
     /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> But(Func<T, Task> assertion) =>
-        Add(StepWord.But, string.Empty, Wrap(assertion));
-
-    /// <summary>
-    /// Adds an <c>But</c> assertion with a default title observing a token.
-    /// </summary>
-    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> But(Func<T, CancellationToken, Task> assertion) =>
-        Add(StepWord.But, string.Empty, Wrap(assertion));
-
-    /// <summary>
-    /// Adds an <c>But</c> assertion with a default title
-    /// </summary>
-    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
     public ThenChain<T> But(Func<T, ValueTask> assertion) =>
         Add(StepWord.But, string.Empty, Wrap(assertion));
 
@@ -340,40 +374,6 @@ public readonly partial struct ThenChain<T>
     /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
     /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
     public ThenChain<T> But(Func<T, CancellationToken, ValueTask> assertion) =>
-        Add(StepWord.But, string.Empty, Wrap(assertion));
-
-    /// <summary>
-    /// Adds a <c>But</c> assertion with an explicit title (no value parameter).
-    /// </summary>
-    /// <param name="title">Display title for the assertion.</param>
-    /// <param name="assertion">Asynchronous assertion.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> But(string title, Func<Task> assertion) =>
-        Add(StepWord.But, title, Wrap(assertion));
-
-    /// <summary>
-    /// Adds a <c>But</c> assertion with a default title (no value parameter).
-    /// </summary>
-    /// <param name="assertion">Asynchronous assertion.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> But(Func<Task> assertion) =>
-        Add(StepWord.But, string.Empty, Wrap(assertion));
-
-    /// <summary>
-    /// Adds a <c>But</c> assertion with an explicit title using a synchronous action.
-    /// </summary>
-    /// <param name="title">Display title for the assertion.</param>
-    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> But(string title, Action<T> assertion) =>
-        Add(StepWord.But, title, Wrap(assertion));
-
-    /// <summary>
-    /// Adds a <c>But</c> assertion with a default title using a synchronous action.
-    /// </summary>
-    /// <param name="assertion">Asynchronous assertion that receives the carried value.</param>
-    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
-    public ThenChain<T> But(Action<T> assertion) =>
         Add(StepWord.But, string.Empty, Wrap(assertion));
 
 }

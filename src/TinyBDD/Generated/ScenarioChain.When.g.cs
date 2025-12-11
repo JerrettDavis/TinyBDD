@@ -98,7 +98,7 @@ public sealed partial class ScenarioChain<T>
         Transform(StepPhase.When, StepWord.Primary, string.Empty, ToCT(f));
 
     /// <summary>
-    /// Adds a <c>When</c> side-effect with an explicit title. Keeps the current value.
+    /// Adds a <c>When</c> side effect with an explicit title. Keeps the current value.
     /// </summary>
     /// <param name="title">Display title for this step.</param>
     /// <param name="effect">Side-effect that receives the carried value.</param>
@@ -107,7 +107,7 @@ public sealed partial class ScenarioChain<T>
         Effect(StepPhase.When, StepWord.Primary, title, ToCT(effect));
 
     /// <summary>
-    /// Adds a <c>When</c> side-effect with an explicit title. Keeps the current value.
+    /// Adds a <c>When</c> side effect with an explicit title. Keeps the current value.
     /// </summary>
     /// <param name="title">Display title for this step.</param>
     /// <param name="effect">Side-effect that receives the carried value.</param>
@@ -116,7 +116,7 @@ public sealed partial class ScenarioChain<T>
         Effect(StepPhase.When, StepWord.Primary, title, ToCT(effect));
 
     /// <summary>
-    /// Adds a <c>When</c> side-effect with an explicit title. Keeps the current value.
+    /// Adds a <c>When</c> side effect with an explicit title. Keeps the current value.
     /// </summary>
     /// <param name="title">Display title for this step.</param>
     /// <param name="effect">Side-effect that receives the carried value.</param>
@@ -125,7 +125,7 @@ public sealed partial class ScenarioChain<T>
         Effect(StepPhase.When, StepWord.Primary, title, ToCT(effect));
 
     /// <summary>
-    /// Adds a <c>When</c> side-effect with an explicit title. Keeps the current value.
+    /// Adds a <c>When</c> side effect with an explicit title. Keeps the current value.
     /// </summary>
     /// <param name="title">Display title for this step.</param>
     /// <param name="effect">Side-effect that receives the carried value.</param>
@@ -134,7 +134,7 @@ public sealed partial class ScenarioChain<T>
         Effect(StepPhase.When, StepWord.Primary, title, ToCT(effect));
 
     /// <summary>
-    /// Adds a <c>When</c> side-effect with an explicit title. Keeps the current value.
+    /// Adds a <c>When</c> side effect with an explicit title. Keeps the current value.
     /// </summary>
     /// <param name="title">Display title for this step.</param>
     /// <param name="effect">Side-effect that receives the carried value.</param>
@@ -143,7 +143,7 @@ public sealed partial class ScenarioChain<T>
         Effect(StepPhase.When, StepWord.Primary, title, ToCT(effect));
 
     /// <summary>
-    /// Adds a <c>When</c> side-effect with a default title. Keeps the current value.
+    /// Adds a <c>When</c> side effect with a default title. Keeps the current value.
     /// </summary>
     /// <param name="effect">Side-effect that receives the carried value.</param>
     /// <returns>The same <see cref="ScenarioChain{T}"/> for further chaining.</returns>
@@ -151,7 +151,7 @@ public sealed partial class ScenarioChain<T>
         Effect(StepPhase.When, StepWord.Primary, string.Empty, ToCT(effect));
 
     /// <summary>
-    /// Adds a <c>When</c> side-effect with a default title. Keeps the current value.
+    /// Adds a <c>When</c> side effect with a default title. Keeps the current value.
     /// </summary>
     /// <param name="effect">Side-effect that receives the carried value.</param>
     /// <returns>The same <see cref="ScenarioChain{T}"/> for further chaining.</returns>
@@ -159,7 +159,7 @@ public sealed partial class ScenarioChain<T>
         Effect(StepPhase.When, StepWord.Primary, string.Empty, ToCT(effect));
 
     /// <summary>
-    /// Adds a <c>When</c> side-effect with a default title. Keeps the current value.
+    /// Adds a <c>When</c> side effect with a default title. Keeps the current value.
     /// </summary>
     /// <param name="effect">Side-effect that receives the carried value.</param>
     /// <returns>The same <see cref="ScenarioChain{T}"/> for further chaining.</returns>
@@ -167,7 +167,7 @@ public sealed partial class ScenarioChain<T>
         Effect(StepPhase.When, StepWord.Primary, string.Empty, ToCT(effect));
 
     /// <summary>
-    /// Adds a <c>When</c> side-effect with a default title. Keeps the current value.
+    /// Adds a <c>When</c> side effect with a default title. Keeps the current value.
     /// </summary>
     /// <param name="effect">Side-effect that receives the carried value.</param>
     /// <returns>The same <see cref="ScenarioChain{T}"/> for further chaining.</returns>
@@ -175,7 +175,7 @@ public sealed partial class ScenarioChain<T>
         Effect(StepPhase.When, StepWord.Primary, string.Empty, ToCT(effect));
 
     /// <summary>
-    /// Adds a <c>When</c> side-effect with a default title. Keeps the current value.
+    /// Adds a <c>When</c> side effect with a default title. Keeps the current value.
     /// </summary>
     /// <param name="effect">Side-effect that receives the carried value.</param>
     /// <returns>The same <see cref="ScenarioChain{T}"/> for further chaining.</returns>
