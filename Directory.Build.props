@@ -1,6 +1,7 @@
 <Project>
     <PropertyGroup>
-        <TargetFrameworks>net8.0;net9.0;netstandard2.0;netstandard2.1;net462;net47;net472;net48;net481</TargetFrameworks>
+        <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+        <TargetFrameworks Condition="$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('TinyBDD')) == 'true' and $([System.String]::Copy('$(MSBuildProjectName)').EndsWith('.Tests')) != 'true' and $([System.String]::Copy('$(MSBuildProjectName)').EndsWith('.Tests.Common')) != 'true'">net8.0;net9.0;net10.0;netstandard2.0;netstandard2.1;net462;net47;net472;net48;net481</TargetFrameworks>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>latest</LangVersion>
@@ -9,7 +10,7 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>
-
+    
     <PropertyGroup>
         <Authors>Jerrett Davis and contributors</Authors>
         <Company>JDH Productions LLC.</Company>
@@ -36,8 +37,7 @@
 
     <PropertyGroup>
         <IsPackable>false</IsPackable>
-        <IsPackable Condition="$([System.String]::Copy('$(MSBuildProjectName)').EndsWith('.Tests'))">false</IsPackable>
-        <IsPackable Condition="$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('TinyBDD'))">true</IsPackable>
+        <IsPackable Condition="$([System.String]::Copy('$(MSBuildProjectName)').EndsWith('.Tests')) == 'false'">true</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>

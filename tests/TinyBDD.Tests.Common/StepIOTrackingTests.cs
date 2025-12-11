@@ -1,5 +1,3 @@
-using TinyBDD.Assertions;
-
 namespace TinyBDD.Tests.Common;
 
 public class StepIOTrackingTests
