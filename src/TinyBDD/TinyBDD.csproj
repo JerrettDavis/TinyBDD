@@ -8,6 +8,7 @@
 
         <!-- stamp for incremental build -->
         <OverloadsStamp>$(BaseIntermediateOutputPath)overloads.stamp</OverloadsStamp>
+        <_ScriptTmp>$(BaseIntermediateOutputPath)script-tmp\</_ScriptTmp>
     </PropertyGroup>
 
     <!-- Run codegen once during outer build or for single-target projects, skip design-time -->
@@ -17,12 +18,11 @@
             Outputs="$(OverloadsStamp);Generated\Bdd.Given.g.cs"
             Condition="'$(DesignTimeBuild)' != 'true' AND ('$(IsCrossTargetingBuild)' == 'true' OR '$(TargetFrameworks)' == '')">
         <Message Text="[GenerateOverloads] Running code generation" Importance="High"/>
-        <MakeDir Directories="Generated;$(BaseIntermediateOutputPath)"/>
-        
-        <!-- Use dotnet-script for generation -->
-        <Exec Command="dotnet tool run dotnet-script build\GenerateOverloads.csx --no-cache"
-              WorkingDirectory="$(MSBuildProjectDirectory)"/>
-        
+        <MakeDir Directories="Generated;$(_ScriptTmp)"/>
+        <Exec Command="dotnet-script build\GenerateOverloads.csx --no-cache"
+              WorkingDirectory="$(MSBuildProjectDirectory)"
+              EnvironmentVariables="TMP=$(_ScriptTmp);TEMP=$(_ScriptTmp)"/>
+
         <Touch Files="$(OverloadsStamp)" AlwaysCreate="true"/>
     </Target>
 
@@ -40,7 +40,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
-        <PackageReference Include="System.Threading.Tasks.Extensions" />
+        <PackageReference Include="System.Threading.Tasks.Extensions"/>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'netstandard2.1' OR '$(TargetFramework)' == 'net462' OR '$(TargetFramework)' == 'net47' OR '$(TargetFramework)' == 'net471' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'net48' OR '$(TargetFramework)' == 'net481'">
@@ -59,7 +59,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Generated\" />
+        <Folder Include="Generated\"/>
     </ItemGroup>
 
 </Project>
