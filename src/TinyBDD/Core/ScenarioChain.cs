@@ -96,6 +96,14 @@ public sealed partial class ScenarioChain<T>
         return this;
     }
 
+    private ScenarioChain<T> FinallyEffect(
+        string? title,
+        Func<T, CancellationToken, ValueTask> effect)
+    {
+        _p.EnqueueFinally(title ?? "Finally", effect);
+        return this;
+    }
+
     private ThenChain<TOut> ThenAssert<TOut>(string? title, Func<T, CancellationToken, Task<TOut>> assert)
     {
         _p.Enqueue(StepPhase.Then, StepWord.Primary, title ?? "",

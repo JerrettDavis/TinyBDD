@@ -1,5 +1,5 @@
 #nullable enable
-#r "nuget: Humanizer, 2.14.1"
+#:package Humanizer
 
 using System;
 using System.IO;
@@ -8,37 +8,33 @@ using System.Text;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Humanizer;
 
-static string ThisFile([CallerFilePath] string p = "") => p;
+// ===== Execution =====
 var scriptDir  = Path.GetDirectoryName(ThisFile())!;
 var projectDir = Path.GetFullPath(Path.Combine(scriptDir, "..")); // src/TinyBDD
 var outDir     = Path.Combine(projectDir, "Generated");
 Directory.CreateDirectory(outDir);
 
-// ===== Dimensions =====
-enum Step  { When, And, But, Then }
-enum Kind  { Transform, Effect, Predicate, Assert, AssertTransformOut }
-enum Title { Explicit, Auto }
-enum Async { Sync, Task, ValueTask }
-enum Token { None, Token }
+var Titles  = new[] { Title.Explicit, Title.Auto };
+var Asyncs  = new[] { Async.Sync, Async.Task, Async.ValueTask };
+var Tokens  = new[] { Token.None, Token.Token };
 
-static readonly Title[] Titles  = { Title.Explicit, Title.Auto };
-static readonly Async[] Asyncs  = { Async.Sync, Async.Task, Async.ValueTask };
-static readonly Token[] Tokens  = { Token.None, Token.Token };
+Emit_When();
+Emit_AndBut();
+Emit_Then();
+Emit_Finally();
+Emit_ThenChain_AndBut();
+Emit_Finally_ThenChain();
+BddGen_Emit(projectDir);
 
-// ===== Tiny DSL for methods =====
-sealed record MethodSpec(
-    string Summary,
-    string[] XmlExtras,
-    string ReturnType,
-    string Name,
-    string Generics,
-    (string Type, string Name)[] Parameters,
-    string Body
-);
+Console.WriteLine($"Wrote {outDir}");
 
-// ---- helpers to keep things DRY ----
+// ===== Local Functions =====
+
+static string ThisFile([CallerFilePath] string p = "") => p;
+
 static string[] Xml(params string?[] lines) =>
     lines.Where(l => l is not null).Select(l => l!).ToArray();
 
@@ -48,6 +44,7 @@ static string XmlEscape(string s) => s
     .Replace(">", "&gt;");
 
 string TP(Kind k) => k == Kind.Transform ? "<TOut>" : "";
+
 string TypeOut(Kind k) => k switch {
     Kind.Transform          => "TOut",
     Kind.Predicate          => "bool",
@@ -70,7 +67,6 @@ string Summary(Step step, Kind kind, Title title, Async @async, Token token)
     };
 }
 
-// Produce the C# for a MethodSpec (single responsibility: rendering)
 string Render(MethodSpec m)
 {
     var sb = new StringBuilder();
@@ -82,7 +78,6 @@ string Render(MethodSpec m)
     {
         var line = x?.TrimStart() ?? "";
         if (line.Length == 0) continue;
-        // If caller already provided a "/// ..." line, don't add another "///"
         sb.AppendLine(line.StartsWith("///") ? "    " + line
                                              : "    /// " + line);
     }
@@ -94,7 +89,48 @@ string Render(MethodSpec m)
     return sb.ToString();
 }
 
-// Render for BddGen methods with optional namespace qualification
+string RenderExtension(MethodSpec m, string chainType)
+{
+    var sb = new StringBuilder();
+    sb.AppendLine("    /// <summary>");
+    sb.AppendLine("    /// " + m.Summary);
+    sb.AppendLine("    /// </summary>");
+    
+    foreach (var x in m.XmlExtras)
+    {
+        var line = x?.TrimStart() ?? "";
+        if (line.Length == 0) continue;
+        sb.AppendLine(line.StartsWith("///") ? "    " + line
+                                             : "    /// " + line);
+    }
+    
+    var paramList = string.Join(", ", m.Parameters.Select(p => $"{p.Type} {p.Name}"));
+    var extParam = $"this {chainType}<T> @this";
+    var fullParams = paramList.Length > 0 ? $"{extParam}, {paramList}" : extParam;
+    
+    var generics = m.Generics;
+    if (!string.IsNullOrEmpty(generics))
+    {
+        if (generics == "<TOut>")
+        {
+            generics = "<T, TOut>";
+        }
+        else if (!generics.Contains("T,") && !generics.StartsWith("<T>"))
+        {
+            generics = generics.Replace("<", "<T, ");
+        }
+    }
+    else
+    {
+        generics = "<T>";
+    }
+    
+    sb.AppendLine($"    public static {m.ReturnType} {m.Name}{generics}({fullParams}) =>");
+    sb.AppendLine($"        @this.{m.Body};");
+    sb.AppendLine();
+    return sb.ToString();
+}
+
 string BddGen_Render(BddGenMethod m, bool qualify = false)
 {
     var sb = new StringBuilder();
@@ -112,7 +148,6 @@ string BddGen_Render(BddGenMethod m, bool qualify = false)
     var @params = string.Join(", ", m.Params.Select(p => $"{p.Type} {p.Name}"));
     sb.AppendLine($"    public static {m.ReturnType} {m.Name}{m.Generics}({@params}) =>");
     
-    // Qualify method calls if needed (for extension classes)
     var body = qualify ? m.Body.Replace("Seed(", "TinyBDD.Bdd.Seed(")
                                       .Replace("Wrap(", "TinyBDD.Bdd.Wrap(")
                                       .Replace("AutoTitle<", "TinyBDD.Bdd.AutoTitle<")
@@ -123,7 +158,10 @@ string BddGen_Render(BddGenMethod m, bool qualify = false)
     return sb.ToString();
 }
 
-// ===== Signature matrix (only what ToCT(...) supports in your core) =====
+(string Type, string Name)[] BddGenP(params (string, string)[] ps) => ps;
+
+
+
 bool TrySig(Step step, Kind kind, Async @async, Token token, out string sig)
 {
     string tIn  = "T";
@@ -205,7 +243,6 @@ bool TrySig(Step step, Kind kind, Async @async, Token token, out string sig)
     return false;
 }
 
-// ===== Builders (pure functions from descriptors -> MethodSpec) =====
 MethodSpec MakeWhen(Kind kind, Title title, Async @async, Token token, string sig) =>
     new(
         Summary(Step.When, kind, title, @async, token),
@@ -326,7 +363,6 @@ MethodSpec MakeThenAssertTransformOut(Title title, Token token, string sig) =>
             : $"ThenAssert({TitleArg(title)}, assertion)"
     );
 
-// ===== Small helpers =====
 (string Type, string Name)[] Params(Title title, string sig, Kind? kind = null, string? explicitName = null)
 {
     string name =
@@ -381,7 +417,6 @@ string[] XmlExtras(Kind kind, Title title, bool noValue = false)
     return list.ToArray();
 }
 
-// ===== Emitters (each is a single chain, no nesting) =====
 void Emit_When()
 {
     var methods =
@@ -438,8 +473,6 @@ void Emit_AndBut()
 
 void Emit_Then()
 {
-    // ===== SYNC NAMESPACE =====
-    // sync value-based predicates
     var syncPreds =
         Titles
             .SelectMany(title => new[] { Async.Sync }, (title, @async) => new { title, @async })
@@ -451,20 +484,15 @@ void Emit_Then()
             .Where(x => x.ok)
             .Select(x => MakeThenPredicate(x.title, x.@async, x.token, x.sig));
 
-    // no-value predicates (sync only)
     var syncPredsNoValue =
         Titles.Select(title => MakeThenPredicateNoValue(title, Async.Sync));
 
-    // synchronous Action<T> assertions
     var actionAsserts =
         Titles.Select(title => MakeThenAssertAction(title));
 
-    // synchronous Action (no value) assertions
     var actionAssertsNoValue =
         Titles.Select(title => MakeThenAssertActionNoValue(title));
 
-    // ===== TASK NAMESPACE =====
-    // Task value-based predicates
     var taskPreds =
         Titles
             .SelectMany(title => new[] { Async.Task }, (title, @async) => new { title, @async })
@@ -476,11 +504,9 @@ void Emit_Then()
             .Where(x => x.ok)
             .Select(x => MakeThenPredicate(x.title, x.@async, x.token, x.sig));
 
-    // no-value predicates (Task)
     var taskPredsNoValue =
         Titles.Select(title => MakeThenPredicateNoValue(title, Async.Task));
 
-    // Task value-based asserts
     var taskAsserts =
         Titles
             .SelectMany(title => new[] { Async.Task }, (title, @async) => new { title, @async })
@@ -492,11 +518,9 @@ void Emit_Then()
             .Where(x => x.ok)
             .Select(x => MakeThenAssert(x.title, x.@async, x.token, x.sig));
 
-    // no-value asserts (Task)
     var taskAssertsNoValue =
         Titles.Select(title => MakeThenAssertNoValue(title, Async.Task));
 
-    // assertion transform returning TOut (Task only; token aware + unaware)
     var assertOut =
         Titles
             .SelectMany(title => Tokens, (title, token) =>
@@ -506,8 +530,6 @@ void Emit_Then()
                 return MakeThenAssertTransformOut(title, token, sig);
             });
 
-    // ===== VALUETASK NAMESPACE =====
-    // ValueTask value-based predicates
     var valueTaskPreds =
         Titles
             .SelectMany(title => new[] { Async.ValueTask }, (title, @async) => new { title, @async })
@@ -519,7 +541,6 @@ void Emit_Then()
             .Where(x => x.ok)
             .Select(x => MakeThenPredicate(x.title, x.@async, x.token, x.sig));
 
-    // ValueTask value-based asserts
     var valueTaskAsserts =
         Titles
             .SelectMany(title => new[] { Async.ValueTask }, (title, @async) => new { title, @async })
@@ -531,11 +552,9 @@ void Emit_Then()
             .Where(x => x.ok)
             .Select(x => MakeThenAssert(x.title, x.@async, x.token, x.sig));
 
-    // no-value asserts (ValueTask)
     var valueTaskAssertsNoValue =
         Titles.Select(title => MakeThenAssertNoValue(title, Async.ValueTask));
 
-    // Build file
     var file =
         "// <auto-generated/>\nnamespace TinyBDD;\npublic sealed partial class ScenarioChain<T>\n{\n" +
         string.Concat(syncPreds.Select(Render)) +
@@ -554,28 +573,6 @@ void Emit_Then()
 
     File.WriteAllText(Path.Combine(outDir, "ScenarioChain.Then.g.cs"), file);
 }
-
-
-// ==================== BDD.Given generator ====================
-
-static string BddGen_ThisFile([CallerFilePath] string p = "") => p;
-var BddGen_scriptDir  = Path.GetDirectoryName(BddGen_ThisFile())!;
-var BddGen_projectDir = Path.GetFullPath(Path.Combine(BddGen_scriptDir, "..")); // src/TinyBDD
-var BddGen_outDir     = Path.Combine(BddGen_projectDir, "Generated");
-Directory.CreateDirectory(BddGen_outDir);
-
-enum BddGenTitle { Explicit, Auto }
-enum SeedDoc { None, SeedPassed, CarriedAfter, ActionSeed }
-
-sealed record BddGenMethod(
-    string Summary,
-    string ReturnType,
-    string Name,                 // Given
-    string Generics,             // <T>, <TIn,TOut>
-    (string Type, string Name)[] Params,
-    string Body,                 // Seed(ctx, TitleExpr, Wrap(...))
-    string[] Xml
-);
 
 (string Type, string Name)[] BddGenParams(BddGenTitle t, params (string Type, string Name)[] rest)
 {
@@ -596,28 +593,6 @@ string BddGen_Summary(BddGenTitle t, string shape, bool tokenAware)
   return $"Starts a{token} <c>Given</c> step {ttl} using {safeShape}.";
 }
 
-string BddGen_Render(BddGenMethod m)
-{
-  var sb = new StringBuilder();
-  sb.AppendLine("    /// <summary>");
-  sb.AppendLine("    /// " + m.Summary);
-  sb.AppendLine("    /// </summary>");
-  foreach (var line in m.Xml)
-  {
-    var l = line?.TrimStart() ?? "";
-    if (l.Length == 0) continue;
-    sb.AppendLine(l.StartsWith("///") ? "    " + l
-                                      : "    /// " + l);
-  }
-
-  var @params = string.Join(", ", m.Params.Select(p => $"{p.Type} {p.Name}"));
-  sb.AppendLine($"    public static {m.ReturnType} {m.Name}{m.Generics}({@params}) =>");
-  sb.AppendLine($"        {m.Body};");
-  sb.AppendLine();
-  return sb.ToString();
-}
-
-// ----- central XML builder to keep comments uniform & DRY -----
 string[] BddXml(BddGenTitle t, string generics, string setupSentence, string returnGeneric, SeedDoc seedDoc)
 {
   var lines = new System.Collections.Generic.List<string>();
@@ -625,7 +600,6 @@ string[] BddXml(BddGenTitle t, string generics, string setupSentence, string ret
   if (t == BddGenTitle.Explicit)
     lines.Add("/// <param name=\"title\">Human-friendly step title.</param>");
 
-  // typeparams
   var gens = generics.Trim().TrimStart('<').TrimEnd('>');
   var parts = gens.Length == 0 ? Array.Empty<string>() : gens.Split(',').Select(s => s.Trim());
 
@@ -650,8 +624,6 @@ string[] BddXml(BddGenTitle t, string generics, string setupSentence, string ret
     }
   }
 
-  // params
-  // NOTE: no spaces after commas in cref — more robust across compilers
   lines.Add("/// <param name=\"ctx\">Scenario context created by <see cref=\"CreateContext(object,string,ITraitBridge,ScenarioOptions)\"/>.</param>");
   lines.Add($"/// <param name=\"setup\">{setupSentence}</param>");
 
@@ -666,16 +638,13 @@ string[] BddXml(BddGenTitle t, string generics, string setupSentence, string ret
     lines.Add($"/// <param name=\"seed\">{seedText}</param>");
   }
 
-  // returns
   lines.Add($"/// <returns>A <see cref=\"ScenarioChain{{{returnGeneric}}}\"/> for further chaining.</returns>");
 
   return lines.ToArray();
 }
 
-// ---- method groups ----
 IEnumerable<BddGenMethod> BddGen_NoSeed(BddGenTitle t)
 {
-  // sync
   yield return new(
     BddGen_Summary(t, "a synchronous factory", false),
     "ScenarioChain<T>", "Given", "<T>",
@@ -684,7 +653,6 @@ IEnumerable<BddGenMethod> BddGen_NoSeed(BddGenTitle t)
     BddXml(t, "<T>", "Synchronous factory for the initial value.", "T", SeedDoc.None)
   );
 
-  // Task<T>
   yield return new(
     BddGen_Summary(t, "an asynchronous Task-producing factory", false),
     "ScenarioChain<T>", "Given", "<T>",
@@ -693,7 +661,6 @@ IEnumerable<BddGenMethod> BddGen_NoSeed(BddGenTitle t)
     BddXml(t, "<T>", "Task-producing factory for the initial value.", "T", SeedDoc.None)
   );
 
-  // ValueTask<T>
   yield return new(
     BddGen_Summary(t, "a ValueTask-producing factory", false),
     "ScenarioChain<T>", "Given", "<T>",
@@ -702,7 +669,6 @@ IEnumerable<BddGenMethod> BddGen_NoSeed(BddGenTitle t)
     BddXml(t, "<T>", "ValueTask-producing factory for the initial value.", "T", SeedDoc.None)
   );
 
-  // CT Task<T>
   yield return new(
     BddGen_Summary(t, "an asynchronous factory that observes a CancellationToken", true),
     "ScenarioChain<T>", "Given", "<T>",
@@ -711,7 +677,6 @@ IEnumerable<BddGenMethod> BddGen_NoSeed(BddGenTitle t)
     BddXml(t, "<T>", "Asynchronous factory that observes a <see cref=\"CancellationToken\"/>.", "T", SeedDoc.None)
   );
 
-  // CT ValueTask<T>
   yield return new(
     BddGen_Summary(t, "a ValueTask-producing factory that observes a CancellationToken", true),
     "ScenarioChain<T>", "Given", "<T>",
@@ -723,7 +688,6 @@ IEnumerable<BddGenMethod> BddGen_NoSeed(BddGenTitle t)
 
 IEnumerable<BddGenMethod> BddGen_SeedValue(BddGenTitle t)
 {
-  // Action + seed T
   yield return new(
     BddGen_Summary(t, "a synchronous setup action plus a seed value", false),
     "ScenarioChain<T>", "Given", "<T>",
@@ -732,7 +696,6 @@ IEnumerable<BddGenMethod> BddGen_SeedValue(BddGenTitle t)
     BddXml(t, "<T>", "Synchronous action that performs setup side-effects.", "T", SeedDoc.ActionSeed)
   );
 
-  // Func<TIn,TOut> + seed
   yield return new(
     BddGen_Summary(t, "a synchronous factory that accepts a seed value", false),
     "ScenarioChain<TOut>", "Given", "<TIn, TOut>",
@@ -741,7 +704,6 @@ IEnumerable<BddGenMethod> BddGen_SeedValue(BddGenTitle t)
     BddXml(t, "<TIn, TOut>", "Synchronous factory for the initial value.", "TOut", SeedDoc.SeedPassed)
   );
 
-  // token-aware: TIn,CT -> Task<TOut>
   yield return new(
     BddGen_Summary(t, "an async factory (Task) that accepts a seed value and observes a CancellationToken", true),
     "ScenarioChain<TOut>", "Given", "<TIn, TOut>",
@@ -750,7 +712,6 @@ IEnumerable<BddGenMethod> BddGen_SeedValue(BddGenTitle t)
     BddXml(t, "<TIn, TOut>", "Asynchronous factory that observes a <see cref=\"CancellationToken\"/>.", "TOut", SeedDoc.SeedPassed)
   );
 
-  // token-aware: TIn,CT -> ValueTask<TOut>
   yield return new(
     BddGen_Summary(t, "an async factory (ValueTask<T>) that accepts a seed value and observes a CancellationToken", true),
     "ScenarioChain<TOut>", "Given", "<TIn, TOut>",
@@ -759,7 +720,6 @@ IEnumerable<BddGenMethod> BddGen_SeedValue(BddGenTitle t)
     BddXml(t, "<TIn, TOut>", "ValueTask-producing factory that observes a <see cref=\"CancellationToken\"/>.", "TOut", SeedDoc.SeedPassed)
   );
 
-  // token-aware side-effects that keep T (ValueTask)
   yield return new(
     BddGen_Summary(t, "an async side-effect (ValueTask) that observes a CancellationToken and keeps the seed value", true),
     "ScenarioChain<T>", "Given", "<T>",
@@ -768,7 +728,6 @@ IEnumerable<BddGenMethod> BddGen_SeedValue(BddGenTitle t)
     BddXml(t, "<T>", "Asynchronous side-effect that observes a <see cref=\"CancellationToken\"/>.", "T", SeedDoc.CarriedAfter)
   );
 
-  // token-aware side-effects that keep T (Task)
   yield return new(
     BddGen_Summary(t, "an async side-effect (Task) that observes a CancellationToken and keeps the seed value", true),
     "ScenarioChain<T>", "Given", "<T>",
@@ -777,17 +736,14 @@ IEnumerable<BddGenMethod> BddGen_SeedValue(BddGenTitle t)
     BddXml(t, "<T>", "Asynchronous side-effect that observes a <see cref=\"CancellationToken\"/>.", "T", SeedDoc.CarriedAfter)
   );
 
-  // token-aware: T,CT -> ValueTask<T>
   yield return new(
     BddGen_Summary(t, "an async factory (ValueTask<T>) that accepts a seed value and observes a CancellationToken", true),
     "ScenarioChain<T>", "Given", "<T>",
     BddGenParams(t, ("Func<T, CancellationToken, ValueTask<T>>","setup"), ("T","seed")),
-    // IMPORTANT: disambiguate Wrap overload with explicit <T>
     $"Seed(ctx, {BddGen_TitleExpr(t, "T")}, Wrap<T>(setup, seed))",
     BddXml(t, "<T>", "Asynchronous factory that observes a <see cref=\"CancellationToken\"/>.", "T", SeedDoc.SeedPassed)
   );
 
-  // token-aware: T,CT -> ValueTask (side-effect that keeps T)
   yield return new(
     BddGen_Summary(t, "an async side-effect (ValueTask) that accepts a seed value and observes a CancellationToken", true),
     "ScenarioChain<T>", "Given", "<T>",
@@ -799,7 +755,6 @@ IEnumerable<BddGenMethod> BddGen_SeedValue(BddGenTitle t)
 
 IEnumerable<BddGenMethod> BddGen_SeedTask(BddGenTitle t)
 {
-  // Task<TIn> seed: Func<Task<TIn>, TOut>
   yield return new(
     BddGen_Summary(t, "a synchronous factory that accepts Task-based seed", false),
     "ScenarioChain<TOut>", "Given", "<TIn, TOut>",
@@ -808,7 +763,6 @@ IEnumerable<BddGenMethod> BddGen_SeedTask(BddGenTitle t)
     BddXml(t, "<TIn, TOut>", "Factory that accepts a <see cref=\"Task{TIn}\"/>.", "TOut", SeedDoc.SeedPassed)
   );
 
-  // Task<TIn> seed: token-aware → TOut
   yield return new(
     BddGen_Summary(t, "a synchronous factory that accepts Task-based seed and observes a CancellationToken", true),
     "ScenarioChain<TOut>", "Given", "<TIn, TOut>",
@@ -817,7 +771,6 @@ IEnumerable<BddGenMethod> BddGen_SeedTask(BddGenTitle t)
     BddXml(t, "<TIn, TOut>", "Factory that observes a <see cref=\"CancellationToken\"/>.", "TOut", SeedDoc.SeedPassed)
   );
 
-  // Task<TIn> seed: token-aware → Task<TOut>
   yield return new(
     BddGen_Summary(t, "an async factory (Task) that accepts Task-based seed and observes a CancellationToken", true),
     "ScenarioChain<TOut>", "Given", "<TIn, TOut>",
@@ -826,7 +779,6 @@ IEnumerable<BddGenMethod> BddGen_SeedTask(BddGenTitle t)
     BddXml(t, "<TIn, TOut>", "Asynchronous factory that observes a <see cref=\"CancellationToken\"/>.", "TOut", SeedDoc.SeedPassed)
   );
 
-  // Task<TIn> seed: token-aware → ValueTask<TOut>
   yield return new(
     BddGen_Summary(t, "an async factory (ValueTask) that accepts Task-based seed and observes a CancellationToken", true),
     "ScenarioChain<TOut>", "Given", "<TIn, TOut>",
@@ -835,7 +787,6 @@ IEnumerable<BddGenMethod> BddGen_SeedTask(BddGenTitle t)
     BddXml(t, "<TIn, TOut>", "ValueTask-producing factory that observes a <see cref=\"CancellationToken\"/>.", "TOut", SeedDoc.SeedPassed)
   );
 
-  // Task<T> seed: token-aware side-effects that keep T (ValueTask)
   yield return new(
     BddGen_Summary(t, "an async side-effect (ValueTask) that accepts Task-based seed and observes a CancellationToken", true),
     "ScenarioChain<T>", "Given", "<T>",
@@ -844,7 +795,6 @@ IEnumerable<BddGenMethod> BddGen_SeedTask(BddGenTitle t)
     BddXml(t, "<T>", "Asynchronous side-effect that observes a <see cref=\"CancellationToken\"/>.", "T", SeedDoc.CarriedAfter)
   );
 
-  // Task<T> seed: token-aware side-effects that keep T (Task)
   yield return new(
     BddGen_Summary(t, "an async side-effect (Task) that accepts Task-based seed and observes a CancellationToken", true),
     "ScenarioChain<T>", "Given", "<T>",
@@ -856,7 +806,6 @@ IEnumerable<BddGenMethod> BddGen_SeedTask(BddGenTitle t)
 
 IEnumerable<BddGenMethod> BddGen_SeedValueTask(BddGenTitle t)
 {
-  // ValueTask<TIn> seed: Func<ValueTask<TIn>, TOut>
   yield return new(
     BddGen_Summary(t, "a synchronous factory that accepts ValueTask-based seed", false),
     "ScenarioChain<TOut>", "Given", "<TIn, TOut>",
@@ -865,7 +814,6 @@ IEnumerable<BddGenMethod> BddGen_SeedValueTask(BddGenTitle t)
     BddXml(t, "<TIn, TOut>", "Factory that accepts a <see cref=\"ValueTask{TIn}\"/>.", "TOut", SeedDoc.SeedPassed)
   );
 
-  // ValueTask<TIn> seed: token-aware → TOut
   yield return new(
     BddGen_Summary(t, "a synchronous factory that accepts ValueTask-based seed and observes a CancellationToken", true),
     "ScenarioChain<TOut>", "Given", "<TIn, TOut>",
@@ -874,18 +822,14 @@ IEnumerable<BddGenMethod> BddGen_SeedValueTask(BddGenTitle t)
     BddXml(t, "<TIn, TOut>", "Factory that observes a <see cref=\"CancellationToken\"/>.", "TOut", SeedDoc.SeedPassed)
   );
 
-  // ValueTask<TIn> seed: token-aware → ValueTask<TOut>
   yield return new(
     BddGen_Summary(t, "an async factory (ValueTask) that accepts ValueTask-based seed and observes a CancellationToken", true),
     "ScenarioChain<TOut>", "Given", "<TIn, TOut>",
     BddGenParams(t, ("Func<ValueTask<TIn>, CancellationToken, ValueTask<TOut>>","setup"), ("ValueTask<TIn>","seed")),
-    // Inline unless you add Wrap<TIn,TOut>(Func<ValueTask<TIn>,CT,ValueTask<TOut>>, ValueTask<TIn>)
     $"Seed(ctx, {BddGen_TitleExpr(t, "TOut")}, ct => setup(seed, ct))",
     BddXml(t, "<TIn, TOut>", "ValueTask-producing factory that observes a <see cref=\"CancellationToken\"/>.", "TOut", SeedDoc.SeedPassed)
   );
 }
-
-// --- main fold-in emitter ----------------------------------------------------
 
 bool BddMethodUsesTask(BddGenMethod m) =>
     !BddMethodUsesValueTask(m) && m.Params.Any(p => p.Type.Contains("Task"));
@@ -906,7 +850,6 @@ void BddGen_Emit(string projectDir)
       .Concat(BddGen_SeedValueTask(BddGenTitle.Explicit))
       .Concat(BddGen_SeedValueTask(BddGenTitle.Auto));
 
-  // Separate into sync, Task, and ValueTask
   var syncMethods = all.Where(m => !BddMethodUsesTask(m) && !BddMethodUsesValueTask(m)).ToList();
   var taskMethods = all.Where(m => BddMethodUsesTask(m)).ToList();
   var valueTaskMethods = all.Where(m => BddMethodUsesValueTask(m)).ToList();
@@ -969,10 +912,6 @@ public static partial class Bdd
   Console.WriteLine($@"Wrote {valueTaskPath}");
 }
 
-
-// ===== ThenChain generation (And/But assertions) =============================
-
-// Summary text specialized for ThenChain's And/But assertion steps
 string TC_Summary(string wordName, Kind kind, Title title, Async @async, Token token)
 {
     var ttl = title == Title.Explicit ? "with an explicit title" : "with a default title";
@@ -994,7 +933,6 @@ MethodSpec TC_MakeAndOrButPredicate(string wordName, string wordEnum, Title titl
         wordName,
         "",
         Params(title, sig, Kind.Predicate, explicitName: "predicate"),
-        // Step title metadata uses TitleArg(title); predicate's failure label uses wrapTitle
         $"Add({wordEnum}, {TitleArg(title)}, Wrap({wrapTitle}, predicate))"
     );
 }
@@ -1012,7 +950,6 @@ MethodSpec TC_MakeAndOrButAssert(string wordName, string wordEnum, Title title, 
     );
 }
 
-// No-value assertion (Func<Task>) — matches your manual surface
 MethodSpec TC_MakeAndOrButAssertNoValue(string wordName, string wordEnum, Title title)
 {
     return new(
@@ -1026,7 +963,6 @@ MethodSpec TC_MakeAndOrButAssertNoValue(string wordName, string wordEnum, Title 
     );
 }
 
-// Synchronous Action<T> assertion — also part of your manual surface
 MethodSpec TC_MakeAndOrButAssertAction(string wordName, string wordEnum, Title title)
 {
     return new(
@@ -1046,7 +982,6 @@ void Emit_ThenChain_AndBut()
     {
         if (@async == Async.Sync)
         {
-            // Sync: predicates only + Action<T>
             var preds =
                 Titles
                     .SelectMany(t => new[] { Async.Sync }, (title, a) => new { title, @async = a })
@@ -1066,7 +1001,6 @@ void Emit_ThenChain_AndBut()
         }
         else
         {
-            // Async (Task or ValueTask)
             var preds =
                 Titles
                     .SelectMany(t => new[] { @async }, (title, a) => new { title, @async = a })
@@ -1089,7 +1023,6 @@ void Emit_ThenChain_AndBut()
                     .Where(x => x.ok)
                     .Select(x => TC_MakeAndOrButAssert(wordName, wordEnum, x.title, x.@async, x.token, x.sig));
 
-            // No-value assertion (Func<Task>) — only for Task, not ValueTask
             var assertsNoValue = @async == Async.Task
                 ? Titles.Select(title => TC_MakeAndOrButAssertNoValue(wordName, wordEnum, title))
                 : Enumerable.Empty<MethodSpec>();
@@ -1112,8 +1045,6 @@ void Emit_ThenChain_AndBut()
 
     File.WriteAllText(Path.Combine(outDir, "ThenChain.AndBut.g.cs"), file);
 }
-
-// ==================== Finally generators ====================
 
 MethodSpec MakeFinally(Title title, Async @async, Token token, string sig) =>
     new(
@@ -1187,14 +1118,33 @@ void Emit_Finally_ThenChain()
     File.WriteAllText(Path.Combine(outDir, "ThenChain.Finally.g.cs"), file);
 }
 
-// ==================== /BDD.Given generator ====================
+// ===== Type Definitions =====
 
-// ===== Run all =====
-Emit_When();
-Emit_AndBut();
-Emit_Then();
-Emit_Finally();
-Emit_ThenChain_AndBut();
-Emit_Finally_ThenChain();
-BddGen_Emit(projectDir);
-Console.WriteLine($"Wrote {outDir}");
+enum Step  { When, And, But, Then }
+enum Kind  { Transform, Effect, Predicate, Assert, AssertTransformOut }
+enum Title { Explicit, Auto }
+enum Async { Sync, Task, ValueTask }
+enum Token { None, Token }
+
+sealed record MethodSpec(
+    string Summary,
+    string[] XmlExtras,
+    string ReturnType,
+    string Name,
+    string Generics,
+    (string Type, string Name)[] Parameters,
+    string Body
+);
+
+enum BddGenTitle { Explicit, Auto }
+enum SeedDoc { None, SeedPassed, CarriedAfter, ActionSeed }
+
+sealed record BddGenMethod(
+    string Summary,
+    string ReturnType,
+    string Name,                 // Given
+    string Generics,             // <T>, <TIn,TOut>
+    (string Type, string Name)[] Params,
+    string Body,                 // Seed(ctx, TitleExpr, Wrap(...))
+    string[] Xml
+);
