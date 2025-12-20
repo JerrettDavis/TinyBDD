@@ -180,6 +180,40 @@ All step types have **sync** and **async** overloads.
 
 ---
 
+## Cleanup with Finally
+
+`Finally` registers cleanup handlers that execute after all steps complete, even if steps throw exceptions. This is useful for resource cleanup like disposing objects:
+
+```csharp
+await Given("a database connection", () => new SqlConnection(connectionString))
+    .Finally("close connection", conn => conn.Dispose())
+    .When("query data", conn => conn.Query<User>("SELECT * FROM Users"))
+    .Then("results returned", users => users.Any())
+    .AssertPassed();
+
+// Connection is automatically disposed after all steps complete
+```
+
+**Key Features:**
+- Finally handlers execute in registration order after all other steps
+- They execute even when steps throw exceptions
+- Multiple Finally handlers can be registered at different points in the chain
+- Each Finally handler receives the state value at the point where it was registered
+- The chain passes through the upstream value unchanged (tap semantics)
+
+```csharp
+await Given("resource A", () => new ResourceA())
+    .Finally("cleanup A", a => a.Dispose())
+    .When("create resource B", a => new ResourceB(a))
+    .Finally("cleanup B", b => b.Dispose())
+    .Then("verify", b => b.IsValid)
+    .AssertPassed();
+
+// Execution order: Given → When → Then → Finally cleanup A → Finally cleanup B
+```
+
+---
+
 ## Tags
 
 Tags can be added for reporting and filtering:

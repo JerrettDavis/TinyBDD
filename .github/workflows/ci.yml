@@ -35,8 +35,8 @@ jobs:
 
       - name: Restore
         run: |
-          dotnet restore --use-lock-file
           dotnet tool restore
+          dotnet restore --use-lock-file
 
       - name: Drift check (generated files)
         shell: bash

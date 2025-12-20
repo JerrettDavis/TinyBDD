@@ -44,6 +44,7 @@
     <!-- Keep generated files out of the default glob; include only if present -->
     <ItemGroup>
         <Compile Remove="Generated\**\*.g.cs"/>
+        <Compile Remove="Build\**\*.*"/>
     </ItemGroup>
 
     <Target Name="_IncludeGenerated" BeforeTargets="CoreCompile" DependsOnTargets="GenerateOverloads">

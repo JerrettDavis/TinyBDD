@@ -200,6 +200,17 @@ public readonly partial struct ThenChain<T>
     private static Func<T, CancellationToken, ValueTask> ToCT(Func<T, CancellationToken, Task> f)
         => async (v, ct) => await f(v, ct).ConfigureAwait(false);
 
+    private static Func<T, CancellationToken, ValueTask> ToCT(Func<T, CancellationToken, ValueTask> f)
+        => f;
+
+    private ThenChain<T> FinallyEffect(
+        string? title,
+        Func<T, CancellationToken, ValueTask> effect)
+    {
+        _p.EnqueueFinally(title ?? "Finally", effect);
+        return this;
+    }
+
     #region Core step implementations
 
     private ThenChain<T> Add(

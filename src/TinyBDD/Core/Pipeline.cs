@@ -110,6 +110,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
     private object? _state;
     private StepPhase _lastPhase = StepPhase.Given;
     private readonly Queue<Step> _steps = new();
+    private readonly List<Func<CancellationToken, ValueTask>> _finallyHandlers = [];
     
     /// <summary>
     /// Gets the owning <see cref="ScenarioContext"/>.
@@ -202,10 +203,30 @@ internal sealed class Pipeline(ScenarioContext ctx)
         => Enqueue(_lastPhase, word, title, exec);
 
     /// <summary>
-    /// Executes all enqueued steps in FIFO order, recording results to <paramref>
-    ///     <name>ctx</name>
-    /// </paramref>
-    /// .
+    /// Enqueues a finally handler that captures the current state and executes after all steps complete.
+    /// </summary>
+    /// <typeparam name="T">The type of state to capture.</typeparam>
+    /// <param name="title">Human-friendly title for reporting.</param>
+    /// <param name="handler">The cleanup action to execute with the captured state.</param>
+    /// <remarks>
+    /// Finally handlers are executed in the order they are registered, after all normal steps complete.
+    /// They execute even if previous steps throw exceptions. The handler receives the state value
+    /// that existed at the point where Finally was called in the chain.
+    /// </remarks>
+    public void EnqueueFinally<T>(string title, Func<T, CancellationToken, ValueTask> handler)
+    {
+        // Enqueue a step that captures state and registers the cleanup handler
+        Enqueue(_lastPhase, StepWord.Primary, title,
+            (state, _) =>
+            {
+                var captured = (T)state!;
+                _finallyHandlers.Add(token => handler(captured, token));
+                return new ValueTask<object?>(state); // pass through unchanged
+            });
+    }
+
+    /// <summary>
+    /// Executes all enqueued steps in FIFO order, recording results to the scenario context.
     /// </summary>
     /// <param name="ct">Cancellation token that aborts execution between or during steps.</param>
     /// <remarks>
@@ -217,7 +238,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
     /// </para>
     /// <para>
     /// If <see cref="ScenarioOptions.HaltOnFailedAssertion"/> is <see langword="true"/>, a <see cref="TinyBddAssertionException"/>
-    /// will be rethrown immediately after recording, halting the pipeline. Otherwise the failure is recorded and
+    /// will be rethrown immediately after recording, halting the pipeline. Otherwise, the failure is recorded and
     /// execution continues according to <see cref="ScenarioOptions.ContinueOnError"/>.
     /// </para>
     /// <para>
@@ -234,107 +255,126 @@ internal sealed class Pipeline(ScenarioContext ctx)
         var markRemainingAsSkipped = ctx.Options.MarkRemainingAsSkippedOnFailure;
         var haltOnFailedAssert = ctx.Options.HaltOnFailedAssertion;
 
-        while (_steps.Count > 0)
+        try
         {
-            ct.ThrowIfCancellationRequested();
-
-            var step = _steps.Dequeue();
-            var title = string.IsNullOrWhiteSpace(step.Title)
-                ? step.Phase.ToString()
-                : step.Title;
-            var kind = step.KindCached();
-            var sw = Stopwatch.StartNew();
-
-            Exception? err = null;
-            var canceled = false;
-            var captured = false;
-            var input = _state; // capture input before executing
-
-            BeforeStep?.Invoke(ctx, new StepMetadata(kind, title, step.Phase, step.Word));
-
-            try
+            while (_steps.Count > 0)
             {
-                if (stepTimeout is { } timeout)
-                {
-                    using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-                    cts.CancelAfter(timeout);
-                    _state = await step.Exec(_state, cts.Token);
-                }
-                else
-                {
-                    _state = await step.Exec(_state, ct);
-                }
-            }
-            catch (OperationCanceledException) when (ct.IsCancellationRequested)
-            {
-                // Cooperative cancellation from the caller; record and rethrow after finally.
-                canceled = true;
-                err = null;
-            }
-            catch (TinyBddAssertionException ex)
-            {
-                // Fluent assertion failure (Expect.That/For) should be treated like an assertion failure.
-                err = ex;
-                if (haltOnFailedAssert)
-                    throw;
-            }
-            catch (Exception ex)
-            {
-                // Non-assert failures.
-                err = ex;
-                if (!continueOnError)
-                {
-                    CaptureStepResult();
-
-                    if (markRemainingAsSkipped)
-                        DrainAsSkipped();
-
-                    throw new BddStepException(
-                        $"Step failed: {step.KindCached()} {title}", ctx, ex);
-                }
-            }
-            finally
-            {
-                CaptureStepResult();
-            }
-
-            if (canceled)
                 ct.ThrowIfCancellationRequested();
 
-            continue;
+                var step = _steps.Dequeue();
+                var title = string.IsNullOrWhiteSpace(step.Title)
+                    ? step.Phase.ToString()
+                    : step.Title;
+                var kind = step.KindCached();
+                var sw = Stopwatch.StartNew();
 
-            // Local helper to ensure we add the step result exactly once, even if we throw later.
-            void CaptureStepResult()
-            {
-                sw.Stop();
+                Exception? err = null;
+                var canceled = false;
+                var captured = false;
+                var input = _state; // capture input before executing
 
-                var result = new StepResult
+                BeforeStep?.Invoke(ctx, new StepMetadata(kind, title, step.Phase, step.Word));
+
+                try
                 {
-                    Kind = kind,
-                    Title = title,
-                    Elapsed = sw.Elapsed,
-                    Error = CaptureCancel()
-                };
+                    if (stepTimeout is { } timeout)
+                    {
+                        using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+                        cts.CancelAfter(timeout);
+                        _state = await step.Exec(_state, cts.Token);
+                    }
+                    else
+                    {
+                        _state = await step.Exec(_state, ct);
+                    }
+                }
+                catch (OperationCanceledException) when (ct.IsCancellationRequested)
+                {
+                    // Cooperative cancellation from the caller; record and rethrow after finally.
+                    canceled = true;
+                    err = null;
+                }
+                catch (TinyBddAssertionException ex)
+                {
+                    // Fluent assertion failure (Expect.That/For) should be treated like an assertion failure.
+                    err = ex;
+                    if (haltOnFailedAssert)
+                        throw;
+                }
+                catch (Exception ex)
+                {
+                    // Non-assert failures.
+                    err = ex;
+                    if (!continueOnError)
+                    {
+                        CaptureStepResult();
 
-                if (captured)
-                    return;
+                        if (markRemainingAsSkipped)
+                            DrainAsSkipped();
 
-                captured = true;
+                        throw new BddStepException(
+                            $"Step failed: {step.KindCached()} {title}", ctx, ex);
+                    }
+                }
+                finally
+                {
+                    CaptureStepResult();
+                }
 
-                // Record step timing/result
-                ctx.AddStep(result);
-                // Record IO and update current item pointer
-                ctx.AddIO(new StepIO(kind, title, input, _state));
-                ctx.CurrentItem = _state;
+                if (canceled)
+                    ct.ThrowIfCancellationRequested();
 
-                AfterStep?.Invoke(ctx, result);
+                continue;
+
+                // Local helper to ensure we add the step result exactly once, even if we throw later.
+                void CaptureStepResult()
+                {
+                    sw.Stop();
+
+                    var result = new StepResult
+                    {
+                        Kind = kind,
+                        Title = title,
+                        Elapsed = sw.Elapsed,
+                        Error = CaptureCancel()
+                    };
+
+                    if (captured)
+                        return;
+
+                    captured = true;
+
+                    // Record step timing/result
+                    ctx.AddStep(result);
+                    // Record IO and update the current item pointer
+                    ctx.AddIO(new StepIO(kind, title, input, _state));
+                    ctx.CurrentItem = _state;
+
+                    AfterStep?.Invoke(ctx, result);
+                }
+
+                Exception? CaptureCancel()
+                {
+                    return err ?? (canceled
+                        ? new OperationCanceledException()
+                        : null);
+                }
             }
-
-            Exception? CaptureCancel()
+        }
+        finally
+        {
+            // Execute all finally handlers in order, even if steps threw exceptions
+            foreach (var handler in _finallyHandlers)
             {
-                return err ?? (canceled
-                    ? new OperationCanceledException()
-                    : null);
+                try
+                {
+                    await handler(ct).ConfigureAwait(false);
+                }
+                catch
+                {
+                    // Suppress exceptions from finally handlers to prevent masking original exceptions
+                    // and to allow all finally handlers to execute
+                }
             }
         }
     }

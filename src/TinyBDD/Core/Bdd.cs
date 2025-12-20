@@ -103,7 +103,7 @@ public static partial class Bdd
         (!string.IsNullOrWhiteSpace(scenarioName) 
             ? scenarioName 
             : !string.IsNullOrWhiteSpace(scenarioAttr?.Name) 
-                ? scenarioAttr!.Name! 
+                ? scenarioAttr.Name! 
                 : method?.Name) ?? "Scenario";
 
     private static MethodInfo? FindCurrentTestMethod() =>
