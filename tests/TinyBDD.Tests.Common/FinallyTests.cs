@@ -64,7 +64,7 @@ public class FinallyTests(ITestOutputHelper output) : TinyBddXunitBase(output)
         {
             await Given("start", () => 5)
                 .Finally("cleanup", _ => cleanupCalled = true)
-                .When("throw", (Action<int>)(x => throw new InvalidOperationException("boom")))
+                .When("throw", (Action<int>)(_ => throw new InvalidOperationException("boom")))
                 .Then("never reached", x => x == 5)
                 .AssertPassed();
         }
@@ -96,7 +96,7 @@ public class FinallyTests(ITestOutputHelper output) : TinyBddXunitBase(output)
     [Fact]
     public async Task Finally_Async_Handler_Executes()
     {
-        var cleanupCalled = false;
+        bool cleanupCalled;
         var cleanupValue = 0;
 
         await Given("start", () => Task.FromResult(5))
@@ -119,7 +119,7 @@ public class FinallyTests(ITestOutputHelper output) : TinyBddXunitBase(output)
         await Given("start with string", () => "hello")
             .Finally("capture string", s => stringValue = s)
             .When("get length", s => s.Length)
-            .Finally("capture int", (int i) => Task.Run(() => intValue = i))
+            .Finally("capture int", i => Task.Run(() => intValue = i))
             .Then("length is 5", len => len == 5)
             .AssertPassed();
 
@@ -134,7 +134,7 @@ public class FinallyTests(ITestOutputHelper output) : TinyBddXunitBase(output)
         var cleanupCalled = false;
 
         await Given("start", () => 1)
-            .Finally(x => cleanupCalled = true)
+            .Finally(_ => cleanupCalled = true)
             .When("add", x => x + 1)
             .Then("is 2", x => x == 2)
             .AssertPassed();
@@ -147,10 +147,8 @@ public class FinallyTests(ITestOutputHelper output) : TinyBddXunitBase(output)
     public async Task Finally_With_CancellationToken()
     {
         CancellationToken? receivedToken = null;
-        var cts = new CancellationTokenSource();
-
         await Given("start", () => 5)
-            .Finally("capture token", (x, ct) =>
+            .Finally("capture token", (_, ct) =>
             {
                 receivedToken = ct;
                 return ValueTask.CompletedTask;
@@ -172,7 +170,7 @@ public class FinallyTests(ITestOutputHelper output) : TinyBddXunitBase(output)
 
         await Bdd.Given(ctx, "start", () => 5)
             .Finally("cleanup", _ => cleanupCalled = true)
-            .When("throw", (Action<int>)(x => throw new InvalidOperationException("boom")))
+            .When("throw", (Action<int>)(_ => throw new InvalidOperationException("boom")))
             .Then("continue", x => x == 5);
 
         Assert.True(cleanupCalled);

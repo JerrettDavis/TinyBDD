@@ -557,7 +557,6 @@ public class BddGivenOverloadsTests(ITestOutputHelper output) : TinyBddXunitBase
     private static Task<int> DoubleAsync(Task<int> i, CancellationToken ct) => i.ContinueWith(t => t.Result * 2, ct);
 
     private static ValueTask<T> TransformInputTaskToAValueTask<T>(Task<T> input, CancellationToken ct) => new(input);
-    private static Task<T> PassInputTask<T>(Task<T> input, CancellationToken ct) => input;
     private static Task<int> Async5() => Task.FromResult(5);
     private static ValueTask<int> ValueTask5() => new(5);
 
