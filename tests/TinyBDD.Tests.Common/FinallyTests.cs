@@ -214,6 +214,318 @@ public class FinallyTests(ITestOutputHelper output) : TinyBddXunitBase(output)
         Assert.True(disposed, "Disposable should be disposed after all steps including Then");
     }
 
+    [Scenario("Finally with Task handler (with title) in ScenarioChain")]
+    [Fact]
+    public async Task Finally_Task_Handler_With_Title_ScenarioChain()
+    {
+        var cleanupCalled = false;
+
+        Func<int, Task> taskHandler = async x =>
+        {
+            await Task.Delay(1);
+            cleanupCalled = x == 5;
+        };
+
+        await Given("start", () => 5)
+            .Finally("async cleanup task", taskHandler)
+            .When("add 1", x => x + 1)
+            .Then("is 6", x => x == 6)
+            .AssertPassed();
+
+        Assert.True(cleanupCalled);
+    }
+
+    [Scenario("Finally with Task+CT handler (with title) in ScenarioChain")]
+    [Fact]
+    public async Task Finally_Task_CT_Handler_With_Title_ScenarioChain()
+    {
+        var cleanupCalled = false;
+        CancellationToken? receivedToken = null;
+
+        Func<int, CancellationToken, Task> taskCtHandler = async (x, ct) =>
+        {
+            receivedToken = ct;
+            await Task.Delay(1, ct);
+            cleanupCalled = x == 10;
+        };
+
+        await Given("start", () => 10)
+            .Finally("async cleanup task+ct", taskCtHandler)
+            .When("double", x => x * 2)
+            .Then("is 20", x => x == 20)
+            .AssertPassed();
+
+        Assert.True(cleanupCalled);
+        Assert.NotNull(receivedToken);
+    }
+
+    [Scenario("Finally with ValueTask handler (with title) in ScenarioChain")]
+    [Fact]
+    public async Task Finally_ValueTask_Handler_With_Title_ScenarioChain()
+    {
+        var cleanupCalled = false;
+
+        await Given("start", () => "test")
+            .Finally("valuetask cleanup", (string s) =>
+            {
+                cleanupCalled = s == "test";
+                return ValueTask.CompletedTask;
+            })
+            .When("upper", s => s.ToUpper())
+            .Then("is TEST", s => s == "TEST")
+            .AssertPassed();
+
+        Assert.True(cleanupCalled);
+    }
+
+    [Scenario("Finally with Task handler (no title) in ScenarioChain")]
+    [Fact]
+    public async Task Finally_Task_Handler_NoTitle_ScenarioChain()
+    {
+        var cleanupCalled = false;
+
+        Func<int, Task> taskHandler = async x =>
+        {
+            await Task.Delay(1);
+            cleanupCalled = x == 7;
+        };
+
+        await Given("start", () => 7)
+            .Finally(taskHandler)
+            .When("add 3", x => x + 3)
+            .Then("is 10", x => x == 10)
+            .AssertPassed();
+
+        Assert.True(cleanupCalled);
+    }
+
+    [Scenario("Finally with Task+CT handler (no title) in ScenarioChain")]
+    [Fact]
+    public async Task Finally_Task_CT_Handler_NoTitle_ScenarioChain()
+    {
+        var cleanupCalled = false;
+
+        Func<int, CancellationToken, Task> taskCtHandler = async (x, ct) =>
+        {
+            await Task.Delay(1, ct);
+            cleanupCalled = x == 3;
+        };
+
+        await Given("start", () => 3)
+            .Finally(taskCtHandler)
+            .When("multiply 4", x => x * 4)
+            .Then("is 12", x => x == 12)
+            .AssertPassed();
+
+        Assert.True(cleanupCalled);
+    }
+
+    [Scenario("Finally with ValueTask handler (no title) in ScenarioChain")]
+    [Fact]
+    public async Task Finally_ValueTask_Handler_NoTitle_ScenarioChain()
+    {
+        var cleanupCalled = false;
+
+        await Given("start", () => 100)
+            .Finally((int x) =>
+            {
+                cleanupCalled = x == 100;
+                return ValueTask.CompletedTask;
+            })
+            .When("divide 2", x => x / 2)
+            .Then("is 50", x => x == 50)
+            .AssertPassed();
+
+        Assert.True(cleanupCalled);
+    }
+
+    [Scenario("Finally with Task handler (with title) in ThenChain")]
+    [Fact]
+    public async Task Finally_Task_Handler_With_Title_ThenChain()
+    {
+        var cleanupCalled = false;
+
+        Func<int, Task> taskHandler = async x =>
+        {
+            await Task.Delay(1);
+            cleanupCalled = x == 5;
+        };
+
+        await Given("start", () => 8)
+            .When("subtract 3", x => x - 3)
+            .Then("is 5", x => x == 5)
+            .Finally("async cleanup task", taskHandler)
+            .And("is positive", x => x > 0)
+            .AssertPassed();
+
+        Assert.True(cleanupCalled);
+    }
+
+    [Scenario("Finally with Task+CT handler (with title) in ThenChain")]
+    [Fact]
+    public async Task Finally_Task_CT_Handler_With_Title_ThenChain()
+    {
+        var cleanupCalled = false;
+
+        Func<int, CancellationToken, Task> taskCtHandler = async (x, ct) =>
+        {
+            await Task.Delay(1, ct);
+            cleanupCalled = x == 20;
+        };
+
+        await Given("start", () => 15)
+            .When("add 5", x => x + 5)
+            .Then("is 20", x => x == 20)
+            .Finally("async cleanup task+ct", taskCtHandler)
+            .And("is even", x => x % 2 == 0)
+            .AssertPassed();
+
+        Assert.True(cleanupCalled);
+    }
+
+    [Scenario("Finally with ValueTask handler (with title) in ThenChain")]
+    [Fact]
+    public async Task Finally_ValueTask_Handler_With_Title_ThenChain()
+    {
+        var cleanupCalled = false;
+
+        await Given("start", () => "hello")
+            .When("concat world", s => s + " world")
+            .Then("is hello world", s => s == "hello world")
+            .Finally("valuetask cleanup", (string s) =>
+            {
+                cleanupCalled = s == "hello world";
+                return ValueTask.CompletedTask;
+            })
+            .And("length is 11", s => s.Length == 11)
+            .AssertPassed();
+
+        Assert.True(cleanupCalled);
+    }
+
+    [Scenario("Finally with ValueTask+CT handler (with title) in ThenChain")]
+    [Fact]
+    public async Task Finally_ValueTask_CT_Handler_With_Title_ThenChain()
+    {
+        var cleanupCalled = false;
+        CancellationToken? receivedToken = null;
+
+        await Given("start", () => 25)
+            .When("multiply 2", x => x * 2)
+            .Then("is 50", x => x == 50)
+            .Finally("valuetask+ct cleanup", (int x, CancellationToken ct) =>
+            {
+                receivedToken = ct;
+                cleanupCalled = x == 50;
+                return ValueTask.CompletedTask;
+            })
+            .And("greater than 40", x => x > 40)
+            .AssertPassed();
+
+        Assert.True(cleanupCalled);
+        Assert.NotNull(receivedToken);
+    }
+
+    [Scenario("Finally with Action handler (no title) in ThenChain")]
+    [Fact]
+    public async Task Finally_Action_Handler_NoTitle_ThenChain()
+    {
+        var cleanupCalled = false;
+
+        await Given("start", () => 6)
+            .When("double", x => x * 2)
+            .Then("is 12", x => x == 12)
+            .Finally((int x) => cleanupCalled = x == 12)
+            .And("is even", x => x % 2 == 0)
+            .AssertPassed();
+
+        Assert.True(cleanupCalled);
+    }
+
+    [Scenario("Finally with Task handler (no title) in ThenChain")]
+    [Fact]
+    public async Task Finally_Task_Handler_NoTitle_ThenChain()
+    {
+        var cleanupCalled = false;
+
+        Func<int, Task> taskHandler = async x =>
+        {
+            await Task.Delay(1);
+            cleanupCalled = x == 10;
+        };
+
+        await Given("start", () => 9)
+            .When("add 1", x => x + 1)
+            .Then("is 10", x => x == 10)
+            .Finally(taskHandler)
+            .And("is divisible by 5", x => x % 5 == 0)
+            .AssertPassed();
+
+        Assert.True(cleanupCalled);
+    }
+
+    [Scenario("Finally with Task+CT handler (no title) in ThenChain")]
+    [Fact]
+    public async Task Finally_Task_CT_Handler_NoTitle_ThenChain()
+    {
+        var cleanupCalled = false;
+
+        Func<int, CancellationToken, Task> taskCtHandler = async (x, ct) =>
+        {
+            await Task.Delay(1, ct);
+            cleanupCalled = x == 12;
+        };
+
+        await Given("start", () => 4)
+            .When("multiply 3", x => x * 3)
+            .Then("is 12", x => x == 12)
+            .Finally(taskCtHandler)
+            .And("greater than 10", x => x > 10)
+            .AssertPassed();
+
+        Assert.True(cleanupCalled);
+    }
+
+    [Scenario("Finally with ValueTask handler (no title) in ThenChain")]
+    [Fact]
+    public async Task Finally_ValueTask_Handler_NoTitle_ThenChain()
+    {
+        var cleanupCalled = false;
+
+        await Given("start", () => "test")
+            .When("upper", s => s.ToUpper())
+            .Then("is TEST", s => s == "TEST")
+            .Finally((string s) =>
+            {
+                cleanupCalled = s == "TEST";
+                return ValueTask.CompletedTask;
+            })
+            .And("length is 4", s => s.Length == 4)
+            .AssertPassed();
+
+        Assert.True(cleanupCalled);
+    }
+
+    [Scenario("Finally with ValueTask+CT handler (no title) in ThenChain")]
+    [Fact]
+    public async Task Finally_ValueTask_CT_Handler_NoTitle_ThenChain()
+    {
+        var cleanupCalled = false;
+
+        await Given("start", () => 11)
+            .When("add 4", x => x + 4)
+            .Then("is 15", x => x == 15)
+            .Finally((int x, CancellationToken ct) =>
+            {
+                cleanupCalled = x == 15;
+                return ValueTask.CompletedTask;
+            })
+            .And("is odd", x => x % 2 == 1)
+            .AssertPassed();
+
+        Assert.True(cleanupCalled);
+    }
+
     private class TestDisposable(Action onDispose) : IDisposable
     {
         private bool _disposed;
