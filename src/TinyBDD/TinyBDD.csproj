@@ -20,7 +20,7 @@
         <MakeDir Directories="Generated;$(BaseIntermediateOutputPath)"/>
         
         <!-- Use dotnet-script for generation -->
-        <Exec Command="dotnet-script build\GenerateOverloads.csx --no-cache"
+        <Exec Command="dotnet tool run dotnet-script build\GenerateOverloads.csx --no-cache"
               WorkingDirectory="$(MSBuildProjectDirectory)"/>
         
         <Touch Files="$(OverloadsStamp)" AlwaysCreate="true"/>
