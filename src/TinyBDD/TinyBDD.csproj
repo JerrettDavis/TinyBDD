@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" InitialTargets="GenerateOverloads">
+﻿<Project Sdk="Microsoft.NET.Sdk" InitialTargets="MarkOuterBuild">
 
     <PropertyGroup>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -6,33 +6,48 @@
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
-        <!-- stamp for incremental build -->
+        <!-- stamp + sentinels -->
         <OverloadsStamp>$(BaseIntermediateOutputPath)overloads.stamp</OverloadsStamp>
+        <_OuterSentinel>$(BaseIntermediateOutputPath)outer-build.sentinel</_OuterSentinel>
         <_ScriptTmp>$(BaseIntermediateOutputPath)script-tmp\</_ScriptTmp>
     </PropertyGroup>
 
-    <!-- Run codegen once during outer build or for single-target projects, skip design-time -->
+    <!-- Mark the outer (cross-targeting) build so we can run once -->
+    <Target Name="MarkOuterBuild" Condition="'$(IsCrossTargetingBuild)' == 'true'">
+        <WriteLinesToFile File="$(_OuterSentinel)" Lines="outer" Overwrite="true"/>
+    </Target>
+
+    <Target Name="ClearOuterBuild" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)' == 'true'">
+        <Delete Files="$(_OuterSentinel)"/>
+    </Target>
+
+    <!-- Run codegen once, skip design-time, isolate temp to avoid file locks -->
     <Target Name="GenerateOverloads"
             BeforeTargets="PrepareForBuild"
+            DependsOnTargets="MarkOuterBuild"
             Inputs="build\GenerateOverloads.csx"
-            Outputs="$(OverloadsStamp);Generated\Bdd.Given.g.cs"
-            Condition="'$(DesignTimeBuild)' != 'true' AND ('$(IsCrossTargetingBuild)' == 'true' OR '$(TargetFrameworks)' == '')">
-        <Message Text="[GenerateOverloads] Running code generation" Importance="High"/>
+            Outputs="$(OverloadsStamp)"
+            Condition="
+            '$(DesignTimeBuild)' != 'true' AND
+            (
+              '$(IsCrossTargetingBuild)' == 'true'                             
+              OR ('$(TargetFrameworks)' == '' AND '$(TargetFramework)' != '') 
+              OR ('$(IsCrossTargetingBuild)' != 'true' AND '$(TargetFrameworks)' != '' AND !Exists('$(_OuterSentinel)'))
+            )">
         <MakeDir Directories="Generated;$(_ScriptTmp)"/>
         <Exec Command="dotnet-script build\GenerateOverloads.csx --no-cache"
               WorkingDirectory="$(MSBuildProjectDirectory)"
               EnvironmentVariables="TMP=$(_ScriptTmp);TEMP=$(_ScriptTmp)"/>
-
         <Touch Files="$(OverloadsStamp)" AlwaysCreate="true"/>
     </Target>
 
     <!-- Keep generated files out of the default glob; include only if present -->
     <ItemGroup>
         <Compile Remove="Generated\**\*.g.cs"/>
-        <Compile Remove="build\**\*.*"/>
+        <Compile Remove="Build\**\*.*"/>
     </ItemGroup>
 
-    <Target Name="_IncludeGenerated" BeforeTargets="CoreCompile">
+    <Target Name="_IncludeGenerated" BeforeTargets="CoreCompile" DependsOnTargets="GenerateOverloads">
         <ItemGroup Condition="Exists('Generated')">
             <Compile Include="Generated\**\*.g.cs"/>
         </ItemGroup>
@@ -40,7 +55,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
-        <PackageReference Include="System.Threading.Tasks.Extensions"/>
+        <PackageReference Include="System.Threading.Tasks.Extensions" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'netstandard2.1' OR '$(TargetFramework)' == 'net462' OR '$(TargetFramework)' == 'net47' OR '$(TargetFramework)' == 'net471' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'net48' OR '$(TargetFramework)' == 'net481'">
@@ -59,7 +74,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Generated\"/>
+      <Folder Include="Generated\" />
     </ItemGroup>
 
 </Project>
