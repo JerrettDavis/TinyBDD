@@ -369,4 +369,226 @@ public class StatePassingOverloadTests
 
         Assert.True(tokenWasPassed);
     }
+
+    [Fact]
+    public async Task Given_WithState_ValueTaskWithToken_PassesStateAndToken()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+        using var cts = new CancellationTokenSource();
+        var value = 99;
+
+        // Use explicit delegate with ValueTask
+        static ValueTask<int> Setup(int state, CancellationToken ct)
+        {
+            ct.ThrowIfCancellationRequested();
+            return new ValueTask<int>(state);
+        }
+
+        // Act & Assert
+        await Bdd.Given(ctx, "valuetask with token", value, Setup)
+            .Then("equals 99", v => v == 99)
+            .AssertPassed(cts.Token);
+    }
+
+    [Fact]
+    public async Task Flow_Given_WithState_AsyncTask_PassesState()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+        Ambient.Current.Value = ctx;
+        var factor = 3;
+
+        try
+        {
+            // Use explicit Task delegate
+            static Task<int> Setup(int state) => Task.FromResult(state * 10);
+
+            // Act & Assert
+            await Flow.Given("async state via flow", factor, Setup)
+                .Then("equals 30", v => v == 30)
+                .AssertPassed();
+        }
+        finally
+        {
+            Ambient.Current.Value = null;
+        }
+    }
+
+    [Fact]
+    public async Task Flow_Given_WithState_ValueTask_PassesState()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+        Ambient.Current.Value = ctx;
+        var factor = 4;
+
+        try
+        {
+            // Act & Assert
+            await Flow.Given("valuetask state via flow", factor, static state => new ValueTask<int>(state * 5))
+                .Then("equals 20", v => v == 20)
+                .AssertPassed();
+        }
+        finally
+        {
+            Ambient.Current.Value = null;
+        }
+    }
+
+    [Fact]
+    public async Task Flow_Given_WithState_TaskWithToken_PassesStateAndToken()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+        Ambient.Current.Value = ctx;
+        using var cts = new CancellationTokenSource();
+        var value = 7;
+
+        try
+        {
+            static Task<int> Setup(int state, CancellationToken ct)
+            {
+                ct.ThrowIfCancellationRequested();
+                return Task.FromResult(state * 2);
+            }
+
+            // Act & Assert
+            await Flow.Given("task with token via flow", value, Setup)
+                .Then("equals 14", v => v == 14)
+                .AssertPassed(cts.Token);
+        }
+        finally
+        {
+            Ambient.Current.Value = null;
+        }
+    }
+
+    [Fact]
+    public async Task Flow_Given_WithState_ValueTaskWithToken_PassesStateAndToken()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+        Ambient.Current.Value = ctx;
+        using var cts = new CancellationTokenSource();
+        var value = 8;
+
+        try
+        {
+            static ValueTask<int> Setup(int state, CancellationToken ct)
+            {
+                ct.ThrowIfCancellationRequested();
+                return new ValueTask<int>(state * 3);
+            }
+
+            // Act & Assert
+            await Flow.Given("valuetask with token via flow", value, Setup)
+                .Then("equals 24", v => v == 24)
+                .AssertPassed(cts.Token);
+        }
+        finally
+        {
+            Ambient.Current.Value = null;
+        }
+    }
+
+    [Fact]
+    public async Task When_WithState_TaskWithToken_TransformsWithState()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+        using var cts = new CancellationTokenSource();
+        var multiplier = 3;
+
+        static Task<int> Transform(int v, int m, CancellationToken ct)
+        {
+            ct.ThrowIfCancellationRequested();
+            return Task.FromResult(v * m);
+        }
+
+        // Act & Assert
+        await Bdd.Given(ctx, "initial", () => 7)
+            .When("task transform with token", multiplier, Transform)
+            .Then("equals 21", v => v == 21)
+            .AssertPassed(cts.Token);
+    }
+
+    [Fact]
+    public async Task When_WithState_ValueTask_TransformsWithState()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+        var factor = 5;
+
+        // Act & Assert
+        await Bdd.Given(ctx, "initial", () => 8)
+            .When("multiply valuetask", factor, static (v, state) => new ValueTask<int>(v * state))
+            .Then("equals 40", v => v == 40)
+            .AssertPassed();
+    }
+
+    [Fact]
+    public async Task And_WithState_Task_TransformsWithState()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+        var offset = 50;
+
+        // Act & Assert
+        await Bdd.Given(ctx, "initial", () => 10)
+            .When("square", v => v * v)
+            .And("add offset task", offset, static (v, state) => Task.FromResult(v + state))
+            .Then("equals 150", v => v == 150)
+            .AssertPassed();
+    }
+
+    [Fact]
+    public async Task But_WithState_Sync_NumericTransform()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+        var divisor = 2;
+
+        // Act & Assert - But with state only has sync overload
+        await Bdd.Given(ctx, "initial", () => 20)
+            .When("add ten", v => v + 10)
+            .But("divide sync", divisor, static (v, state) => v / state)
+            .Then("equals 15", v => v == 15)
+            .AssertPassed();
+    }
+
+    [Fact]
+    public async Task Then_WithState_Task_ValidatesWithState()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+        var minValue = 50;
+
+        // Act & Assert
+        await Bdd.Given(ctx, "value", () => 100)
+            .Then("above min task", minValue, static (v, min) => Task.FromResult(v > min))
+            .AssertPassed();
+    }
+
+    [Fact]
+    public async Task Finally_WithState_Task_ExecutesCleanupWithState()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+        var cleanupLog = new List<int>();
+        var cleanupValue = 789;
+
+        // Act
+        await Bdd.Given(ctx, "resource", () => "test")
+            .Finally("task cleanup", cleanupValue, (_, val) =>
+            {
+                cleanupLog.Add(val);
+                return Task.CompletedTask;
+            })
+            .Then("pass", _ => true)
+            .AssertPassed();
+
+        // Assert
+        Assert.Contains(789, cleanupLog);
+    }
 }

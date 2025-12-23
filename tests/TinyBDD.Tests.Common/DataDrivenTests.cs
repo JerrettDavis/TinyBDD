@@ -395,4 +395,152 @@ public class DataDrivenTests
     }
 
     #endregion
+
+    #region ScenarioCaseAttribute Tests
+
+    [Fact]
+    public void ScenarioCaseAttribute_Constructor_StoresValues()
+    {
+        // Arrange & Act
+        var attr = new ScenarioCaseAttribute(1, "hello", true);
+
+        // Assert
+        Assert.Equal(3, attr.Values.Length);
+        Assert.Equal(1, attr.Values[0]);
+        Assert.Equal("hello", attr.Values[1]);
+        Assert.Equal(true, attr.Values[2]);
+    }
+
+    [Fact]
+    public void ScenarioCaseAttribute_Constructor_WithNullValues_CreatesEmptyArray()
+    {
+        // Arrange & Act
+        var attr = new ScenarioCaseAttribute(null!);
+
+        // Assert
+        Assert.Empty(attr.Values);
+    }
+
+    [Fact]
+    public void ScenarioCaseAttribute_Values_Property_ReturnsValues()
+    {
+        // Arrange
+        var attr = new ScenarioCaseAttribute(42, "test");
+
+        // Act
+        var values = attr.Values;
+
+        // Assert
+        Assert.Equal(2, values.Length);
+        Assert.Equal(42, values[0]);
+        Assert.Equal("test", values[1]);
+    }
+
+    [Fact]
+    public void ScenarioCaseAttribute_DisplayName_CanBeSet()
+    {
+        // Arrange
+        var attr = new ScenarioCaseAttribute(1, 2, 3);
+
+        // Act
+        attr.DisplayName = "Custom Name";
+
+        // Assert
+        Assert.Equal("Custom Name", attr.DisplayName);
+    }
+
+    [Fact]
+    public void ScenarioCaseAttribute_ToString_WithoutDisplayName_FormatsValues()
+    {
+        // Arrange
+        var attr = new ScenarioCaseAttribute(1, "hello", null);
+
+        // Act
+        var result = attr.ToString();
+
+        // Assert
+        Assert.Equal("(1, hello, null)", result);
+    }
+
+    [Fact]
+    public void ScenarioCaseAttribute_ToString_WithDisplayName_ReturnsDisplayName()
+    {
+        // Arrange
+        var attr = new ScenarioCaseAttribute(1, 2, 3) { DisplayName = "My Test Case" };
+
+        // Act
+        var result = attr.ToString();
+
+        // Assert
+        Assert.Equal("My Test Case", result);
+    }
+
+    [Fact]
+    public void ScenarioCaseAttribute_ToString_EmptyValues_ReturnsEmptyParens()
+    {
+        // Arrange
+        var attr = new ScenarioCaseAttribute();
+
+        // Act
+        var result = attr.ToString();
+
+        // Assert
+        Assert.Equal("()", result);
+    }
+
+    [Fact]
+    public void ScenarioCaseAttribute_CanBeAppliedMultipleTimes()
+    {
+        // Arrange - Use reflection to verify attribute usage
+        var attrUsage = typeof(ScenarioCaseAttribute)
+            .GetCustomAttributes(typeof(AttributeUsageAttribute), false)
+            .Cast<AttributeUsageAttribute>()
+            .Single();
+
+        // Assert
+        Assert.True(attrUsage.AllowMultiple);
+        Assert.True(attrUsage.Inherited);
+        Assert.Equal(AttributeTargets.Method, attrUsage.ValidOn);
+    }
+
+    #endregion
+
+    #region Additional ScenarioOutline Coverage
+
+    [Fact]
+    public async Task ScenarioOutline_Context_IsAccessible()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+
+        // Act
+        var outline = Bdd.ScenarioOutline<int>(ctx, "Test");
+
+        // Assert - builder should have been created
+        Assert.NotNull(outline);
+    }
+
+    [Fact]
+    public async Task ScenarioOutline_PassedCount_ReflectsResults()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+
+        // Act
+        var result = await Bdd.ScenarioOutline<(int val, bool shouldPass)>(ctx, "Count test")
+            .Given("value", ex => ex.val)
+            .Then("conditional pass", (_, ex) => ex.shouldPass)
+            .Examples(
+                (val: 1, shouldPass: true),
+                (val: 2, shouldPass: false),
+                (val: 3, shouldPass: true))
+            .RunAsync();
+
+        // Assert
+        Assert.Equal(2, result.PassedCount);
+        Assert.Equal(1, result.FailedCount);
+        Assert.Equal(3, result.TotalCount);
+    }
+
+    #endregion
 }

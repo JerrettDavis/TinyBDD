@@ -491,4 +491,199 @@ public class BackgroundStepTests
     }
 
     #endregion
+
+    #region TestBase<T> Tests
+
+    /// <summary>
+    /// Test context for typed background testing.
+    /// </summary>
+    private class TypedTestContext
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+    }
+
+    /// <summary>
+    /// Test fixture that inherits from TestBase{T}.
+    /// </summary>
+    private class TypedBackgroundTestBase : TestBase<TypedTestContext>
+    {
+        public int ConfigureCallCount { get; private set; }
+
+        protected override IBddReporter Reporter => new NullBddReporter();
+
+        protected override ScenarioChain<TypedTestContext> ConfigureTypedBackground()
+        {
+            ConfigureCallCount++;
+            return Flow.Given("typed context", () => new TypedTestContext { Id = 42, Name = "Test" });
+        }
+
+        public void Initialize()
+        {
+            var ctx = Bdd.CreateContext(this);
+            Ambient.Current.Value = ctx;
+        }
+
+        public void Cleanup()
+        {
+            Ambient.Current.Value = null;
+        }
+
+        public Task RunBackgroundAsync(CancellationToken ct = default)
+            => ExecuteBackgroundAsync(ct);
+
+        public TypedTestContext GetBackground() => Background;
+        public ScenarioChain<TypedTestContext> GetGivenBackground() => GivenBackground();
+        public ScenarioChain<TypedTestContext> GetGivenBackground(string title) => GivenBackground(title);
+    }
+
+    [Fact]
+    public async Task TypedBackground_Background_ReturnsTypedState()
+    {
+        // Arrange
+        var testBase = new TypedBackgroundTestBase();
+        testBase.Initialize();
+
+        try
+        {
+            await testBase.RunBackgroundAsync();
+
+            // Act
+            var background = testBase.GetBackground();
+
+            // Assert
+            Assert.NotNull(background);
+            Assert.Equal(42, background.Id);
+            Assert.Equal("Test", background.Name);
+        }
+        finally
+        {
+            testBase.Cleanup();
+        }
+    }
+
+    [Fact]
+    public void TypedBackground_Background_BeforeExecute_Throws()
+    {
+        // Arrange
+        var testBase = new TypedBackgroundTestBase();
+        testBase.Initialize();
+
+        try
+        {
+            // Act & Assert
+            var ex = Assert.Throws<InvalidOperationException>(() => testBase.GetBackground());
+            Assert.Contains("Background steps have not been executed", ex.Message);
+        }
+        finally
+        {
+            testBase.Cleanup();
+        }
+    }
+
+    [Fact]
+    public async Task TypedBackground_GivenBackground_ReturnsChain()
+    {
+        // Arrange
+        var testBase = new TypedBackgroundTestBase();
+        testBase.Initialize();
+
+        try
+        {
+            await testBase.RunBackgroundAsync();
+
+            // Act & Assert
+            await testBase.GetGivenBackground()
+                .Then("has id", ctx => ctx.Id == 42)
+                .And("has name", ctx => ctx.Name == "Test")
+                .AssertPassed();
+        }
+        finally
+        {
+            testBase.Cleanup();
+        }
+    }
+
+    [Fact]
+    public async Task TypedBackground_GivenBackground_WithTitle_UsesTitle()
+    {
+        // Arrange
+        var testBase = new TypedBackgroundTestBase();
+        testBase.Initialize();
+
+        try
+        {
+            await testBase.RunBackgroundAsync();
+
+            // Act & Assert
+            await testBase.GetGivenBackground("custom title")
+                .Then("works", ctx => ctx.Id == 42)
+                .AssertPassed();
+        }
+        finally
+        {
+            testBase.Cleanup();
+        }
+    }
+
+    [Fact]
+    public void TypedBackground_GivenBackground_BeforeExecute_Throws()
+    {
+        // Arrange
+        var testBase = new TypedBackgroundTestBase();
+        testBase.Initialize();
+
+        try
+        {
+            // Act & Assert
+            var ex = Assert.Throws<InvalidOperationException>(() => testBase.GetGivenBackground());
+            Assert.Contains("Background steps have not been executed", ex.Message);
+        }
+        finally
+        {
+            testBase.Cleanup();
+        }
+    }
+
+    [Fact]
+    public void TypedBackground_GivenBackgroundWithTitle_BeforeExecute_Throws()
+    {
+        // Arrange
+        var testBase = new TypedBackgroundTestBase();
+        testBase.Initialize();
+
+        try
+        {
+            // Act & Assert
+            var ex = Assert.Throws<InvalidOperationException>(() => testBase.GetGivenBackground("title"));
+            Assert.Contains("Background steps have not been executed", ex.Message);
+        }
+        finally
+        {
+            testBase.Cleanup();
+        }
+    }
+
+    [Fact]
+    public async Task TypedBackground_ConfigureTypedBackground_IsCalled()
+    {
+        // Arrange
+        var testBase = new TypedBackgroundTestBase();
+        testBase.Initialize();
+
+        try
+        {
+            // Act
+            await testBase.RunBackgroundAsync();
+
+            // Assert
+            Assert.Equal(1, testBase.ConfigureCallCount);
+        }
+        finally
+        {
+            testBase.Cleanup();
+        }
+    }
+
+    #endregion
 }
