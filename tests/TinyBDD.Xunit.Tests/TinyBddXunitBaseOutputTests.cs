@@ -43,8 +43,9 @@ namespace TinyBDD.Xunit.Tests
             var demo = new DemoTinyBddXunit(output);
 
             // Act
+            await demo.InitializeAsync(); // execute any background steps
             await DemoTinyBddXunit.RunScenarioAsync();
-            demo.Dispose(); // triggers Gherkin emission via the base class
+            await demo.DisposeAsync(); // triggers Gherkin emission via the base class
 
             var text = string.Join(Environment.NewLine, output.Lines);
 
@@ -73,8 +74,9 @@ namespace TinyBDD.Xunit.Tests
             var demo = new DemoTinyBddXunit(output);
 
             // Act
+            await demo.InitializeAsync(); // execute any background steps
             await DemoTinyBddXunit.RunScenarioAsync();
-            demo.Dispose();
+            await demo.DisposeAsync();
 
             var text = string.Join(Environment.NewLine, output.Lines);
 

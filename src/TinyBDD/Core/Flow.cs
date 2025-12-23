@@ -104,7 +104,37 @@ public static class Flow
     /// <returns>A <see cref="ScenarioChain{T}"/> that can be continued with <c>When</c>/<c>Then</c>.</returns>
     public static ScenarioChain<T> Given<T>(Func<CancellationToken, ValueTask<T>> setup)
         => Bdd.Given(Require(), setup);
-    
+
+    #region State-passing Given overloads
+
+    /// <summary>Starts a <c>Given</c> step with state, avoiding closure allocation.</summary>
+    /// <typeparam name="TState">The type of state to pass.</typeparam>
+    /// <typeparam name="T">The type produced by the setup function.</typeparam>
+    /// <param name="title">Human-friendly step title.</param>
+    /// <param name="state">State value to pass to the setup function.</param>
+    /// <param name="setup">Synchronous factory that receives the state.</param>
+    /// <returns>A <see cref="ScenarioChain{T}"/> for further chaining.</returns>
+    public static ScenarioChain<T> Given<TState, T>(string title, TState state, Func<TState, T> setup)
+        => Bdd.Given(Require(), title, state, setup);
+
+    /// <summary>Starts a <c>Given</c> step with state using async Task, avoiding closure allocation.</summary>
+    public static ScenarioChain<T> Given<TState, T>(string title, TState state, Func<TState, Task<T>> setup)
+        => Bdd.Given(Require(), title, state, setup);
+
+    /// <summary>Starts a <c>Given</c> step with state using async ValueTask, avoiding closure allocation.</summary>
+    public static ScenarioChain<T> Given<TState, T>(string title, TState state, Func<TState, ValueTask<T>> setup)
+        => Bdd.Given(Require(), title, state, setup);
+
+    /// <summary>Starts a token-aware <c>Given</c> step with state, avoiding closure allocation.</summary>
+    public static ScenarioChain<T> Given<TState, T>(string title, TState state, Func<TState, CancellationToken, Task<T>> setup)
+        => Bdd.Given(Require(), title, state, setup);
+
+    /// <summary>Starts a token-aware <c>Given</c> step with state using ValueTask, avoiding closure allocation.</summary>
+    public static ScenarioChain<T> Given<TState, T>(string title, TState state, Func<TState, CancellationToken, ValueTask<T>> setup)
+        => Bdd.Given(Require(), title, state, setup);
+
+    #endregion
+
     /// <summary>Creates a helper for starting chains from an explicit context.</summary>
     /// <param name="ctx">The scenario context to use for subsequent calls.</param>
     /// <returns>A <see cref="FromContext"/> helper bound to <paramref name="ctx"/>.</returns>

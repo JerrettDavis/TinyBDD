@@ -1,3 +1,4 @@
+using Xunit;
 using Xunit.Abstractions;
 
 namespace TinyBDD.Xunit;
@@ -7,15 +8,21 @@ namespace TinyBDD.Xunit;
 /// and writes a Gherkin report when disposed at the end of the test.
 /// </summary>
 /// <remarks>
+/// <para>
 /// The constructor sets <see cref="Ambient.Current"/> and wires an <see cref="XunitTraitBridge"/>.
-/// <see cref="Dispose"/> emits a Gherkin report and clears the ambient context.
+/// <see cref="IAsyncLifetime.InitializeAsync"/> executes any configured background steps.
+/// <see cref="IAsyncLifetime.DisposeAsync"/> emits a Gherkin report and clears the ambient context.
+/// </para>
+/// <para>
+/// To configure background steps, override <see cref="TestBase.ConfigureBackground"/>.
+/// </para>
 /// </remarks>
 [Feature("Unnamed Feature")]
 [UseTinyBdd]
-public abstract class TinyBddXunitBase : TestBase, IDisposable
+public abstract class TinyBddXunitBase : TestBase, IAsyncLifetime
 {
     private readonly ITestOutputHelper _output;
-    
+
     protected override IBddReporter Reporter => new XunitBddReporter(_output);
 
     /// <summary>Initializes the base with xUnit's <see cref="ITestOutputHelper"/> and sets up TinyBDD context.</summary>
@@ -23,16 +30,21 @@ public abstract class TinyBddXunitBase : TestBase, IDisposable
     {
         _output = output;
         var traits = new XunitTraitBridge(output);
-        
+
         var ctx = Bdd.CreateContext(this, traits: traits);
         Ambient.Current.Value = ctx;
     }
-    
+
+    /// <summary>Executes background steps if configured.</summary>
+    public virtual async Task InitializeAsync()
+    {
+        await ExecuteBackgroundAsync();
+    }
+
     /// <summary>Writes a Gherkin report and clears the ambient context.</summary>
-    public void Dispose()
+    public virtual Task DisposeAsync()
     {
         CleanUp();
-        
-        GC.SuppressFinalize(this);
+        return Task.CompletedTask;
     }
 }

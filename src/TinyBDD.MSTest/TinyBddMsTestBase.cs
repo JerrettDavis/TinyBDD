@@ -20,12 +20,16 @@ public abstract class TinyBddMsTestBase : TestBase
     protected override IBddReporter Reporter => new MsTestBddReporter();
 
     /// <summary>Initializes the TinyBDD ambient context and trait bridge.</summary>
+    /// <remarks>
+    /// If you override <see cref="TestBase.ConfigureBackground"/>, call <see cref="TestBase.ExecuteBackgroundAsync"/>
+    /// at the start of your test or in a derived <c>[TestInitialize]</c> method.
+    /// </remarks>
     [TestInitialize]
     public void TinyBdd_Init()
     {
         Bdd.Register(AmbientTestMethodResolver.Instance);
         AmbientTestMethodResolver.Set(ResolveCurrentMethod(TestContext));
-        
+
         MsTestTraitBridge.TestContext = TestContext;
         var traits = new MsTestTraitBridge();
         var ctx = Bdd.CreateContext(this, traits: traits);

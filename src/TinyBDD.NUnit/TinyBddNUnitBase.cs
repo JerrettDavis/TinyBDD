@@ -18,6 +18,10 @@ public abstract class TinyBddNUnitBase : TestBase
     protected override IBddReporter Reporter => new NUnitBddReporter();
     
     /// <summary>Initializes the TinyBDD ambient context and trait bridge.</summary>
+    /// <remarks>
+    /// If you override <see cref="TestBase.ConfigureBackground"/>, call <see cref="TestBase.ExecuteBackgroundAsync"/>
+    /// at the start of your test or in a derived <c>[SetUp]</c> method.
+    /// </remarks>
     [SetUp]
     public void TinyBdd_SetUp()
     {

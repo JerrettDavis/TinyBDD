@@ -214,4 +214,206 @@ public sealed partial class ScenarioChain<T>
         => async _ => await f().ConfigureAwait(false);
 
     #endregion
+
+    #region State-passing ToCT overloads
+
+    // Transform with state - sync
+    private static Func<T, CancellationToken, ValueTask<TOut>> ToCT<TState, TOut>(
+        TState state, Func<T, TState, TOut> f)
+        => (v, _) => new ValueTask<TOut>(f(v, state));
+
+    // Transform with state - Task
+    private static Func<T, CancellationToken, ValueTask<TOut>> ToCT<TState, TOut>(
+        TState state, Func<T, TState, Task<TOut>> f)
+        => async (v, _) => await f(v, state).ConfigureAwait(false);
+
+    // Transform with state - ValueTask
+    private static Func<T, CancellationToken, ValueTask<TOut>> ToCT<TState, TOut>(
+        TState state, Func<T, TState, ValueTask<TOut>> f)
+        => (v, _) => f(v, state);
+
+    // Transform with state - Token-aware Task
+    private static Func<T, CancellationToken, ValueTask<TOut>> ToCT<TState, TOut>(
+        TState state, Func<T, TState, CancellationToken, Task<TOut>> f)
+        => async (v, ct) => await f(v, state, ct).ConfigureAwait(false);
+
+    // Transform with state - Token-aware ValueTask
+    private static Func<T, CancellationToken, ValueTask<TOut>> ToCT<TState, TOut>(
+        TState state, Func<T, TState, CancellationToken, ValueTask<TOut>> f)
+        => (v, ct) => f(v, state, ct);
+
+    // Effect with state - sync
+    private static Func<T, CancellationToken, ValueTask> ToCT<TState>(
+        TState state, Action<T, TState> f)
+        => (v, ct) =>
+        {
+            ct.ThrowIfCancellationRequested();
+            f(v, state);
+            return default;
+        };
+
+    // Effect with state - Task
+    private static Func<T, CancellationToken, ValueTask> ToCT<TState>(
+        TState state, Func<T, TState, Task> f)
+        => async (v, ct) =>
+        {
+            ct.ThrowIfCancellationRequested();
+            await f(v, state).ConfigureAwait(false);
+        };
+
+    // Effect with state - ValueTask
+    private static Func<T, CancellationToken, ValueTask> ToCT<TState>(
+        TState state, Func<T, TState, ValueTask> f)
+        => (v, ct) =>
+        {
+            ct.ThrowIfCancellationRequested();
+            return f(v, state);
+        };
+
+    // Effect with state - Token-aware Task
+    private static Func<T, CancellationToken, ValueTask> ToCT<TState>(
+        TState state, Func<T, TState, CancellationToken, Task> f)
+        => async (v, ct) => await f(v, state, ct).ConfigureAwait(false);
+
+    // Effect with state - Token-aware ValueTask
+    private static Func<T, CancellationToken, ValueTask> ToCT<TState>(
+        TState state, Func<T, TState, CancellationToken, ValueTask> f)
+        => (v, ct) => f(v, state, ct);
+
+    // Predicate with state - sync
+    private static Func<T, CancellationToken, ValueTask<bool>> ToCT<TState>(
+        TState state, Func<T, TState, bool> f)
+        => (v, _) => new ValueTask<bool>(f(v, state));
+
+    // Predicate with state - Task
+    private static Func<T, CancellationToken, ValueTask<bool>> ToCT<TState>(
+        TState state, Func<T, TState, Task<bool>> f)
+        => async (v, _) => await f(v, state).ConfigureAwait(false);
+
+    // Predicate with state - ValueTask
+    private static Func<T, CancellationToken, ValueTask<bool>> ToCT<TState>(
+        TState state, Func<T, TState, ValueTask<bool>> f)
+        => (v, _) => f(v, state);
+
+    // Predicate with state - Token-aware Task
+    private static Func<T, CancellationToken, ValueTask<bool>> ToCT<TState>(
+        TState state, Func<T, TState, CancellationToken, Task<bool>> f)
+        => async (v, ct) => await f(v, state, ct).ConfigureAwait(false);
+
+    // Predicate with state - Token-aware ValueTask
+    private static Func<T, CancellationToken, ValueTask<bool>> ToCT<TState>(
+        TState state, Func<T, TState, CancellationToken, ValueTask<bool>> f)
+        => (v, ct) => f(v, state, ct);
+
+    #endregion
+
+    #region State-passing step methods
+
+    /// <summary>
+    /// Adds a <c>When</c> transformation with state, avoiding closure allocation.
+    /// </summary>
+    /// <typeparam name="TState">The type of state to pass.</typeparam>
+    /// <typeparam name="TOut">The result type of the transformation.</typeparam>
+    /// <param name="title">Display title for this step.</param>
+    /// <param name="state">State value to pass to the transform function.</param>
+    /// <param name="f">Transformation applied to the carried value and state.</param>
+    /// <returns>A new <see cref="ScenarioChain{TOut}"/> carrying the transformed value.</returns>
+    public ScenarioChain<TOut> When<TState, TOut>(string title, TState state, Func<T, TState, TOut> f) =>
+        Transform(StepPhase.When, StepWord.Primary, title, ToCT(state, f));
+
+    /// <summary>
+    /// Adds a <c>When</c> transformation with state using async Task, avoiding closure allocation.
+    /// </summary>
+    public ScenarioChain<TOut> When<TState, TOut>(string title, TState state, Func<T, TState, Task<TOut>> f) =>
+        Transform(StepPhase.When, StepWord.Primary, title, ToCT(state, f));
+
+    /// <summary>
+    /// Adds a <c>When</c> transformation with state using async ValueTask, avoiding closure allocation.
+    /// </summary>
+    public ScenarioChain<TOut> When<TState, TOut>(string title, TState state, Func<T, TState, ValueTask<TOut>> f) =>
+        Transform(StepPhase.When, StepWord.Primary, title, ToCT(state, f));
+
+    /// <summary>
+    /// Adds a <c>When</c> transformation with state using token-aware async Task, avoiding closure allocation.
+    /// </summary>
+    public ScenarioChain<TOut> When<TState, TOut>(string title, TState state, Func<T, TState, CancellationToken, Task<TOut>> f) =>
+        Transform(StepPhase.When, StepWord.Primary, title, ToCT(state, f));
+
+    /// <summary>
+    /// Adds a <c>When</c> side effect with state, avoiding closure allocation.
+    /// </summary>
+    /// <typeparam name="TState">The type of state to pass.</typeparam>
+    /// <param name="title">Display title for this step.</param>
+    /// <param name="state">State value to pass to the effect function.</param>
+    /// <param name="effect">Side-effect that receives the carried value and state.</param>
+    /// <returns>The same <see cref="ScenarioChain{T}"/> for further chaining.</returns>
+    public ScenarioChain<T> When<TState>(string title, TState state, Action<T, TState> effect) =>
+        Effect(StepPhase.When, StepWord.Primary, title, ToCT(state, effect));
+
+    /// <summary>
+    /// Adds an <c>And</c> transformation with state, avoiding closure allocation.
+    /// </summary>
+    public ScenarioChain<TOut> And<TState, TOut>(string title, TState state, Func<T, TState, TOut> f) =>
+        TransformInherit(StepWord.And, title, ToCT(state, f));
+
+    /// <summary>
+    /// Adds an <c>And</c> transformation with state using async Task, avoiding closure allocation.
+    /// </summary>
+    public ScenarioChain<TOut> And<TState, TOut>(string title, TState state, Func<T, TState, Task<TOut>> f) =>
+        TransformInherit(StepWord.And, title, ToCT(state, f));
+
+    /// <summary>
+    /// Adds an <c>And</c> side effect with state, avoiding closure allocation.
+    /// </summary>
+    public ScenarioChain<T> And<TState>(string title, TState state, Action<T, TState> effect) =>
+        EffectInherit(StepWord.And, title, ToCT(state, effect));
+
+    /// <summary>
+    /// Adds a <c>But</c> transformation with state, avoiding closure allocation.
+    /// </summary>
+    public ScenarioChain<TOut> But<TState, TOut>(string title, TState state, Func<T, TState, TOut> f) =>
+        TransformInherit(StepWord.But, title, ToCT(state, f));
+
+    /// <summary>
+    /// Adds a <c>But</c> side effect with state, avoiding closure allocation.
+    /// </summary>
+    public ScenarioChain<T> But<TState>(string title, TState state, Action<T, TState> effect) =>
+        EffectInherit(StepWord.But, title, ToCT(state, effect));
+
+    /// <summary>
+    /// Adds a <c>Then</c> predicate with state, avoiding closure allocation.
+    /// </summary>
+    /// <typeparam name="TState">The type of state to pass.</typeparam>
+    /// <param name="title">Display title for the assertion.</param>
+    /// <param name="state">State value to pass to the predicate function.</param>
+    /// <param name="predicate">Predicate evaluated against the carried value and state.</param>
+    /// <returns>A <see cref="ThenChain{T}"/> for further chaining.</returns>
+    public ThenChain<T> Then<TState>(string title, TState state, Func<T, TState, bool> predicate) =>
+        ThenPredicate(title, ToCT(state, predicate));
+
+    /// <summary>
+    /// Adds a <c>Then</c> predicate with state using async Task, avoiding closure allocation.
+    /// </summary>
+    public ThenChain<T> Then<TState>(string title, TState state, Func<T, TState, Task<bool>> predicate) =>
+        ThenPredicate(title, ToCT(state, predicate));
+
+    /// <summary>
+    /// Adds a <c>Then</c> assertion with state, avoiding closure allocation.
+    /// </summary>
+    public ThenChain<T> Then<TState>(string title, TState state, Action<T, TState> assertion) =>
+        ThenAssert(title, ToCT(state, assertion));
+
+    /// <summary>
+    /// Registers a cleanup handler with state that executes after all steps complete.
+    /// </summary>
+    public ScenarioChain<T> Finally<TState>(string title, TState state, Action<T, TState> effect) =>
+        FinallyEffect(title, ToCT(state, effect));
+
+    /// <summary>
+    /// Registers a cleanup handler with state using async Task.
+    /// </summary>
+    public ScenarioChain<T> Finally<TState>(string title, TState state, Func<T, TState, Task> effect) =>
+        FinallyEffect(title, ToCT(state, effect));
+
+    #endregion
 }
