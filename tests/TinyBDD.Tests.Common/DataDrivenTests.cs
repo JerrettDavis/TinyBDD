@@ -42,8 +42,8 @@ public class DataDrivenTests
 
         // Assert
         Assert.False(result.AllPassed);
-        Assert.True(result.Results.Any(r => !r.Passed));  // At least one failure
-        Assert.True(result.Results.Any(r => r.Passed));   // At least one pass
+        Assert.Contains(result.Results, r => !r.Passed);  // At least one failure
+        Assert.Contains(result.Results, r => r.Passed);   // At least one pass
     }
 
     [Fact]
