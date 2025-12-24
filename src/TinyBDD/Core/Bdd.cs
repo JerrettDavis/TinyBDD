@@ -251,6 +251,71 @@ public static partial class Bdd
     private static Func<CancellationToken, ValueTask<T>> Wrap<T>(Func<CancellationToken, ValueTask<T>> f)
         => f;
 
+    #region State-passing Wrap overloads
+
+    // State-passing factory - sync
+    private static Func<CancellationToken, ValueTask<T>> Wrap<TState, T>(TState state, Func<TState, T> setup)
+        => _ => new ValueTask<T>(setup(state));
+
+    // State-passing factory - Task
+    private static Func<CancellationToken, ValueTask<T>> Wrap<TState, T>(TState state, Func<TState, Task<T>> setup)
+        => _ => new ValueTask<T>(setup(state));
+
+    // State-passing factory - ValueTask
+    private static Func<CancellationToken, ValueTask<T>> Wrap<TState, T>(TState state, Func<TState, ValueTask<T>> setup)
+        => _ => setup(state);
+
+    // State-passing factory - Token-aware Task
+    private static Func<CancellationToken, ValueTask<T>> Wrap<TState, T>(TState state, Func<TState, CancellationToken, Task<T>> setup)
+        => ct => new ValueTask<T>(setup(state, ct));
+
+    // State-passing factory - Token-aware ValueTask
+    private static Func<CancellationToken, ValueTask<T>> Wrap<TState, T>(TState state, Func<TState, CancellationToken, ValueTask<T>> setup)
+        => ct => setup(state, ct);
+
+    #endregion
+
+    #region State-passing Given overloads
+
+    /// <summary>
+    /// Starts a <c>Given</c> step with state, avoiding closure allocation.
+    /// </summary>
+    /// <typeparam name="TState">The type of state to pass.</typeparam>
+    /// <typeparam name="T">The type produced by the setup function.</typeparam>
+    /// <param name="ctx">Scenario context.</param>
+    /// <param name="title">Human-friendly step title.</param>
+    /// <param name="state">State value to pass to the setup function.</param>
+    /// <param name="setup">Synchronous factory that receives the state.</param>
+    /// <returns>A <see cref="ScenarioChain{T}"/> for further chaining.</returns>
+    public static ScenarioChain<T> Given<TState, T>(ScenarioContext ctx, string title, TState state, Func<TState, T> setup)
+        => Seed(ctx, title, Wrap(state, setup));
+
+    /// <summary>
+    /// Starts a <c>Given</c> step with state using async Task, avoiding closure allocation.
+    /// </summary>
+    public static ScenarioChain<T> Given<TState, T>(ScenarioContext ctx, string title, TState state, Func<TState, Task<T>> setup)
+        => Seed(ctx, title, Wrap(state, setup));
+
+    /// <summary>
+    /// Starts a <c>Given</c> step with state using async ValueTask, avoiding closure allocation.
+    /// </summary>
+    public static ScenarioChain<T> Given<TState, T>(ScenarioContext ctx, string title, TState state, Func<TState, ValueTask<T>> setup)
+        => Seed(ctx, title, Wrap(state, setup));
+
+    /// <summary>
+    /// Starts a token-aware <c>Given</c> step with state, avoiding closure allocation.
+    /// </summary>
+    public static ScenarioChain<T> Given<TState, T>(ScenarioContext ctx, string title, TState state, Func<TState, CancellationToken, Task<T>> setup)
+        => Seed(ctx, title, Wrap(state, setup));
+
+    /// <summary>
+    /// Starts a token-aware <c>Given</c> step with state using ValueTask, avoiding closure allocation.
+    /// </summary>
+    public static ScenarioChain<T> Given<TState, T>(ScenarioContext ctx, string title, TState state, Func<TState, CancellationToken, ValueTask<T>> setup)
+        => Seed(ctx, title, Wrap(state, setup));
+
+    #endregion
+
     private static ScenarioChain<T> Seed<T>(
         ScenarioContext ctx,
         string title,
@@ -258,6 +323,64 @@ public static partial class Bdd
         ScenarioChain<T>.Seed(ctx, title, setup);
 
     private static string AutoTitle<T>() => $"Given {typeof(T).Name}";
+
+    #region Data-Driven Scenarios
+
+    /// <summary>
+    /// Creates a data-driven scenario builder with the specified examples.
+    /// </summary>
+    /// <typeparam name="TExample">The type of example data.</typeparam>
+    /// <param name="ctx">The scenario context.</param>
+    /// <param name="title">The scenario title.</param>
+    /// <param name="examples">The example data values.</param>
+    /// <returns>An <see cref="ExamplesBuilder{TExample}"/> for defining the scenario.</returns>
+    /// <example>
+    /// <code>
+    /// await Bdd.Scenario(ctx, "Adding numbers",
+    ///         new { a = 1, b = 2, expected = 3 },
+    ///         new { a = 5, b = 5, expected = 10 })
+    ///     .ForEachAsync(ex =>
+    ///         Bdd.Given(ctx, $"a={ex.Data.a}, b={ex.Data.b}", () => (ex.Data.a, ex.Data.b))
+    ///             .When("added", x => x.a + x.b)
+    ///             .Then($"equals {ex.Data.expected}", sum => sum == ex.Data.expected));
+    /// </code>
+    /// </example>
+    public static ExamplesBuilder<TExample> Scenario<TExample>(
+        ScenarioContext ctx,
+        string title,
+        params TExample[] examples)
+    {
+        var rows = examples.Select((e, i) => new ExampleRow<TExample>(i, e)).ToList();
+        return new ExamplesBuilder<TExample>(ctx, title, rows);
+    }
+
+    /// <summary>
+    /// Creates a Gherkin-style scenario outline builder.
+    /// </summary>
+    /// <typeparam name="TExample">The type of example data.</typeparam>
+    /// <param name="ctx">The scenario context.</param>
+    /// <param name="title">The scenario outline title.</param>
+    /// <returns>A <see cref="ScenarioOutlineBuilder{TExample}"/> for defining the scenario outline.</returns>
+    /// <example>
+    /// <code>
+    /// await Bdd.ScenarioOutline&lt;(int a, int b, int expected)&gt;(ctx, "Addition")
+    ///     .Given("first number", ex => ex.a)
+    ///     .When("added to second", (a, ex) => a + ex.b)
+    ///     .Then("result matches expected", (sum, ex) => sum == ex.expected)
+    ///     .Examples(
+    ///         (a: 1, b: 2, expected: 3),
+    ///         (a: 5, b: 5, expected: 10))
+    ///     .AssertAllPassedAsync();
+    /// </code>
+    /// </example>
+    public static ScenarioOutlineBuilder<TExample> ScenarioOutline<TExample>(
+        ScenarioContext ctx,
+        string title)
+    {
+        return new ScenarioOutlineBuilder<TExample>(ctx, title);
+    }
+
+    #endregion
 
     // --- ScenarioContextBuilder ---
     /// <summary>

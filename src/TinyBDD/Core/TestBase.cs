@@ -209,4 +209,144 @@ public abstract class TestBase
     /// <param name="ctx">The scenario context to use for subsequent calls.</param>
     /// <returns>A <see cref="FromContext"/> bound to <paramref name="ctx"/>.</returns>
     protected FromContext From(ScenarioContext ctx) => Flow.From(ctx);
+
+    #region Background Steps
+
+    /// <summary>
+    /// Gets or sets the background state captured after <see cref="ExecuteBackgroundAsync"/> completes.
+    /// </summary>
+    /// <remarks>
+    /// This property is populated by <see cref="ExecuteBackgroundAsync"/> after running
+    /// the background steps configured in <see cref="ConfigureBackground"/>.
+    /// </remarks>
+    protected object? BackgroundState { get; private set; }
+
+    /// <summary>
+    /// Gets a value indicating whether background steps have been executed.
+    /// </summary>
+    protected bool BackgroundExecuted { get; private set; }
+
+    /// <summary>
+    /// Override to configure background steps that run before each scenario.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="ScenarioChain{T}"/> representing the background steps,
+    /// or <see langword="null"/> if no background is needed.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// Background steps are executed once before each test method by calling
+    /// <see cref="ExecuteBackgroundAsync"/>. The final value from the chain
+    /// is stored in <see cref="BackgroundState"/> and can be accessed via
+    /// <see cref="GivenBackground{T}()"/>.
+    /// </para>
+    /// <para>
+    /// Override this method in your test class to define shared setup steps.
+    /// The background chain should not call <c>AssertPassed()</c>; that is
+    /// handled automatically by <see cref="ExecuteBackgroundAsync"/>.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// protected override ScenarioChain&lt;object&gt;? ConfigureBackground()
+    /// {
+    ///     return Given("a database connection", () => new DbConnection())
+    ///         .And("test data seeded", conn => { SeedData(conn); return conn; });
+    /// }
+    /// </code>
+    /// </example>
+    protected virtual ScenarioChain<object>? ConfigureBackground() => null;
+
+    /// <summary>
+    /// Executes the background steps configured in <see cref="ConfigureBackground"/>.
+    /// </summary>
+    /// <param name="ct">Optional cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <remarks>
+    /// <para>
+    /// Call this method from your test framework's initialization hook
+    /// (e.g., <c>[TestInitialize]</c>, <c>[SetUp]</c>, or <c>InitializeAsync</c>)
+    /// after setting up the ambient context.
+    /// </para>
+    /// <para>
+    /// The final value from the background chain is captured in <see cref="BackgroundState"/>.
+    /// </para>
+    /// </remarks>
+    protected async Task ExecuteBackgroundAsync(CancellationToken ct = default)
+    {
+        var background = ConfigureBackground();
+        if (background is null)
+        {
+            BackgroundExecuted = true;
+            return;
+        }
+
+        object? capturedState = null;
+        await background
+            .Then("background complete", state =>
+            {
+                capturedState = state;
+                return true;
+            })
+            .AssertPassed(ct);
+
+        BackgroundState = capturedState;
+        BackgroundExecuted = true;
+    }
+
+    /// <summary>
+    /// Starts a Given step that continues from the background state.
+    /// </summary>
+    /// <typeparam name="T">The expected type of the background state.</typeparam>
+    /// <returns>A <see cref="ScenarioChain{T}"/> starting with the background state.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if background steps have not been executed or the state is null.
+    /// </exception>
+    /// <example>
+    /// <code>
+    /// [Test]
+    /// public async Task TestWithBackground()
+    /// {
+    ///     await GivenBackground&lt;DbConnection&gt;()
+    ///         .When("querying users", conn => conn.Query&lt;User&gt;("SELECT * FROM Users"))
+    ///         .Then("users exist", users => users.Any())
+    ///         .AssertPassed();
+    /// }
+    /// </code>
+    /// </example>
+    protected ScenarioChain<T> GivenBackground<T>() where T : class
+    {
+        if (!BackgroundExecuted)
+            throw new InvalidOperationException(
+                "Background steps have not been executed. Call ExecuteBackgroundAsync() first.");
+
+        var state = BackgroundState as T
+            ?? throw new InvalidOperationException(
+                $"Background state is not of type {typeof(T).Name}. " +
+                $"Actual type: {BackgroundState?.GetType().Name ?? "null"}");
+
+        return Given("background", () => state);
+    }
+
+    /// <summary>
+    /// Starts a Given step that continues from the background state with a custom title.
+    /// </summary>
+    /// <typeparam name="T">The expected type of the background state.</typeparam>
+    /// <param name="title">A custom title for the Given step.</param>
+    /// <returns>A <see cref="ScenarioChain{T}"/> starting with the background state.</returns>
+    protected ScenarioChain<T> GivenBackground<T>(string title) where T : class
+    {
+        if (!BackgroundExecuted)
+            throw new InvalidOperationException(
+                "Background steps have not been executed. Call ExecuteBackgroundAsync() first.");
+
+        var state = BackgroundState as T
+            ?? throw new InvalidOperationException(
+                $"Background state is not of type {typeof(T).Name}. " +
+                $"Actual type: {BackgroundState?.GetType().Name ?? "null"}");
+
+        return Given(title, () => state);
+    }
+
+    #endregion
 }
