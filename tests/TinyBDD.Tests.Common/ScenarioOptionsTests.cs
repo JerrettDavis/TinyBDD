@@ -22,7 +22,8 @@ public class ScenarioOptionsTests
                 .And("after", _ => Task.CompletedTask));
 
         // failed assertion should be recorded
-        var failed = ctx.Steps.Last(x => x.Error is not null);
+        var failed = ctx.Steps.FirstOrDefault(x => x.Error is not null);
+        Assert.NotNull(failed);
         Assert.Equal("Then", failed.Kind);
         Assert.Equal("fail", failed.Title);
     }
@@ -64,7 +65,8 @@ public class ScenarioOptionsTests
                 .Then("reached", _ => Task.CompletedTask));
         
         // the errored step should be the Then since they get marked with an InvalidOperationException
-        var failed = ctx.Steps.Last(x => x.Error is not null);
+        var failed = ctx.Steps.LastOrDefault(x => x.Error is not null);
+        Assert.NotNull(failed);
         Assert.Equal("Then", failed.Kind);
         Assert.Equal("reached", failed.Title);
 
@@ -97,7 +99,8 @@ public class ScenarioOptionsTests
         Assert.Null(last.Error);
 
         // earlier failed step is recorded
-        var failed = ctx.Steps.Last(x => x.Error is not null);
+        var failed = ctx.Steps.FirstOrDefault(x => x.Error is not null);
+        Assert.NotNull(failed);
         Assert.Equal("When", failed.Kind);
         Assert.Equal("long", failed.Title);
     }
