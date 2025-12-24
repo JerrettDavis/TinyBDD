@@ -591,4 +591,25 @@ public class StatePassingOverloadTests
         // Assert
         Assert.Contains(789, cleanupLog);
     }
+
+    [Fact]
+    public async Task Finally_ValueTask_WithCancellationToken_NoTitle_ExecutesCleanup()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+        var cleanupExecuted = false;
+
+        // Act - Finally without title, with ValueTask+CancellationToken
+        await Bdd.Given(ctx, "resource", () => "test")
+            .Finally((_, ct) =>
+            {
+                cleanupExecuted = true;
+                return new ValueTask();
+            })
+            .Then("pass", _ => true)
+            .AssertPassed();
+
+        // Assert
+        Assert.True(cleanupExecuted);
+    }
 }

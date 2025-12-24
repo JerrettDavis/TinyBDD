@@ -526,6 +526,47 @@ public class FinallyTests(ITestOutputHelper output) : TinyBddXunitBase(output)
         Assert.True(cleanupCalled);
     }
 
+    #region Finally Exception Suppression
+
+    [Scenario("Finally handler exception is suppressed")]
+    [Fact]
+    public async Task Finally_Handler_SuppressesExceptions()
+    {
+        var handlerExecuted = false;
+        Action<string> throwingAction = _ =>
+        {
+            handlerExecuted = true;
+            throw new InvalidOperationException("Cleanup failed!");
+        };
+        await Given("resource", () => "test")
+            .Finally("throwing cleanup", throwingAction)
+            .Then("pass", _ => true)
+            .AssertPassed();
+        Assert.True(handlerExecuted);
+    }
+
+    [Scenario("Multiple finally handlers all execute even when one fails")]
+    [Fact]
+    public async Task Finally_MultipleFinallyHandlers_AllExecuteEvenWhenOneFails()
+    {
+        var executed = new List<int>();
+        Action<string> firstAction = _ =>
+        {
+            executed.Add(1);
+            throw new InvalidOperationException("First cleanup failed!");
+        };
+        Action<string> secondAction = _ => executed.Add(2);
+        await Given("resource", () => "test")
+            .Finally("first cleanup", firstAction)
+            .Finally("second cleanup", secondAction)
+            .Then("pass", _ => true)
+            .AssertPassed();
+        Assert.Contains(1, executed);
+        Assert.Contains(2, executed);
+    }
+
+    #endregion
+
     private class TestDisposable(Action onDispose) : IDisposable
     {
         private bool _disposed;

@@ -686,4 +686,203 @@ public class BackgroundStepTests
     }
 
     #endregion
+
+    #region TestBase Helper Method Tests
+
+    /// <summary>
+    /// Test fixture that exposes protected members for testing.
+    /// </summary>
+    private class HelperMethodTestBase : TestBase
+    {
+        protected override IBddReporter Reporter => new NullBddReporter();
+
+        protected override ScenarioChain<object>? ConfigureBackground() => null;
+
+        public void Initialize()
+        {
+            var ctx = Bdd.CreateContext(this);
+            Ambient.Current.Value = ctx;
+        }
+
+        public void Cleanup()
+        {
+            Ambient.Current.Value = null;
+        }
+
+        public ScenarioContext GetScenario() => Scenario;
+        public FromContext GetFrom() => From();
+        public FromContext GetFrom(ScenarioContext ctx) => From(ctx);
+    }
+
+    [Fact]
+    public void TestBase_Scenario_ReturnsAmbientContext()
+    {
+        // Arrange
+        var testBase = new HelperMethodTestBase();
+        testBase.Initialize();
+
+        try
+        {
+            // Act
+            var scenario = testBase.GetScenario();
+
+            // Assert
+            Assert.NotNull(scenario);
+        }
+        finally
+        {
+            testBase.Cleanup();
+        }
+    }
+
+    [Fact]
+    public async Task TestBase_From_ReturnsFromContextHelper()
+    {
+        // Arrange
+        var testBase = new HelperMethodTestBase();
+        testBase.Initialize();
+
+        try
+        {
+            // Act - Use From() to create a chain
+            var from = testBase.GetFrom();
+
+            // Assert - FromContext should work
+            await from.Given("test value", () => 42)
+                .Then("is 42", v => v == 42)
+                .AssertPassed();
+        }
+        finally
+        {
+            testBase.Cleanup();
+        }
+    }
+
+    [Fact]
+    public async Task TestBase_From_WithExplicitContext_WorksCorrectly()
+    {
+        // Arrange
+        var testBase = new HelperMethodTestBase();
+        testBase.Initialize();
+
+        try
+        {
+            // Create explicit context
+            var ctx = Bdd.CreateContext(testBase);
+
+            // Act - Use From(ctx) to create a chain
+            var from = testBase.GetFrom(ctx);
+
+            // Assert - FromContext should work
+            await from.Given("test value", () => "hello")
+                .Then("has content", v => v.Length > 0)
+                .AssertPassed();
+        }
+        finally
+        {
+            testBase.Cleanup();
+        }
+    }
+
+    #region GivenBackground with Custom Title Coverage
+
+    /// <summary>
+    /// Test fixture to cover GivenBackground with custom title error paths.
+    /// </summary>
+    private class TitledBackgroundTestBase : TestBase
+    {
+        protected override IBddReporter Reporter => new NullBddReporter();
+
+        protected override ScenarioChain<object>? ConfigureBackground()
+        {
+            return Flow.Given("setup", () => (object)"test-value");
+        }
+
+        public void Initialize()
+        {
+            var ctx = Bdd.CreateContext(this);
+            Ambient.Current.Value = ctx;
+        }
+
+        public void Cleanup()
+        {
+            Ambient.Current.Value = null;
+        }
+
+        public Task RunBackgroundAsync(CancellationToken ct = default)
+            => ExecuteBackgroundAsync(ct);
+
+        public ScenarioChain<T> GetGivenBackground<T>(string title) where T : class
+            => GivenBackground<T>(title);
+    }
+
+    [Fact]
+    public void GivenBackgroundWithTitle_BeforeExecute_ThrowsInvalidOperation()
+    {
+        // Arrange
+        var testBase = new TitledBackgroundTestBase();
+        testBase.Initialize();
+
+        try
+        {
+            // Act & Assert - Background not executed yet
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+                testBase.GetGivenBackground<string>("custom title"));
+            Assert.Contains("Background steps have not been executed", ex.Message);
+        }
+        finally
+        {
+            testBase.Cleanup();
+        }
+    }
+
+    [Fact]
+    public async Task GivenBackgroundWithTitle_WrongType_ThrowsInvalidOperation()
+    {
+        // Arrange
+        var testBase = new TitledBackgroundTestBase();
+        testBase.Initialize();
+
+        try
+        {
+            await testBase.RunBackgroundAsync();
+
+            // Act & Assert - Wrong type
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+                testBase.GetGivenBackground<List<int>>("wrong type title"));
+            Assert.Contains("Background state is not of type", ex.Message);
+        }
+        finally
+        {
+            testBase.Cleanup();
+        }
+    }
+
+    [Fact]
+    public async Task GivenBackgroundWithTitle_Success()
+    {
+        // Arrange
+        var testBase = new TitledBackgroundTestBase();
+        testBase.Initialize();
+
+        try
+        {
+            await testBase.RunBackgroundAsync();
+
+            // Act
+            var chain = testBase.GetGivenBackground<string>("custom title");
+
+            // Assert
+            await chain.Then("has value", v => v == "test-value")
+                .AssertPassed();
+        }
+        finally
+        {
+            testBase.Cleanup();
+        }
+    }
+
+    #endregion
+
+    #endregion
 }

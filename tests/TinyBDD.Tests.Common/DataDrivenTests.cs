@@ -290,6 +290,85 @@ public class DataDrivenTests
             .AssertAllPassedAsync();
     }
 
+    [Fact]
+    public async Task ScenarioOutline_WhenWithExample_WorksCorrectly()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+
+        // Act & Assert - When with (v, ex) signature
+        await Bdd.ScenarioOutline<(int multiplier, int expected)>(ctx, "When with example")
+            .Given("base value", _ => 10)
+            .When("multiply by example", (v, ex) => v * ex.multiplier)
+            .Then("matches expected", (v, ex) => v == ex.expected)
+            .Examples(
+                (multiplier: 2, expected: 20),
+                (multiplier: 5, expected: 50))
+            .AssertAllPassedAsync();
+    }
+
+    [Fact]
+    public async Task ScenarioOutline_AndWithoutExample_WorksCorrectly()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+
+        // Act & Assert - And with just v signature (no example)
+        await Bdd.ScenarioOutline<int>(ctx, "And without example")
+            .Given("value from example", ex => ex)
+            .And("double", v => v * 2)
+            .Then("is even", v => v % 2 == 0)
+            .Examples(1, 2, 3)
+            .AssertAllPassedAsync();
+    }
+
+    [Fact]
+    public async Task ScenarioOutline_ThenAnd_WithExample_WorksCorrectly()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+
+        // Act & Assert - Terminal.And with (v, ex) signature
+        await Bdd.ScenarioOutline<(int min, int max)>(ctx, "Then And with example")
+            .Given("middle value", _ => 50)
+            .Then("is above min", (v, ex) => v > ex.min)
+            .And("is below max", (v, ex) => v < ex.max)
+            .Examples(
+                (min: 0, max: 100),
+                (min: 25, max: 75))
+            .AssertAllPassedAsync();
+    }
+
+    [Fact]
+    public async Task ScenarioOutline_ThenAnd_WithoutExample_WorksCorrectly()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+
+        // Act & Assert - Terminal.And with just v signature
+        await Bdd.ScenarioOutline<int>(ctx, "Then And without example")
+            .Given("value", ex => ex)
+            .Then("is positive", v => v > 0)
+            .And("is less than 100", v => v < 100)
+            .Examples(10, 20, 30)
+            .AssertAllPassedAsync();
+    }
+
+    [Fact]
+    public async Task ScenarioOutline_ThenBut_WithExample_WorksCorrectly()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+
+        // Act & Assert - Terminal.But with (v, ex) signature
+        await Bdd.ScenarioOutline<int>(ctx, "Then But with example")
+            .Given("value", _ => 42)
+            .Then("is not zero", v => v != 0)
+            .But("is not forbidden value", (v, ex) => v != ex)
+            .Examples(100, 200)
+            .AssertAllPassedAsync();
+    }
+
     #endregion
 
     #region ExamplesResult Tests
@@ -540,6 +619,227 @@ public class DataDrivenTests
         Assert.Equal(2, result.PassedCount);
         Assert.Equal(1, result.FailedCount);
         Assert.Equal(3, result.TotalCount);
+    }
+
+    #endregion
+
+    #region ExampleRow Tests
+
+    [Fact]
+    public async Task ExampleRow_ToString_WithoutLabel_ReturnsDefaultFormat()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+        string? capturedString = null;
+
+        // Act
+        await Bdd.Scenario(ctx, "unlabeled test", ["value1"])
+            .ForEachAsync(row =>
+            {
+                capturedString = row.ToString();
+                return Bdd.Given(ctx, "check", () => row.Data)
+                    .Then("pass", _ => true);
+            });
+
+        // Assert - should use default format when Label is null
+        Assert.Contains("Example 1:", capturedString);
+        Assert.Contains("value1", capturedString);
+    }
+
+    [Fact]
+    public async Task ExampleRow_Properties_AreAccessible()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+        var capturedIndices = new List<int>();
+        var capturedData = new List<string>();
+
+        // Act
+        await Bdd.Scenario(ctx, "properties test", ["first", "second", "third"])
+            .ForEachAsync(row =>
+            {
+                capturedIndices.Add(row.Index);
+                capturedData.Add(row.Data);
+                return Bdd.Given(ctx, "check", () => row.Data)
+                    .Then("pass", _ => true);
+            });
+
+        // Assert
+        Assert.Equal([0, 1, 2], capturedIndices);
+        Assert.Equal(["first", "second", "third"], capturedData);
+    }
+
+    #endregion
+
+    #region ForEachAsync ScenarioChain Tests
+
+    [Fact]
+    public async Task ForEachAsync_WithScenarioChain_ExecutesAllExamples()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+        var executed = new List<int>();
+
+        // Act - ForEachAsync with ScenarioChain (no Then)
+        var result = await Bdd.Scenario(ctx, "scenario chain test", [1, 2, 3])
+            .ForEachAsync(row =>
+            {
+                executed.Add(row.Data);
+                return Bdd.Given(ctx, "value", () => row.Data)
+                    .When("process", v => v * 2);
+            });
+
+        // Assert
+        Assert.Equal(3, result.TotalCount);
+        Assert.Equal([1, 2, 3], executed);
+    }
+
+    [Fact]
+    public async Task ForEachAsync_WithScenarioChain_ReportsAllPassed()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+
+        // Act
+        var result = await Bdd.Scenario(ctx, "all pass test", [10, 20, 30])
+            .ForEachAsync(row => Bdd.Given(ctx, "value", () => row.Data)
+                .When("double", v => v * 2));
+
+        // Assert
+        Assert.Equal(3, result.PassedCount);
+        Assert.Equal(0, result.FailedCount);
+        Assert.True(result.AllPassed);
+    }
+
+    [Fact]
+    public async Task ForEachAsync_WithScenarioChain_CapturesExceptions()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+        var executedIndices = new List<int>();
+
+        // Act - Exception in When step for row at index 1
+        var result = await Bdd.Scenario(ctx, "exception test", [10, 20, 30])
+            .ForEachAsync(row =>
+            {
+                executedIndices.Add(row.Index);
+                return Bdd.Given(ctx, "value", () => row.Data)
+                    .When("process", v =>
+                    {
+                        if (row.Index == 1) throw new InvalidOperationException("test exception");
+                        return v * 2;
+                    });
+            });
+
+        // Assert - All examples should be executed
+        Assert.Equal(3, result.TotalCount);
+        Assert.Equal([0, 1, 2], executedIndices);
+        // One example (index 1) should fail
+        Assert.True(result.FailedCount >= 1, $"Expected at least 1 failure, got {result.FailedCount}");
+        Assert.False(result.AllPassed);
+    }
+
+    #endregion
+
+    #region FromContext Tests
+
+    [Fact]
+    public async Task FromContext_Given_WithTitle_ExecutesSetup()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+        var from = Flow.From(ctx);
+
+        // Act & Assert
+        await from.Given("initial value", () => 42)
+            .Then("equals 42", v => v == 42)
+            .AssertPassed();
+    }
+
+    [Fact]
+    public async Task FromContext_Given_WithoutTitle_ExecutesSetup()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+        var from = Flow.From(ctx);
+
+        // Act & Assert
+        await from.Given(() => "hello")
+            .Then("equals hello", v => v == "hello")
+            .AssertPassed();
+    }
+
+    [Fact]
+    public async Task FromContext_Given_WithTitleAndCancellationToken_ExecutesAsyncSetup()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+        var from = Flow.From(ctx);
+
+        // Act & Assert
+        await from.Given("async value", async ct =>
+            {
+                await Task.Delay(1, ct);
+                return 100;
+            })
+            .Then("equals 100", v => v == 100)
+            .AssertPassed();
+    }
+
+    [Fact]
+    public async Task FromContext_Given_WithoutTitleAndCancellationToken_ExecutesAsyncSetup()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+        var from = Flow.From(ctx);
+
+        // Act & Assert
+        await from.Given(async ct =>
+            {
+                await Task.Delay(1, ct);
+                return "async result";
+            })
+            .Then("has value", v => v == "async result")
+            .AssertPassed();
+    }
+
+    #endregion
+
+    #region ExampleResult Context Coverage
+
+    [Fact]
+    public async Task ExampleResult_Context_IsAccessible()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+
+        // Act
+        var result = await Bdd.Scenario(ctx, "context test", [1])
+            .ForEachAsync(row =>
+            {
+                return Bdd.Given(ctx, "value", () => row.Data)
+                    .Then("pass", _ => true);
+            });
+
+        // Assert - Access the Context property
+        Assert.NotNull(result.Results[0].Context);
+    }
+
+    #endregion
+
+    #region ExamplesBuilder Success Path Coverage
+
+    [Fact]
+    public async Task ExamplesBuilder_AssertAllPassedAsync_SucceedsWhenAllPass()
+    {
+        // Arrange
+        var ctx = Bdd.CreateContext(this);
+
+        // Act & Assert - Should not throw
+        await Bdd.Scenario(ctx, "all pass", [2, 4, 6])
+            .AssertAllPassedAsync(row =>
+                Bdd.Given(ctx, $"value {row.Data}", () => row.Data)
+                    .Then("is even", v => v % 2 == 0));
     }
 
     #endregion

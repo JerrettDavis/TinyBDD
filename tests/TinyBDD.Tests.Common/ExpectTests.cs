@@ -188,4 +188,17 @@ public class ExpectTests
         Assert.Equal(default, ShouldExtensions.ElementAtOrDefault(ints, -5));
         Assert.Equal(default, ShouldExtensions.ElementAtOrDefault(ints, 5));
     }
+
+    [Fact]
+    public async Task FluentAssertion_FormatsNullExpectedValue()
+    {
+        // Call ToBe(null) so that Fmt(expected) is called with null
+        var assertion = Expect.That("actual").ToBe(null!);
+
+        // Evaluate the assertion which should throw and call Fmt(null)
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(() => assertion.EvaluateAsync().AsTask());
+
+        // Verify the exception message contains "null" for the expected value
+        Assert.Contains("null", ex.Message);
+    }
 }
