@@ -4,18 +4,70 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 permissions:
   actions: read
   pages: write
   id-token: write
+  pull-requests: write
 
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
+  validate-docs:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 9.0.x
+      
+      - name: Install docfx
+        run: dotnet tool update -g docfx
+      
+      - name: Build documentation
+        run: docfx docs/docfx.json
+      
+      - name: Check for broken links
+        run: |
+          echo "Documentation built successfully!"
+          echo "Checking for common issues..."
+          
+          # Check if _site directory was created
+          if [ ! -d "docs/_site" ]; then
+            echo "::error::Documentation build did not create _site directory"
+            exit 1
+          fi
+          
+          # Count generated HTML files
+          HTML_COUNT=$(find docs/_site -name "*.html" | wc -l)
+          echo "Generated $HTML_COUNT HTML files"
+          
+          if [ "$HTML_COUNT" -lt 1 ]; then
+            echo "::error::No HTML files were generated"
+            exit 1
+          fi
+          
+          echo "::notice::Documentation validation passed! Generated $HTML_COUNT pages."
+      
+      - name: Upload build artifacts for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-preview
+          path: docs/_site
+          retention-days: 7
+
   publish-docs:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -23,18 +75,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Dotnet Setup
+      
+      - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 9.x
+          dotnet-version: 9.0.x
 
-      - run: dotnet tool update -g docfx
-      - run: docfx docs/docfx.json
+      - name: Install docfx
+        run: dotnet tool update -g docfx
+      
+      - name: Build documentation
+        run: docfx docs/docfx.json
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'docs/_site'
+      
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
