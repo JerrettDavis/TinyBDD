@@ -73,12 +73,20 @@
 body {
   background-color: var(--bg-secondary);
   color: var(--text-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
+}
+
+/* Smooth theme transitions for specific elements */
+article,
+.navbar,
+.toc,
+.breadcrumb,
+footer {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 /* ============================================
@@ -143,6 +151,7 @@ article {
   box-shadow: var(--shadow-md);
   margin-bottom: 2rem;
   transition: box-shadow 0.3s ease;
+  animation: fadeIn 0.5s ease-out;
 }
 
 article:hover {
@@ -630,10 +639,6 @@ footer a:hover {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-article {
-  animation: fadeIn 0.5s ease-out;
 }
 
 /* ============================================
