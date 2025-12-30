@@ -9,15 +9,36 @@
   
 - name: BDD + TDD Workflow
   href: tdd-via-bdd.md
+
+- name: Writing Scenarios
+  href: writing-scenarios.md
+
+- name: Data and Tables
+  href: data-and-tables.md
   
 - name: Expectations & Assertions
   href: assertions-and-expectations.md
   
 - name: Step IO & State Tracking
   href: step-io-and-state.md
+
+- name: Hooks and Lifecycle
+  href: hooks-and-lifecycle.md
+
+- name: Running with Test Frameworks
+  href: running-with-test-frameworks.md
+
+- name: Reporting
+  href: reporting.md
   
 - name: Tips & Tricks
   href: tips-and-tricks.md
   
 - name: Extensibility & Advanced
   href: advanced-usage.md
+
+- name: Troubleshooting & FAQ
+  href: troubleshooting-faq.md
+
+- name: Samples Index
+  href: samples-index.md

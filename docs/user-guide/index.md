@@ -69,12 +69,25 @@ Design notes
 
 Where next
 
-- Introduction: [introduction.md](index.md)
-- Getting Started: [getting-started.md](getting-started.md)
-- Fundamentals (BDD & Gherkin): [bdd-fundamentals.md](bdd-fundamentals.md)
-- BDD + TDD Workflow: [tdd-via-bdd.md](tdd-via-bdd.md)
-- Expectations & Assertions: [assertions-and-expectations.md](assertions-and-expectations.md)
-- Step IO & State Tracking: [step-io-and-state.md](step-io-and-state.md)
-- Tips & Tricks: [tips-and-tricks.md](tips-and-tricks.md)
-- Extensibility & Advanced: [advanced-usage.md](advanced-usage.md)
+**Getting Started**
+- [Getting Started](getting-started.md) - Installation, basic usage, and quick starts
+- [Fundamentals (BDD & Gherkin)](bdd-fundamentals.md) - Core BDD concepts and vocabulary
+- [BDD + TDD Workflow](tdd-via-bdd.md) - Integrating BDD with TDD practices
+
+**Writing and Organizing Tests**
+- [Writing Scenarios](writing-scenarios.md) - Background steps, scenario outlines, and tagging
+- [Data and Tables](data-and-tables.md) - Parameterized steps and table-driven tests
+- [Expectations & Assertions](assertions-and-expectations.md) - Assertion strategies and fluent expectations
+- [Step IO & State Tracking](step-io-and-state.md) - Data lineage and state management
+
+**Test Execution and Infrastructure**
+- [Hooks and Lifecycle](hooks-and-lifecycle.md) - Setup, teardown, and resource management
+- [Running with Test Frameworks](running-with-test-frameworks.md) - xUnit, NUnit, MSTest setup and CLI
+- [Reporting](reporting.md) - Built-in reporters and custom report generation
+
+**Reference and Help**
+- [Tips & Tricks](tips-and-tricks.md) - Best practices and optimization techniques
+- [Extensibility & Advanced](advanced-usage.md) - Customization and advanced patterns
+- [Troubleshooting & FAQ](troubleshooting-faq.md) - Common issues and solutions
+- [Samples Index](samples-index.md) - Runnable examples and code snippets
 
