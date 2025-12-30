@@ -2,6 +2,164 @@
 
 This guide covers working with data in TinyBDD scenarios, from simple parameterized steps to complex table-driven tests and data validation patterns.
 
+## Data-Driven Tests: Two Approaches
+
+TinyBDD provides two powerful approaches for data-driven testing: `Bdd.Scenario()` with `ForEachAsync()` for flexible iteration, and `Bdd.ScenarioOutline<T>()` for type-safe, Gherkin-style examples.
+
+### Approach 1: Bdd.Scenario() with ForEachAsync()
+
+The `Bdd.Scenario()` approach provides a flexible way to iterate over examples with full control over the scenario for each row:
+
+```csharp
+[Feature("Calculator")]
+public class CalculatorTests : TinyBddXunitBase
+{
+    public CalculatorTests(ITestOutputHelper output) : base(output) { }
+
+    [Scenario("Adding numbers with examples"), Fact]
+    public async Task AddingNumbersWithExamples()
+    {
+        var ctx = Bdd.CreateContext(this);
+        
+        var result = await Bdd.Scenario(ctx, "Addition examples", 
+                (a: 1, b: 2, expected: 3),
+                (a: 5, b: 5, expected: 10),
+                (a: -1, b: 1, expected: 0),
+                (a: 0, b: 0, expected: 0))
+            .ForEachAsync(row =>
+                Bdd.Given(ctx, $"numbers {row.Data.a} and {row.Data.b}", () => (row.Data.a, row.Data.b))
+                    .When("added together", nums => nums.Item1 + nums.Item2)
+                    .Then($"equals {row.Data.expected}", sum => sum == row.Data.expected));
+        
+        // All examples pass
+        Assert.True(result.AllPassed);
+        Assert.Equal(4, result.TotalCount);
+    }
+}
+```
+
+**Key Features:**
+- Access `row.Data` for the current example's data
+- Access `row.Index` for the zero-based index (0, 1, 2, ...)
+- Returns `ExamplesResult` with detailed execution results
+- Use `ForEachAsync()` for full scenario control per row
+- Use `AssertAllPassedAsync()` to assert and throw on first failure
+
+**Example with Row Index:**
+
+```csharp
+[Scenario("Track execution order"), Fact]
+public async Task TrackExecutionOrder()
+{
+    var ctx = Bdd.CreateContext(this);
+    var executionOrder = new List<int>();
+    
+    await Bdd.Scenario(ctx, "Row indices", "first", "second", "third")
+        .ForEachAsync(row =>
+        {
+            executionOrder.Add(row.Index);
+            return Bdd.Given(ctx, $"row {row.Index}", () => row.Data)
+                .Then("not empty", s => !string.IsNullOrEmpty(s));
+        });
+    
+    // Indices are 0, 1, 2
+    Assert.Equal(new[] { 0, 1, 2 }, executionOrder);
+}
+```
+
+**Example with Anonymous Types:**
+
+```csharp
+[Scenario("String operations"), Fact]
+public async Task StringOperations()
+{
+    var ctx = Bdd.CreateContext(this);
+    
+    await Bdd.Scenario(ctx, "String transformations",
+            new { input = "hello", operation = "upper", expected = "HELLO" },
+            new { input = "WORLD", operation = "lower", expected = "world" },
+            new { input = "  trim  ", operation = "trim", expected = "trim" })
+        .ForEachAsync(row =>
+            Bdd.Given(ctx, "input string", () => row.Data.input)
+                .When($"apply {row.Data.operation}", s => row.Data.operation switch
+                {
+                    "upper" => s.ToUpper(),
+                    "lower" => s.ToLower(),
+                    "trim" => s.Trim(),
+                    _ => s
+                })
+                .Then("matches expected", s => s == row.Data.expected));
+}
+```
+
+**Handling Results:**
+
+```csharp
+// ForEachAsync returns ExamplesResult
+var result = await Bdd.Scenario(ctx, "Test", 1, 2, 3)
+    .ForEachAsync(row => /* ... */);
+
+// Check results
+Console.WriteLine($"Total: {result.TotalCount}");
+Console.WriteLine($"Passed: {result.PassedCount}");
+Console.WriteLine($"Failed: {result.FailedCount}");
+Console.WriteLine($"All passed: {result.AllPassed}");
+
+// Or assert all passed (throws if any failed)
+result.AssertAllPassed();
+
+// Alternative: AssertAllPassedAsync immediately throws on failure
+await Bdd.Scenario(ctx, "Test", 1, 2, 3)
+    .AssertAllPassedAsync(row => /* ... */);
+```
+
+### Approach 2: ScenarioOutline<T>()
+
+The `ScenarioOutline<T>()` approach provides a more Gherkin-aligned, type-safe API where example data is accessible throughout the chain:
+
+```csharp
+[Feature("Calculator")]
+public class CalculatorTests : TinyBddXunitBase
+{
+    public CalculatorTests(ITestOutputHelper output) : base(output) { }
+
+    [Scenario("Adding two numbers"), Fact]
+    public async Task AddingTwoNumbers()
+    {
+        var ctx = Bdd.CreateContext(this);
+        
+        await Bdd.ScenarioOutline<(int a, int b, int expected)>(ctx, "Addition examples")
+            .Given("first number", ex => ex.a)
+            .And("second number", (_, ex) => ex.b)
+            .When("added together", (a, b) => a + b)
+            .Then("result equals expected", (sum, ex) => sum == ex.expected)
+            .Examples(
+                (a: 1, b: 2, expected: 3),
+                (a: 5, b: 5, expected: 10),
+                (a: -1, b: 1, expected: 0),
+                (a: 0, b: 0, expected: 0))
+            .AssertAllPassedAsync();
+    }
+}
+```
+
+**Key Features:**
+- Type-safe access to example data via `ex` parameter
+- Steps can access example data: `(value, ex) => ...`
+- Cleaner syntax for scenarios following Gherkin structure
+- Use `RunAsync()` for detailed results or `AssertAllPassedAsync()` to assert
+
+### Choosing Between Approaches
+
+| Use Case | Recommended Approach |
+|----------|---------------------|
+| Need row index or custom logic per example | `Bdd.Scenario()` + `ForEachAsync()` |
+| Different scenario structure per example | `Bdd.Scenario()` + `ForEachAsync()` |
+| Dynamic step titles based on example | `Bdd.Scenario()` + `ForEachAsync()` |
+| Gherkin-style examples with fixed structure | `ScenarioOutline<T>()` |
+| Type-safe access to example fields | `ScenarioOutline<T>()` |
+| Complex conditions based on example data | `ScenarioOutline<T>()` |
+
 ## Parameterized Steps
 
 The simplest form of data-driven testing is passing parameters through your scenario chain. TinyBDD naturally supports this through its fluent API.
