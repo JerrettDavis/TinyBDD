@@ -29,7 +29,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 9.x
+          dotnet-version: 9.0.x
       
       - name: Install docfx
         run: dotnet tool update -g docfx
@@ -79,7 +79,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 9.x
+          dotnet-version: 9.0.x
 
       - name: Install docfx
         run: dotnet tool update -g docfx

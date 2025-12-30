@@ -319,13 +319,15 @@ TinyBDD provides hooks that execute before and after each step within a scenario
 
 These hooks are set on the `Pipeline` object within a scenario context:
 
+> **Note**: The example below uses reflection to access internal pipeline state. This is an **advanced, unsupported pattern** that may break in future versions. For production use, consider contributing a public API to the TinyBDD project or using custom reporters instead.
+
 ```csharp
 [Scenario("Instrumented scenario"), Fact]
 public async Task InstrumentedScenario()
 {
     var ctx = Bdd.CreateContext(this);
     
-    // Get access to the pipeline (via reflection helper or exposed API)
+    // WARNING: This uses reflection to access internal state - unsupported pattern
     var pipeline = GetPipeline(ctx);
     
     pipeline.BeforeStep = (context, meta) =>
@@ -345,19 +347,23 @@ public async Task InstrumentedScenario()
         .AssertPassed();
 }
 
-// Helper to access pipeline (implementation-specific)
+// Helper to access pipeline (UNSUPPORTED - for demonstration only)
 private Pipeline GetPipeline(ScenarioContext ctx)
 {
-    // Access via reflection or exposed API
+    // This pattern is fragile and may break in future versions
     var field = ctx.GetType().GetField("_pipeline", 
         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
     return (Pipeline)field?.GetValue(ctx);
 }
 ```
 
+**Recommended Alternative**: Use custom reporters to capture step execution information without relying on internal APIs.
+
 ### Custom Timing and Tracing
 
 Create a reusable hook pattern for timing:
+
+> **Note**: This example uses reflection to access internal pipeline state. This is an **advanced, unsupported pattern** for demonstration purposes only.
 
 ```csharp
 public abstract class InstrumentedTestBase : TinyBddXunitBase
@@ -368,6 +374,7 @@ public abstract class InstrumentedTestBase : TinyBddXunitBase
     {
     }
     
+    // WARNING: Uses reflection - unsupported pattern
     protected void EnableInstrumentation(ScenarioContext ctx)
     {
         var pipeline = GetPipeline(ctx);
@@ -396,6 +403,14 @@ public abstract class InstrumentedTestBase : TinyBddXunitBase
             Console.WriteLine($"{timing.Step}: {timing.Duration.TotalMilliseconds}ms [{(timing.Success ? "OK" : "FAIL")}]");
         }
     }
+    
+    // UNSUPPORTED: Accessing internal state
+    private Pipeline GetPipeline(ScenarioContext ctx)
+    {
+        var field = ctx.GetType().GetField("_pipeline", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        return (Pipeline)field?.GetValue(ctx);
+    }
 }
 
 public class StepTiming
@@ -406,6 +421,8 @@ public class StepTiming
     public bool Success { get; set; }
 }
 ```
+
+**Recommended Alternative**: Use the `ScenarioContext.Steps` collection after scenario execution to analyze timing and results without reflection.
 
 ## Finally Blocks for Cleanup
 
