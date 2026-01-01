@@ -42,7 +42,7 @@ internal sealed class FakeTestContext(string fqcn, string testName)
 public sealed class MsBaseDriver : TinyBddMsTestBase
 {
     public void SetContext(TestContext tc) => TestContext = tc;
-    public void CallInit() => TinyBdd_Init();
+    public async Task CallInit() => await TinyBdd_Init();
     public void CallCleanup() => TinyBdd_Cleanup();
     public ScenarioContext? Current => Ambient.Current.Value;
 }
