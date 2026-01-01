@@ -167,7 +167,9 @@ public class WorkflowRunnerTests
         public async ValueTask ExecuteAsync(ScenarioContext context, CancellationToken ct)
         {
             await Bdd.Given(context, "value", () => 1)
+#pragma warning disable CS0162 // Unreachable code detected
                 .When("fails", (int _) => { throw new InvalidOperationException("Test failure"); return 0; })
+#pragma warning restore CS0162
                 .Then("never reached", _ => true);
         }
     }
