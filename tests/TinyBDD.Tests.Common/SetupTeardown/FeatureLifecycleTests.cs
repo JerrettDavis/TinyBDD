@@ -7,6 +7,8 @@ public class FeatureLifecycleTests
     {
         // Arrange
         var feature = new TestFeature();
+        var ctx = Bdd.CreateContext(feature);
+        Ambient.Current.Value = ctx;
 
         // Act
         await feature.PublicExecuteFeatureSetupAsync();
@@ -22,6 +24,8 @@ public class FeatureLifecycleTests
     {
         // Arrange
         var feature = new TestFeature();
+        var ctx = Bdd.CreateContext(feature);
+        Ambient.Current.Value = ctx;
         await feature.PublicExecuteFeatureSetupAsync();
 
         // Act
@@ -36,6 +40,8 @@ public class FeatureLifecycleTests
     {
         // Arrange
         var feature = new FeatureWithState();
+        var ctx = Bdd.CreateContext(feature);
+        Ambient.Current.Value = ctx;
 
         // Act
         await feature.PublicExecuteFeatureSetupAsync();
@@ -50,6 +56,8 @@ public class FeatureLifecycleTests
     {
         // Arrange
         var feature = new FeatureWithState();
+        var ctx = Bdd.CreateContext(feature);
+        Ambient.Current.Value = ctx;
         await feature.PublicExecuteFeatureSetupAsync();
 
         // Act
@@ -60,10 +68,13 @@ public class FeatureLifecycleTests
     }
 
     [Fact]
-    public void GivenFeature_WithTitle_CreatesChain()
+    public async Task GivenFeature_WithTitle_CreatesChain()
     {
         // Arrange
         var feature = new FeatureWithState();
+        var ctx = Bdd.CreateContext(feature);
+        Ambient.Current.Value = ctx;
+        await feature.PublicExecuteFeatureSetupAsync();
 
         // Act
         var chain = feature.PublicGivenFeature<FeatureData>("feature state");
@@ -73,10 +84,13 @@ public class FeatureLifecycleTests
     }
 
     [Fact]
-    public void GivenFeature_WithoutTitle_CreatesChain()
+    public async Task GivenFeature_WithoutTitle_CreatesChain()
     {
         // Arrange
         var feature = new FeatureWithState();
+        var ctx = Bdd.CreateContext(feature);
+        Ambient.Current.Value = ctx;
+        await feature.PublicExecuteFeatureSetupAsync();
 
         // Act
         var chain = feature.PublicGivenFeature<FeatureData>();

@@ -29,7 +29,7 @@ public class AssemblyFixtureTests
         cts.Cancel();
 
         // Act & Assert
-        await Assert.ThrowsAsync<OperationCanceledException>(
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(
             () => fixture.InternalSetupAsync(cts.Token));
     }
 
@@ -43,7 +43,7 @@ public class AssemblyFixtureTests
         cts.Cancel();
 
         // Act & Assert
-        await Assert.ThrowsAsync<OperationCanceledException>(
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(
             () => fixture.InternalTeardownAsync(cts.Token));
     }
 

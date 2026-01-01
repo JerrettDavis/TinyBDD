@@ -84,6 +84,11 @@ public sealed class AssemblySetupAttribute : Attribute
                 $"Type {fixtureType.FullName} must derive from {nameof(AssemblyFixture)}",
                 nameof(fixtureType));
 
+        if (fixtureType.IsAbstract)
+            throw new ArgumentException(
+                $"Type {fixtureType.FullName} cannot be abstract",
+                nameof(fixtureType));
+
         FixtureType = fixtureType;
     }
 }
