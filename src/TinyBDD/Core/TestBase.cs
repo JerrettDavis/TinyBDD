@@ -301,6 +301,10 @@ public abstract class TestBase
     /// </remarks>
     protected async Task ExecuteFeatureSetupAsync(CancellationToken ct = default)
     {
+        // Return early if feature setup has already been executed
+        if (FeatureSetupExecuted)
+            return;
+
         var featureSetup = ConfigureFeatureSetup();
         if (featureSetup is null)
         {

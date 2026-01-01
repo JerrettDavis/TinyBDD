@@ -70,14 +70,12 @@ public class XunitFeatureWithStateTests : TinyBddXunitBase
 
     protected override ScenarioChain<object>? ConfigureFeatureSetup()
     {
-        return Given<object>("feature setup with data", () =>
+        var data = new TestData
         {
-            return new TestData
-            {
-                Value = "FeatureData",
-                Counter = 42
-            };
-        });
+            Value = "FeatureData",
+            Counter = 42
+        };
+        return Given("feature setup with data", () => (object)data);
     }
 
     [Scenario("Can access feature state")]
