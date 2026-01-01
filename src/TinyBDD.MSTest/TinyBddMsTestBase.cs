@@ -35,7 +35,7 @@ public abstract class TinyBddMsTestBase : TestBase
     /// at the start of your test or in a derived <c>[TestInitialize]</c> method.
     /// </remarks>
     [TestInitialize]
-    public async Task TinyBdd_Init()
+    public void TinyBdd_Init()
     {
         Bdd.Register(AmbientTestMethodResolver.Instance);
         AmbientTestMethodResolver.Set(ResolveCurrentMethod(TestContext));
@@ -48,12 +48,12 @@ public abstract class TinyBddMsTestBase : TestBase
         // Execute feature setup once per class
         if (!_featureSetupExecuted)
         {
-            await _featureSetupLock.WaitAsync();
+            _featureSetupLock.Wait();
             try
             {
                 if (!_featureSetupExecuted)
                 {
-                    await ExecuteFeatureSetupAsync();
+                    ExecuteFeatureSetupAsync().GetAwaiter().GetResult();
                     _featureSetupExecuted = true;
                 }
             }
@@ -64,7 +64,7 @@ public abstract class TinyBddMsTestBase : TestBase
         }
 
         // Execute background for each test
-        await ExecuteBackgroundAsync();
+        ExecuteBackgroundAsync().GetAwaiter().GetResult();
     }
     
     private static MethodInfo? ResolveCurrentMethod(TestContext tc)
