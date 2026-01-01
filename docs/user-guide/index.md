@@ -85,6 +85,13 @@ Where next
 - [Running with Test Frameworks](running-with-test-frameworks.md) - xUnit, NUnit, MSTest setup and CLI
 - [Reporting](reporting.md) - Built-in reporters and custom report generation
 
+**Extensions and Orchestration**
+- [Extensions Overview](extensions/index.md) - DI and Hosting integration packages
+- [Dependency Injection](extensions/dependency-injection.md) - IServiceCollection integration
+- [Hosting](extensions/hosting.md) - Background services and hosted workflows
+- [Orchestrator Patterns](orchestrator-patterns.md) - Advanced workflow patterns
+- [Enterprise Samples](samples-enterprise.md) - Production-ready examples
+
 **Reference and Help**
 - [Tips & Tricks](tips-and-tricks.md) - Best practices and optimization techniques
 - [Extensibility & Advanced](advanced-usage.md) - Customization and advanced patterns
