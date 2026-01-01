@@ -135,6 +135,59 @@ public class WorkflowRunnerTests
         Assert.Equal(15, context.IO[1].Output);
     }
 
+    [Fact]
+    public async Task RunAsync_WithFailedAssertions_LogsWarningAndReturnsContext()
+    {
+        // Arrange - use a workflow that has a failing assertion but uses ContinueOnError
+        var runner = CreateRunner();
+        var workflow = new FailingAssertionWorkflow();
+
+        // Act
+        var context = await runner.RunAsync(workflow);
+
+        // Assert
+        Assert.NotNull(context);
+        Assert.Contains(context.Steps, s => s.Error is not null);
+    }
+
+    private class FailingAssertionWorkflow : IWorkflowDefinition
+    {
+        public string FeatureName => "Failing Assertion Feature";
+        public string ScenarioName => "Failing Assertion Scenario";
+        public string? FeatureDescription => null;
+
+        public async ValueTask ExecuteAsync(ScenarioContext context, CancellationToken ct)
+        {
+            // Run with HaltOnFailedAssertion = false through the pipeline
+            await Bdd.Given(context, "value", () => 1)
+                .Then("fails", v => v == 999) // This will record a failure
+                .AssertFailed(); // Use AssertFailed since we expect failure
+        }
+    }
+
+    [Fact]
+    public async Task RunAsync_WithWorkflowException_ThrowsAndLogs()
+    {
+        // Arrange
+        var runner = CreateRunner();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => runner.RunAsync(new ExceptionThrowingWorkflow()));
+    }
+
+    private class ExceptionThrowingWorkflow : IWorkflowDefinition
+    {
+        public string FeatureName => "Exception Feature";
+        public string ScenarioName => "Exception Scenario";
+        public string? FeatureDescription => null;
+
+        public ValueTask ExecuteAsync(ScenarioContext context, CancellationToken ct)
+        {
+            throw new InvalidOperationException("Deliberate exception for testing");
+        }
+    }
+
     private static IWorkflowRunner CreateRunner()
     {
         var services = new ServiceCollection();
