@@ -94,7 +94,11 @@ public class XunitFeatureWithStateTests : TinyBddXunitBase
     {
         var data = FeatureState as TestData;
 
-        await Given("feature data", () => data!)
+        await Given("feature data", () => new TestData
+            {
+                Value = data!.Value,
+                Counter = data.Counter
+            })
             .When("incrementing counter", d => { d.Counter++; return d; })
             .Then("counter is incremented", d => d.Counter == 43)
             .AssertPassed();
