@@ -70,18 +70,17 @@ public class HostBuilderExtensionsTests
     [Fact]
     public void AddWorkflowHostedService_RegistersWorkflowType()
     {
-        // Arrange
-        var services = new ServiceCollection();
-        services.AddLogging();
-        services.AddTinyBddHosting();
+        // Arrange - use Host.CreateDefaultBuilder to get full hosting services
+        var builder = Host.CreateDefaultBuilder();
+        builder.UseTinyBdd();
+        builder.ConfigureServices(services => services.AddWorkflowHostedService<TestWorkflow>());
 
         // Act
-        services.AddWorkflowHostedService<TestWorkflow>();
-        var provider = services.BuildServiceProvider();
+        using var host = builder.Build();
 
         // Assert
-        Assert.NotNull(provider.GetService<TestWorkflow>());
-        var hostedServices = provider.GetServices<IHostedService>();
+        Assert.NotNull(host.Services.GetService<TestWorkflow>());
+        var hostedServices = host.Services.GetServices<IHostedService>();
         Assert.Contains(hostedServices, s => s.GetType().Name.Contains("WorkflowHostedService"));
     }
 

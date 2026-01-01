@@ -67,9 +67,10 @@ public class WorkflowRunnerTests
 
         var workflow = new DelayedWorkflow();
 
-        // Act & Assert
-        await Assert.ThrowsAsync<OperationCanceledException>(
+        // Act & Assert - cancellation is wrapped in BddStepException
+        var ex = await Assert.ThrowsAsync<BddStepException>(
             () => runner.RunAsync(workflow, cts.Token));
+        Assert.IsAssignableFrom<OperationCanceledException>(ex.InnerException);
     }
 
     [Fact]
@@ -166,7 +167,7 @@ public class WorkflowRunnerTests
         public async ValueTask ExecuteAsync(ScenarioContext context, CancellationToken ct)
         {
             await Bdd.Given(context, "value", () => 1)
-                .When("fails", _ => throw new InvalidOperationException("Test failure"))
+                .When("fails", (int _) => { throw new InvalidOperationException("Test failure"); return 0; })
                 .Then("never reached", _ => true);
         }
     }
@@ -179,11 +180,12 @@ public class WorkflowRunnerTests
 
         public async ValueTask ExecuteAsync(ScenarioContext context, CancellationToken ct)
         {
-            await Bdd.Given(context, "start", async () =>
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(10), ct);
-                    return 1;
-                })
+            Func<Task<int>> setup = async () =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(10), ct);
+                return 1;
+            };
+            await Bdd.Given(context, "start", setup)
                 .When("process", v => v)
                 .Then("done", _ => true);
         }
