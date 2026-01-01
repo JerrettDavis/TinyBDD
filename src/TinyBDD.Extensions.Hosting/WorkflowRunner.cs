@@ -115,6 +115,7 @@ internal sealed class WorkflowRunner : IWorkflowRunner
 
         public string FeatureName { get; }
         public string ScenarioName { get; }
+        public string? FeatureDescription => null;
 
         public ValueTask ExecuteAsync(ScenarioContext context, CancellationToken cancellationToken)
             => _workflow(context, cancellationToken);

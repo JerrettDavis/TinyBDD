@@ -13,6 +13,7 @@ namespace TinyBDD.Extensions.Hosting;
 /// {
 ///     public string FeatureName => "Order Processing";
 ///     public string ScenarioName => "Process pending orders";
+///     public string? FeatureDescription => null;
 ///
 ///     public async ValueTask ExecuteAsync(ScenarioContext context, CancellationToken ct)
 ///     {
@@ -36,9 +37,9 @@ public interface IWorkflowDefinition
     string ScenarioName { get; }
 
     /// <summary>
-    /// Gets an optional description for the feature.
+    /// Gets an optional description for the feature. Return null if not needed.
     /// </summary>
-    string? FeatureDescription => null;
+    string? FeatureDescription { get; }
 
     /// <summary>
     /// Executes the workflow using the provided scenario context.
