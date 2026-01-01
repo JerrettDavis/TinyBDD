@@ -131,7 +131,7 @@ public class FeatureWithState : TestBase
 
     protected override ScenarioChain<object>? ConfigureFeatureSetup()
     {
-        return Given("feature setup with state", () =>
+        return Given<object>("feature setup with state", () =>
         {
             return new FeatureData { Value = "TestData" };
         });

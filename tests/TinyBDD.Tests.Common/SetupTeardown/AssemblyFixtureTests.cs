@@ -48,17 +48,19 @@ public class AssemblyFixtureTests
     }
 
     [Fact]
-    public void AssemblyFixture_Get_RetrievesRegisteredFixture()
+    public void AssemblyFixture_Get_MethodExists()
     {
-        // Arrange
-        var coordinator = AssemblyFixtureCoordinator.Instance;
-        var assembly = typeof(AssemblyFixtureTests).Assembly;
-
         // Note: This test validates the Get<T> method exists and compiles
         // Actual registration happens at assembly level via attributes
+        // We're just verifying the method exists on the type
 
-        // Act & Assert
-        Assert.NotNull(AssemblyFixture.Get<TestAssemblyFixture>);
+        // Act
+        var method = typeof(AssemblyFixture).GetMethod("Get");
+
+        // Assert
+        Assert.NotNull(method);
+        Assert.True(method!.IsStatic);
+        Assert.True(method.IsGenericMethod);
     }
 
     [Fact]

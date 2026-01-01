@@ -1,3 +1,6 @@
+using Xunit;
+using Xunit.Abstractions;
+
 namespace TinyBDD.Xunit.Tests;
 
 [Feature("xUnit Feature Lifecycle")]
