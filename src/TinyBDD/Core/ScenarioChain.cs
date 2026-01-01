@@ -237,11 +237,6 @@ public sealed partial class ScenarioChain<T>
         TState state, Func<T, TState, CancellationToken, Task<TOut>> f)
         => async (v, ct) => await f(v, state, ct).ConfigureAwait(false);
 
-    // Transform with state - Token-aware ValueTask
-    private static Func<T, CancellationToken, ValueTask<TOut>> ToCT<TState, TOut>(
-        TState state, Func<T, TState, CancellationToken, ValueTask<TOut>> f)
-        => (v, ct) => f(v, state, ct);
-
     // Effect with state - sync
     private static Func<T, CancellationToken, ValueTask> ToCT<TState>(
         TState state, Action<T, TState> f)
@@ -261,25 +256,6 @@ public sealed partial class ScenarioChain<T>
             await f(v, state).ConfigureAwait(false);
         };
 
-    // Effect with state - ValueTask
-    private static Func<T, CancellationToken, ValueTask> ToCT<TState>(
-        TState state, Func<T, TState, ValueTask> f)
-        => (v, ct) =>
-        {
-            ct.ThrowIfCancellationRequested();
-            return f(v, state);
-        };
-
-    // Effect with state - Token-aware Task
-    private static Func<T, CancellationToken, ValueTask> ToCT<TState>(
-        TState state, Func<T, TState, CancellationToken, Task> f)
-        => async (v, ct) => await f(v, state, ct).ConfigureAwait(false);
-
-    // Effect with state - Token-aware ValueTask
-    private static Func<T, CancellationToken, ValueTask> ToCT<TState>(
-        TState state, Func<T, TState, CancellationToken, ValueTask> f)
-        => (v, ct) => f(v, state, ct);
-
     // Predicate with state - sync
     private static Func<T, CancellationToken, ValueTask<bool>> ToCT<TState>(
         TState state, Func<T, TState, bool> f)
@@ -289,21 +265,6 @@ public sealed partial class ScenarioChain<T>
     private static Func<T, CancellationToken, ValueTask<bool>> ToCT<TState>(
         TState state, Func<T, TState, Task<bool>> f)
         => async (v, _) => await f(v, state).ConfigureAwait(false);
-
-    // Predicate with state - ValueTask
-    private static Func<T, CancellationToken, ValueTask<bool>> ToCT<TState>(
-        TState state, Func<T, TState, ValueTask<bool>> f)
-        => (v, _) => f(v, state);
-
-    // Predicate with state - Token-aware Task
-    private static Func<T, CancellationToken, ValueTask<bool>> ToCT<TState>(
-        TState state, Func<T, TState, CancellationToken, Task<bool>> f)
-        => async (v, ct) => await f(v, state, ct).ConfigureAwait(false);
-
-    // Predicate with state - Token-aware ValueTask
-    private static Func<T, CancellationToken, ValueTask<bool>> ToCT<TState>(
-        TState state, Func<T, TState, CancellationToken, ValueTask<bool>> f)
-        => (v, ct) => f(v, state, ct);
 
     #endregion
 

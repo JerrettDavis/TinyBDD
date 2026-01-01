@@ -55,7 +55,7 @@ public class ScenarioOptionsTests
     {
         var ctx = Bdd.CreateContext(new Host(), options: new ScenarioOptions
         {
-            StepTimeout = TimeSpan.FromMilliseconds(50),
+            StepTimeout = TimeSpan.FromMilliseconds(100),
             MarkRemainingAsSkippedOnFailure = true
         });
 
@@ -84,7 +84,7 @@ public class ScenarioOptionsTests
     {
         var ctx = Bdd.CreateContext(new Host(), options: new ScenarioOptions
         {
-            StepTimeout = TimeSpan.FromMilliseconds(50),
+            StepTimeout = TimeSpan.FromMilliseconds(100),
             ContinueOnError = true
         });
 
@@ -111,7 +111,7 @@ public class ScenarioOptionsTests
     {
         var ctx = Bdd.CreateContext(new Host(), options: new ScenarioOptions
         {
-            StepTimeout = TimeSpan.FromMilliseconds(50),
+            StepTimeout = TimeSpan.FromMilliseconds(100),
             MarkRemainingAsSkippedOnFailure = false
         });
 
@@ -134,7 +134,7 @@ public class ScenarioOptionsTests
 
     private static async Task<int> Long(int v, CancellationToken ct)
     {
-        await Task.Delay(200, ct);
+        await Task.Delay(2000, ct);
         return v;
     }
 }

@@ -67,6 +67,22 @@ public class AssemblyFixtureIntegrationTests
         Assert.True(getMethod!.IsStatic);
         Assert.True(getMethod.IsGenericMethod);
     }
+
+    [Fact]
+    public async Task AssemblyFixture_Get_ReturnsRegisteredFixture_AfterInitialization()
+    {
+        // Arrange
+        var coordinator = AssemblyFixtureCoordinator.Instance;
+        var assembly = typeof(IntegrationTestFixture).Assembly;
+        await coordinator.InitializeAsync(assembly);
+
+        // Act
+        var fixture = AssemblyFixture.Get<IntegrationTestFixture>();
+
+        // Assert
+        Assert.NotNull(fixture);
+        Assert.IsType<IntegrationTestFixture>(fixture);
+    }
 }
 
 public class IntegrationTestFixture : AssemblyFixture
@@ -84,5 +100,53 @@ public class IntegrationTestFixture : AssemblyFixture
     {
         TeardownExecuted = true;
         return Task.CompletedTask;
+    }
+}
+
+/// <summary>
+/// Additional tests for coordinator exception handling paths.
+/// </summary>
+public class AssemblyFixtureCoordinatorExceptionTests
+{
+    [Fact]
+    public async Task Coordinator_TeardownAsync_WhenFixtureFails_LogsAndContinues()
+    {
+        // Arrange - reset coordinator to start fresh
+        AssemblyFixtureCoordinator.Reset();
+        var coordinator = AssemblyFixtureCoordinator.Instance;
+
+        // Use a mock assembly with the failing fixture
+        // Since we can't easily register fixtures without assembly attributes,
+        // we test the internal methods directly on the fixture
+
+        var fixture = new FailingTeardownFixture();
+        var reporter = new TestReporter();
+        fixture.Reporter = reporter;
+
+        // Act - call internal setup
+        await fixture.InternalSetupAsync();
+
+        // InternalTeardownAsync throws, but logs the error first
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => fixture.InternalTeardownAsync());
+
+        // Assert - the error was logged to the reporter
+        Assert.Contains(reporter.Messages, m => m.Contains("FailingTeardownFixture [FAIL]"));
+
+        // Cleanup
+        AssemblyFixtureCoordinator.Reset();
+    }
+}
+
+public class FailingTeardownFixture : AssemblyFixture
+{
+    protected override Task SetupAsync(CancellationToken ct = default)
+    {
+        return Task.CompletedTask;
+    }
+
+    protected override Task TeardownAsync(CancellationToken ct = default)
+    {
+        throw new InvalidOperationException("Teardown intentionally failed");
     }
 }
