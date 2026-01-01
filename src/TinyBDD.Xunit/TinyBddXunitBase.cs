@@ -20,12 +20,12 @@ namespace TinyBDD.Xunit;
 /// <para>
 /// To configure feature-level setup/teardown, override <see cref="TestBase.ConfigureFeatureSetup"/>
 /// and <see cref="TestBase.ConfigureFeatureTeardown"/>. Feature setup runs once before the first test
-/// in the class, and feature teardown can be triggered manually or via <see cref="IAsyncDisposable"/>.
+/// in the class, and feature teardown can be triggered manually via <see cref="ExecuteFeatureTeardownExplicitlyAsync"/>.
 /// </para>
 /// </remarks>
 [Feature("Unnamed Feature")]
 [UseTinyBdd]
-public abstract class TinyBddXunitBase : TestBase, IAsyncLifetime, IAsyncDisposable
+public abstract class TinyBddXunitBase : TestBase, IAsyncLifetime
 {
     private static readonly ConcurrentDictionary<Type, object?> _featureStates = new();
     private static readonly ConcurrentDictionary<Type, bool> _featureSetupComplete = new();
@@ -131,18 +131,5 @@ public abstract class TinyBddXunitBase : TestBase, IAsyncLifetime, IAsyncDisposa
             _featureSetupComplete.TryRemove(type, out _);
             _featureStates.TryRemove(type, out _);
         }
-    }
-
-    /// <summary>
-    /// Attempts to execute feature teardown on disposal.
-    /// </summary>
-    /// <remarks>
-    /// Note: This may not be called for every test instance due to xUnit's lifecycle.
-    /// For guaranteed cleanup, use <see cref="ExecuteFeatureTeardownExplicitlyAsync"/>.
-    /// </remarks>
-    async ValueTask IAsyncDisposable.DisposeAsync()
-    {
-        await DisposeAsync();
-        GC.SuppressFinalize(this);
     }
 }

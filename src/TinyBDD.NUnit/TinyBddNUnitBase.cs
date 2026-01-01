@@ -13,8 +13,8 @@ namespace TinyBDD.NUnit;
 /// <see cref="TinyBdd_TearDown"/>, it emits a Gherkin report and clears the ambient context.
 /// </para>
 /// <para>
-/// Feature-level setup/teardown is supported via <see cref="ConfigureFeatureSetup"/> and
-/// <see cref="ConfigureFeatureTeardown"/>. These run once per test fixture via
+/// Feature-level setup/teardown is supported via <see cref="TestBase.ConfigureFeatureSetup"/> and
+/// <see cref="TestBase.ConfigureFeatureTeardown"/>. These run once per test fixture via
 /// <see cref="TinyBdd_OneTimeSetUp"/> and <see cref="TinyBdd_OneTimeTearDown"/>.
 /// </para>
 /// </remarks>

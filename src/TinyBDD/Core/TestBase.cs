@@ -220,12 +220,12 @@ public abstract class TestBase
     /// the feature setup steps configured in <see cref="ConfigureFeatureSetup"/>.
     /// Feature state is shared across all scenarios in the test class.
     /// </remarks>
-    protected object? FeatureState { get; private set; }
+    protected object? FeatureState { get; set; }
 
     /// <summary>
     /// Gets a value indicating whether feature setup has been executed.
     /// </summary>
-    protected bool FeatureSetupExecuted { get; private set; }
+    protected bool FeatureSetupExecuted { get; set; }
 
     /// <summary>
     /// Override to configure feature-level setup steps that run once before any scenarios.
