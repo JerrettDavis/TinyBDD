@@ -210,6 +210,154 @@ public abstract class TestBase
     /// <returns>A <see cref="FromContext"/> bound to <paramref name="ctx"/>.</returns>
     protected FromContext From(ScenarioContext ctx) => Flow.From(ctx);
 
+    #region Feature Setup and Teardown
+
+    /// <summary>
+    /// Gets or sets the feature state captured after <see cref="ExecuteFeatureSetupAsync"/> completes.
+    /// </summary>
+    /// <remarks>
+    /// This property is populated by <see cref="ExecuteFeatureSetupAsync"/> after running
+    /// the feature setup steps configured in <see cref="ConfigureFeatureSetup"/>.
+    /// Feature state is shared across all scenarios in the test class.
+    /// </remarks>
+    protected object? FeatureState { get; set; }
+
+    /// <summary>
+    /// Gets a value indicating whether feature setup has been executed.
+    /// </summary>
+    protected bool FeatureSetupExecuted { get; set; }
+
+    /// <summary>
+    /// Override to configure feature-level setup steps that run once before any scenarios.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="ScenarioChain{T}"/> representing the feature setup steps,
+    /// or <see langword="null"/> if no feature setup is needed.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// Feature setup steps are executed once before any test method runs in the test class.
+    /// The final value from the chain is stored in <see cref="FeatureState"/> and can be
+    /// accessed from all scenarios.
+    /// </para>
+    /// <para>
+    /// This is useful for expensive setup operations that can be shared across multiple scenarios,
+    /// such as creating a test database connection, initializing a web server, or loading test data.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// protected override ScenarioChain&lt;object&gt;? ConfigureFeatureSetup()
+    /// {
+    ///     return Given("test server started", () => new TestServer())
+    ///         .And("database seeded", server => { server.SeedData(); return server; });
+    /// }
+    /// </code>
+    /// </example>
+    protected virtual ScenarioChain<object>? ConfigureFeatureSetup() => null;
+
+    /// <summary>
+    /// Override to configure feature-level teardown steps that run once after all scenarios complete.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="ScenarioChain{T}"/> representing the feature teardown steps,
+    /// or <see langword="null"/> if no feature teardown is needed.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// Feature teardown steps are executed once after all test methods in the test class complete.
+    /// Use this to clean up expensive resources initialized in <see cref="ConfigureFeatureSetup"/>.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// protected override ScenarioChain&lt;object&gt;? ConfigureFeatureTeardown()
+    /// {
+    ///     if (FeatureState is TestServer server)
+    ///     {
+    ///         return Given("cleanup server", () => server)
+    ///             .And("dispose", s => { s.Dispose(); return s; });
+    ///     }
+    ///     return null;
+    /// }
+    /// </code>
+    /// </example>
+    protected virtual ScenarioChain<object>? ConfigureFeatureTeardown() => null;
+
+    /// <summary>
+    /// Executes the feature setup steps configured in <see cref="ConfigureFeatureSetup"/>.
+    /// </summary>
+    /// <param name="ct">Optional cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <remarks>
+    /// <para>
+    /// Call this method from your test framework's one-time initialization hook
+    /// (e.g., xUnit <c>IAsyncLifetime.InitializeAsync</c> with static state,
+    /// MSTest <c>[ClassInitialize]</c>, or NUnit <c>[OneTimeSetUp]</c>).
+    /// </para>
+    /// <para>
+    /// The final value from the feature setup chain is captured in <see cref="FeatureState"/>.
+    /// </para>
+    /// </remarks>
+    protected async Task ExecuteFeatureSetupAsync(CancellationToken ct = default)
+    {
+        // Return early if feature setup has already been executed
+        if (FeatureSetupExecuted)
+            return;
+
+        var featureSetup = ConfigureFeatureSetup();
+        if (featureSetup is null)
+        {
+            FeatureSetupExecuted = true;
+            return;
+        }
+
+        object? capturedState = null;
+        await featureSetup
+            .Then("feature setup complete", state =>
+            {
+                capturedState = state;
+                return true;
+            })
+            .AssertPassed(ct);
+
+        FeatureState = capturedState;
+        FeatureSetupExecuted = true;
+    }
+
+    /// <summary>
+    /// Executes the feature teardown steps configured in <see cref="ConfigureFeatureTeardown"/>.
+    /// </summary>
+    /// <param name="ct">Optional cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <remarks>
+    /// <para>
+    /// Call this method from your test framework's one-time cleanup hook
+    /// (e.g., xUnit <c>IAsyncLifetime.DisposeAsync</c> with static state,
+    /// MSTest <c>[ClassCleanup]</c>, or NUnit <c>[OneTimeTearDown]</c>).
+    /// </para>
+    /// </remarks>
+    protected async Task ExecuteFeatureTeardownAsync(CancellationToken ct = default)
+    {
+        var featureTeardown = ConfigureFeatureTeardown();
+        if (featureTeardown is null)
+            return;
+
+        try
+        {
+            await featureTeardown
+                .Then("feature teardown complete", _ => true)
+                .AssertPassed(ct);
+        }
+        catch (Exception ex)
+        {
+            // Log but don't throw - teardown failures shouldn't fail the test run
+            Reporter?.WriteLine($"Feature teardown failed: {ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    #endregion
+
     #region Background Steps
 
     /// <summary>
@@ -344,6 +492,64 @@ public abstract class TestBase
             ?? throw new InvalidOperationException(
                 $"Background state is not of type {typeof(T).Name}. " +
                 $"Actual type: {BackgroundState?.GetType().Name ?? "null"}");
+
+        return Given(title, () => state);
+    }
+
+    #endregion
+
+    #region Feature State Access
+
+    /// <summary>
+    /// Starts a Given step that continues from the feature state.
+    /// </summary>
+    /// <typeparam name="T">The expected type of the feature state.</typeparam>
+    /// <returns>A <see cref="ScenarioChain{T}"/> starting with the feature state.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if feature setup has not been executed or the state is null.
+    /// </exception>
+    /// <example>
+    /// <code>
+    /// [Test]
+    /// public async Task TestWithFeature()
+    /// {
+    ///     await GivenFeature&lt;TestServer&gt;()
+    ///         .When("sending request", server => server.Get("/api/users"))
+    ///         .Then("response is ok", response => response.StatusCode == 200)
+    ///         .AssertPassed();
+    /// }
+    /// </code>
+    /// </example>
+    protected ScenarioChain<T> GivenFeature<T>() where T : class
+    {
+        if (!FeatureSetupExecuted)
+            throw new InvalidOperationException(
+                "Feature setup has not been executed. Call ExecuteFeatureSetupAsync() first.");
+
+        var state = FeatureState as T
+            ?? throw new InvalidOperationException(
+                $"Feature state is not of type {typeof(T).Name}. " +
+                $"Actual type: {FeatureState?.GetType().Name ?? "null"}");
+
+        return Given("feature", () => state);
+    }
+
+    /// <summary>
+    /// Starts a Given step that continues from the feature state with a custom title.
+    /// </summary>
+    /// <typeparam name="T">The expected type of the feature state.</typeparam>
+    /// <param name="title">A custom title for the Given step.</param>
+    /// <returns>A <see cref="ScenarioChain{T}"/> starting with the feature state.</returns>
+    protected ScenarioChain<T> GivenFeature<T>(string title) where T : class
+    {
+        if (!FeatureSetupExecuted)
+            throw new InvalidOperationException(
+                "Feature setup has not been executed. Call ExecuteFeatureSetupAsync() first.");
+
+        var state = FeatureState as T
+            ?? throw new InvalidOperationException(
+                $"Feature state is not of type {typeof(T).Name}. " +
+                $"Actual type: {FeatureState?.GetType().Name ?? "null"}");
 
         return Given(title, () => state);
     }
