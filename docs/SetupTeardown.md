@@ -158,7 +158,10 @@ public class DockerContainerFixture : AssemblyFixture
             RedirectStandardOutput = true
         };
 
-        using var process = Process.Start(processInfo)!;
+        using var process = Process.Start(processInfo);
+        if (process == null)
+            throw new InvalidOperationException("Failed to start Docker process");
+
         _containerId = (await process.StandardOutput.ReadToEndAsync()).Trim();
 
         // Wait for container to be ready
@@ -701,7 +704,8 @@ public class OrderProcessingFeature : TinyBddXunitBase
             })
             .Finally("cancel order for cleanup", async order =>
             {
-                await GivenBackground<OrderService>().CancelOrderAsync(order.Id);
+                var service = ((dynamic)FeatureState).OrderService;
+                await service.CancelOrderAsync(order.Id);
             })
             .AssertPassed();
     }
