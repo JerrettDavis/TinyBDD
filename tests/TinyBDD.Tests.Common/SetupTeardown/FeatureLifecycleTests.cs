@@ -92,6 +92,8 @@ public class TestFeature : TestBase
     public int FeatureSetupCount { get; private set; }
     public int FeatureTeardownCount { get; private set; }
 
+    protected override IBddReporter Reporter { get; } = new StringBddReporter();
+
     protected override ScenarioChain<object>? ConfigureFeatureSetup()
     {
         return Given("feature setup", () =>
@@ -124,6 +126,8 @@ public class FeatureData
 public class FeatureWithState : TestBase
 {
     public bool TeardownAccessedState { get; private set; }
+
+    protected override IBddReporter Reporter { get; } = new StringBddReporter();
 
     protected override ScenarioChain<object>? ConfigureFeatureSetup()
     {

@@ -1,4 +1,5 @@
 using System.Reflection;
+using TinyBDD;
 
 [assembly: AssemblySetup(typeof(TinyBDD.Tests.Common.SetupTeardown.IntegrationTestFixture))]
 
@@ -10,22 +11,22 @@ public class AssemblyFixtureIntegrationTests
     public async Task AssemblyFixture_InitializeAsync_CreatesAndRegistersFixtures()
     {
         // Arrange
-        var coordinator = new TestableCoordinator();
+        var coordinator = AssemblyFixtureCoordinator.Instance;
         var assembly = typeof(IntegrationTestFixture).Assembly;
         var reporter = new TestReporter();
 
         // Act
         await coordinator.InitializeAsync(assembly, reporter);
 
-        // Assert
-        Assert.True(coordinator.WasInitialized);
+        // Assert - Should complete successfully
+        Assert.True(IntegrationTestFixture.SetupExecuted);
     }
 
     [Fact]
     public async Task AssemblyFixture_InitializeAsync_WithReporter_PassesReporterToFixtures()
     {
         // Arrange
-        var coordinator = new TestableCoordinator();
+        var coordinator = AssemblyFixtureCoordinator.Instance;
         var assembly = typeof(IntegrationTestFixture).Assembly;
         var reporter = new TestReporter();
 
@@ -33,14 +34,14 @@ public class AssemblyFixtureIntegrationTests
         await coordinator.InitializeAsync(assembly, reporter);
 
         // The fixture should have used the reporter
-        Assert.Contains("Assembly Setup", reporter.Messages);
+        Assert.Contains(reporter.Messages, m => m.Contains("Assembly Setup"));
     }
 
     [Fact]
     public async Task AssemblyFixture_TeardownAsync_ExecutesInReverseOrder()
     {
         // Arrange
-        var coordinator = new TestableCoordinator();
+        var coordinator = AssemblyFixtureCoordinator.Instance;
         var assembly = typeof(IntegrationTestFixture).Assembly;
         await coordinator.InitializeAsync(assembly);
 
@@ -82,16 +83,5 @@ public class IntegrationTestFixture : AssemblyFixture
     {
         TeardownExecuted = true;
         return Task.CompletedTask;
-    }
-}
-
-public class TestableCoordinator : AssemblyFixtureCoordinator
-{
-    public bool WasInitialized { get; private set; }
-
-    public new async Task InitializeAsync(Assembly assembly, IBddReporter? reporter = null, CancellationToken ct = default)
-    {
-        await base.InitializeAsync(assembly, reporter, ct);
-        WasInitialized = true;
     }
 }

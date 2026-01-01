@@ -6,12 +6,14 @@ public class XunitFeatureLifecycleTests : TinyBddXunitBase
     private static int _setupCount = 0;
     private static int _teardownCount = 0;
 
+    public XunitFeatureLifecycleTests(ITestOutputHelper output) : base(output) { }
+
     protected override ScenarioChain<object>? ConfigureFeatureSetup()
     {
         return Given("feature setup runs once", () =>
         {
             _setupCount++;
-            return new { SetupData = "initialized" };
+            return (object)new { SetupData = "initialized" };
         });
     }
 
@@ -61,9 +63,11 @@ public class XunitFeatureWithStateTests : TinyBddXunitBase
         public int Counter { get; set; }
     }
 
+    public XunitFeatureWithStateTests(ITestOutputHelper output) : base(output) { }
+
     protected override ScenarioChain<object>? ConfigureFeatureSetup()
     {
-        return Given("feature setup with data", () =>
+        return Given<object>("feature setup with data", () =>
         {
             return new TestData
             {

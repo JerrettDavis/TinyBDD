@@ -14,7 +14,7 @@ public class NUnitFeatureLifecycleTests : TinyBddNUnitBase
         return Given("feature setup runs once", () =>
         {
             _setupCount++;
-            return new { SetupData = "initialized" };
+            return (object)new { SetupData = "initialized" };
         });
     }
 
@@ -76,7 +76,7 @@ public class NUnitFeatureWithStateTests : TinyBddNUnitBase
 
     protected override ScenarioChain<object>? ConfigureFeatureSetup()
     {
-        return Given("feature setup with data", () =>
+        return Given<object>("feature setup with data", () =>
         {
             return new TestData
             {
