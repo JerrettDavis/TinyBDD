@@ -104,3 +104,58 @@ public class XunitFeatureWithStateTests : TinyBddXunitBase
             .AssertPassed();
     }
 }
+
+[Feature("xUnit Feature Teardown")]
+public class XunitFeatureTeardownTests : TinyBddXunitBase
+{
+    private static bool _teardownExecuted = false;
+
+    public XunitFeatureTeardownTests(ITestOutputHelper output) : base(output) { }
+
+    protected override ScenarioChain<object>? ConfigureFeatureSetup()
+    {
+        return Given("feature setup", () => (object)"setup-data");
+    }
+
+    protected override ScenarioChain<object>? ConfigureFeatureTeardown()
+    {
+        return Given("feature teardown", () =>
+        {
+            _teardownExecuted = true;
+            return new object();
+        });
+    }
+
+    [Scenario("Can explicitly trigger teardown")]
+    [Fact]
+    public async Task ExplicitTeardown_CanBeCalled()
+    {
+        // Arrange - feature setup already ran via InitializeAsync
+
+        // Act
+        await ExecuteFeatureTeardownExplicitlyAsync();
+
+        // Assert
+        Assert.True(_teardownExecuted);
+
+        // Call again to test idempotency (should be no-op when disposed)
+        await ExecuteFeatureTeardownExplicitlyAsync();
+    }
+}
+
+[Feature("xUnit No Setup Feature")]
+public class XunitNoSetupFeatureTests : TinyBddXunitBase
+{
+    public XunitNoSetupFeatureTests(ITestOutputHelper output) : base(output) { }
+
+    // No ConfigureFeatureSetup override
+
+    [Scenario("Tests work without feature setup")]
+    [Fact]
+    public async Task TestsWorkWithoutFeatureSetup()
+    {
+        await Given("a value", () => 42)
+            .Then("value is correct", v => v == 42)
+            .AssertPassed();
+    }
+}

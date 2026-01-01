@@ -73,6 +73,60 @@ public class AssemblyFixtureCoordinatorTests
         Assert.Throws<InvalidOperationException>(
             () => AssemblyFixtureCoordinator.GetFixture<UnregisteredFixture>());
     }
+
+    [Fact]
+    public void AssemblyFixtureCoordinator_Reset_ClearsInstance()
+    {
+        // Arrange
+        var instance1 = AssemblyFixtureCoordinator.Instance;
+
+        // Act
+        AssemblyFixtureCoordinator.Reset();
+        var instance2 = AssemblyFixtureCoordinator.Instance;
+
+        // Assert - after reset, a new instance should be created
+        Assert.NotSame(instance1, instance2);
+
+        // Cleanup - reset again for other tests
+        AssemblyFixtureCoordinator.Reset();
+    }
+
+    [Fact]
+    public async Task AssemblyFixtureCoordinator_TeardownAsync_IsIdempotent()
+    {
+        // Arrange
+        AssemblyFixtureCoordinator.Reset();
+        var coordinator = AssemblyFixtureCoordinator.Instance;
+        var assembly = typeof(AssemblyFixtureCoordinatorTests).Assembly;
+
+        // Initialize first
+        await coordinator.InitializeAsync(assembly);
+
+        // Act - call teardown multiple times
+        await coordinator.TeardownAsync();
+        await coordinator.TeardownAsync(); // Should be no-op
+
+        // Assert - should not throw
+        Assert.True(true);
+
+        // Cleanup
+        AssemblyFixtureCoordinator.Reset();
+    }
+
+    [Fact]
+    public async Task AssemblyFixtureCoordinator_TeardownAsync_WhenSetupNotComplete_ReturnsEarly()
+    {
+        // Arrange
+        AssemblyFixtureCoordinator.Reset();
+        var coordinator = AssemblyFixtureCoordinator.Instance;
+        // Don't call InitializeAsync
+
+        // Act & Assert - should return early without error
+        await coordinator.TeardownAsync();
+
+        // Cleanup
+        AssemblyFixtureCoordinator.Reset();
+    }
 }
 
 public class UnregisteredFixture : AssemblyFixture
