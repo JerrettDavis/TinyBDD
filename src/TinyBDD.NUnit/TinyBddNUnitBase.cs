@@ -30,8 +30,10 @@ public abstract class TinyBddNUnitBase : TestBase
     /// Override <see cref="TestBase.ConfigureFeatureSetup"/> to define feature-level setup steps.
     /// </remarks>
     [OneTimeSetUp]
-    public async Task TinyBdd_OneTimeSetUp()
+    public void TinyBdd_OneTimeSetUp()
     {
+        Bdd.Register(AmbientTestMethodResolver.Instance);
+
         // Create a temporary context for feature setup
         var traits = new NUnitTraitBridge();
         var ctx = Bdd.CreateContext(this, traits: traits);
@@ -40,7 +42,7 @@ public abstract class TinyBddNUnitBase : TestBase
 
         try
         {
-            await ExecuteFeatureSetupAsync();
+            ExecuteFeatureSetupAsync().GetAwaiter().GetResult();
         }
         finally
         {
@@ -54,8 +56,10 @@ public abstract class TinyBddNUnitBase : TestBase
     /// Override <see cref="TestBase.ConfigureFeatureTeardown"/> to define feature-level teardown steps.
     /// </remarks>
     [OneTimeTearDown]
-    public async Task TinyBdd_OneTimeTearDown()
+    public void TinyBdd_OneTimeTearDown()
     {
+        Bdd.Register(AmbientTestMethodResolver.Instance);
+
         // Create a temporary context for feature teardown
         var traits = new NUnitTraitBridge();
         var ctx = Bdd.CreateContext(this, traits: traits);
@@ -64,7 +68,7 @@ public abstract class TinyBddNUnitBase : TestBase
 
         try
         {
-            await ExecuteFeatureTeardownAsync();
+            ExecuteFeatureTeardownAsync().GetAwaiter().GetResult();
         }
         finally
         {
@@ -78,14 +82,16 @@ public abstract class TinyBddNUnitBase : TestBase
     /// at the start of your test or in a derived <c>[SetUp]</c> method.
     /// </remarks>
     [SetUp]
-    public async Task TinyBdd_SetUp()
+    public void TinyBdd_SetUp()
     {
+        Bdd.Register(AmbientTestMethodResolver.Instance);
+
         var traits = new NUnitTraitBridge();
         var ctx = Bdd.CreateContext(this, traits: traits);
         Ambient.Current.Value = ctx;
 
         // Execute background for each test
-        await ExecuteBackgroundAsync();
+        ExecuteBackgroundAsync().GetAwaiter().GetResult();
     }
 
     /// <summary>Writes a Gherkin report and clears the ambient context.</summary>
