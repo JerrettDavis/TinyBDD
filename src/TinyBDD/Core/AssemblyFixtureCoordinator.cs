@@ -142,10 +142,11 @@ public sealed class AssemblyFixtureCoordinator
             {
                 await fixture.InternalTeardownAsync(ct);
             }
-            catch
+            catch (Exception ex)
             {
                 // Continue tearing down other fixtures even if one fails
-                // The exception will have been logged by InternalTeardownAsync
+                // Log the error but don't stop the teardown process
+                fixture.Reporter?.WriteLine($"Assembly teardown failed for {fixture.GetType().Name}: {ex.GetType().Name}: {ex.Message}");
             }
         }
     }

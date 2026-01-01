@@ -349,9 +349,10 @@ public abstract class TestBase
                 .Then("feature teardown complete", _ => true)
                 .AssertPassed(ct);
         }
-        catch
+        catch (Exception ex)
         {
             // Log but don't throw - teardown failures shouldn't fail the test run
+            Reporter?.WriteLine($"Feature teardown failed: {ex.GetType().Name}: {ex.Message}");
         }
     }
 

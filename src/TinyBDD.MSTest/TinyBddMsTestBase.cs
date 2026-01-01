@@ -26,8 +26,8 @@ public abstract class TinyBddMsTestBase : TestBase
 
     protected override IBddReporter Reporter => new MsTestBddReporter();
 
-    private static readonly SemaphoreSlim _featureSetupLock = new(1, 1);
-    private static bool _featureSetupExecuted;
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, SemaphoreSlim> _setupLocks = new();
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, bool> _featureSetupComplete = new();
 
     /// <summary>Initializes the TinyBDD ambient context and trait bridge.</summary>
     /// <remarks>
@@ -45,21 +45,24 @@ public abstract class TinyBddMsTestBase : TestBase
         var ctx = Bdd.CreateContext(this, traits: traits);
         Ambient.Current.Value = ctx;
 
-        // Execute feature setup once per class
-        if (!_featureSetupExecuted)
+        // Execute feature setup once per test class type
+        var type = GetType();
+        var setupLock = _setupLocks.GetOrAdd(type, _ => new SemaphoreSlim(1, 1));
+
+        if (!_featureSetupComplete.ContainsKey(type))
         {
-            _featureSetupLock.Wait();
+            setupLock.Wait();
             try
             {
-                if (!_featureSetupExecuted)
+                if (!_featureSetupComplete.ContainsKey(type))
                 {
                     ExecuteFeatureSetupAsync().GetAwaiter().GetResult();
-                    _featureSetupExecuted = true;
+                    _featureSetupComplete[type] = true;
                 }
             }
             finally
             {
-                _featureSetupLock.Release();
+                setupLock.Release();
             }
         }
 
