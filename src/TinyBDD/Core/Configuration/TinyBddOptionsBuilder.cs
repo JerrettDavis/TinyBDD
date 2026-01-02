@@ -27,7 +27,7 @@ namespace TinyBDD;
 ///     .AssertPassed();
 /// </code>
 /// </example>
-/// <seealso cref="TinyBddOptions"/>
+/// <seealso cref="TinyBddExtensibilityOptions"/>
 /// <seealso cref="IScenarioObserver"/>
 /// <seealso cref="IStepObserver"/>
 public sealed class TinyBddOptionsBuilder
@@ -81,12 +81,12 @@ public sealed class TinyBddOptionsBuilder
     }
 
     /// <summary>
-    /// Builds the configured <see cref="TinyBddOptions"/> instance.
+    /// Builds the configured <see cref="TinyBddExtensibilityOptions"/> instance.
     /// </summary>
     /// <returns>A configured options instance ready for use.</returns>
-    internal TinyBddOptions Build()
+    internal TinyBddExtensibilityOptions Build()
     {
-        return new TinyBddOptions
+        return new TinyBddExtensibilityOptions
         {
             ScenarioObservers = _scenarioObservers.ToArray(),
             StepObservers = _stepObservers.ToArray(),

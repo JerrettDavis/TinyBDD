@@ -10,7 +10,7 @@ namespace TinyBDD;
 /// <seealso cref="TinyBddOptionsBuilder"/>
 /// <seealso cref="IScenarioObserver"/>
 /// <seealso cref="IStepObserver"/>
-public sealed class TinyBddOptions
+public sealed class TinyBddExtensibilityOptions
 {
     /// <summary>
     /// Gets the registered scenario-level observers.

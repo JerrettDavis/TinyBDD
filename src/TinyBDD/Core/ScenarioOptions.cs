@@ -44,5 +44,5 @@ public record ScenarioOptions
     /// <summary>
     /// TinyBDD extensibility options including observers and services.
     /// </summary>
-    internal TinyBddOptions? ExtensibilityOptions { get; init; }
+    internal TinyBddExtensibilityOptions? ExtensibilityOptions { get; init; }
 }

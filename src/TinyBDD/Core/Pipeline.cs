@@ -360,8 +360,8 @@ internal sealed class Pipeline(ScenarioContext ctx)
 
                     AfterStep?.Invoke(ctx, result);
 
-                    // Notify step observers (fire and forget observer errors to prevent masking test failures)
-                    _ = NotifyStepFinished(ctx, stepInfo, result, io);
+                    // Notify step observers in background (exceptions are caught inside NotifyStepFinished)
+                    Task.Run(async () => await NotifyStepFinished(ctx, stepInfo, result, io));
                 }
 
                 Exception? CaptureCancel()
