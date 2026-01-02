@@ -131,6 +131,8 @@
       "tinybdd": {
         "type": "Project",
         "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "[10.0.1, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )",
           "System.Threading.Tasks.Extensions": "[4.6.3, )"
         }
       },
@@ -139,7 +141,18 @@
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )",
           "Microsoft.Extensions.Options": "[10.0.1, )",
-          "TinyBDD": "[1.0.0, )"
+          "TinyBDD": "[1.0.0-dev, )"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.1, )",
+        "resolved": "10.0.1",
+        "contentHash": "zerXV0GAR9LCSXoSIApbWn+Dq1/T+6vbXMHGduq1LoVQRHT0BXsGQEau0jeLUBUcsoF/NaUT8ADPu8b+eNcIyg==",
+        "dependencies": {
+          "Microsoft.Bcl.AsyncInterfaces": "10.0.1",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1",
+          "System.Threading.Tasks.Extensions": "4.6.3"
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
@@ -303,6 +316,8 @@
       "tinybdd": {
         "type": "Project",
         "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "[10.0.1, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )",
           "System.Threading.Tasks.Extensions": "[4.6.3, )"
         }
       },
@@ -311,7 +326,18 @@
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )",
           "Microsoft.Extensions.Options": "[10.0.1, )",
-          "TinyBDD": "[1.0.0, )"
+          "TinyBDD": "[1.0.0-dev, )"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.1, )",
+        "resolved": "10.0.1",
+        "contentHash": "zerXV0GAR9LCSXoSIApbWn+Dq1/T+6vbXMHGduq1LoVQRHT0BXsGQEau0jeLUBUcsoF/NaUT8ADPu8b+eNcIyg==",
+        "dependencies": {
+          "Microsoft.Bcl.AsyncInterfaces": "10.0.1",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1",
+          "System.Threading.Tasks.Extensions": "4.6.3"
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
@@ -475,6 +501,8 @@
       "tinybdd": {
         "type": "Project",
         "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "[10.0.1, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )",
           "System.Threading.Tasks.Extensions": "[4.6.3, )"
         }
       },
@@ -483,7 +511,18 @@
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )",
           "Microsoft.Extensions.Options": "[10.0.1, )",
-          "TinyBDD": "[1.0.0, )"
+          "TinyBDD": "[1.0.0-dev, )"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.1, )",
+        "resolved": "10.0.1",
+        "contentHash": "zerXV0GAR9LCSXoSIApbWn+Dq1/T+6vbXMHGduq1LoVQRHT0BXsGQEau0jeLUBUcsoF/NaUT8ADPu8b+eNcIyg==",
+        "dependencies": {
+          "Microsoft.Bcl.AsyncInterfaces": "10.0.1",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1",
+          "System.Threading.Tasks.Extensions": "4.6.3"
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
@@ -647,6 +686,8 @@
       "tinybdd": {
         "type": "Project",
         "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "[10.0.1, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )",
           "System.Threading.Tasks.Extensions": "[4.6.3, )"
         }
       },
@@ -655,7 +696,18 @@
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )",
           "Microsoft.Extensions.Options": "[10.0.1, )",
-          "TinyBDD": "[1.0.0, )"
+          "TinyBDD": "[1.0.0-dev, )"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.1, )",
+        "resolved": "10.0.1",
+        "contentHash": "zerXV0GAR9LCSXoSIApbWn+Dq1/T+6vbXMHGduq1LoVQRHT0BXsGQEau0jeLUBUcsoF/NaUT8ADPu8b+eNcIyg==",
+        "dependencies": {
+          "Microsoft.Bcl.AsyncInterfaces": "10.0.1",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1",
+          "System.Threading.Tasks.Extensions": "4.6.3"
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
@@ -819,6 +871,8 @@
       "tinybdd": {
         "type": "Project",
         "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "[10.0.1, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )",
           "System.Threading.Tasks.Extensions": "[4.6.3, )"
         }
       },
@@ -827,7 +881,18 @@
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )",
           "Microsoft.Extensions.Options": "[10.0.1, )",
-          "TinyBDD": "[1.0.0, )"
+          "TinyBDD": "[1.0.0-dev, )"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.1, )",
+        "resolved": "10.0.1",
+        "contentHash": "zerXV0GAR9LCSXoSIApbWn+Dq1/T+6vbXMHGduq1LoVQRHT0BXsGQEau0jeLUBUcsoF/NaUT8ADPu8b+eNcIyg==",
+        "dependencies": {
+          "Microsoft.Bcl.AsyncInterfaces": "10.0.1",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1",
+          "System.Threading.Tasks.Extensions": "4.6.3"
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
@@ -990,6 +1055,8 @@
       "tinybdd": {
         "type": "Project",
         "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "[10.0.1, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )",
           "System.Threading.Tasks.Extensions": "[4.6.3, )"
         }
       },
@@ -998,7 +1065,18 @@
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )",
           "Microsoft.Extensions.Options": "[10.0.1, )",
-          "TinyBDD": "[1.0.0, )"
+          "TinyBDD": "[1.0.0-dev, )"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.1, )",
+        "resolved": "10.0.1",
+        "contentHash": "zerXV0GAR9LCSXoSIApbWn+Dq1/T+6vbXMHGduq1LoVQRHT0BXsGQEau0jeLUBUcsoF/NaUT8ADPu8b+eNcIyg==",
+        "dependencies": {
+          "Microsoft.Bcl.AsyncInterfaces": "10.0.1",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1",
+          "System.Threading.Tasks.Extensions": "4.6.3"
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
@@ -1109,14 +1187,27 @@
         "contentHash": "2hBr6zdbIBTDE3EhK7NSVNdX58uTK6iHW/P/Axmm9sl1xoGSLqDvMtpecn226TNwHByFokYwJmt/aQQNlO5CRw=="
       },
       "tinybdd": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "[10.0.1, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )"
+        }
       },
       "tinybdd.extensions.dependencyinjection": {
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )",
           "Microsoft.Extensions.Options": "[10.0.1, )",
-          "TinyBDD": "[1.0.0, )"
+          "TinyBDD": "[1.0.0-dev, )"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.1, )",
+        "resolved": "10.0.1",
+        "contentHash": "zerXV0GAR9LCSXoSIApbWn+Dq1/T+6vbXMHGduq1LoVQRHT0BXsGQEau0jeLUBUcsoF/NaUT8ADPu8b+eNcIyg==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1"
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
@@ -1191,14 +1282,27 @@
         "contentHash": "DO8XrJkp5x4PddDuc/CH37yDBCs9BYN6ijlKyR3vMb55BP1Vwh90vOX8bNfnKxr5B2qEI3D8bvbY1fFbDveDHQ=="
       },
       "tinybdd": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "[10.0.1, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )"
+        }
       },
       "tinybdd.extensions.dependencyinjection": {
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )",
           "Microsoft.Extensions.Options": "[10.0.1, )",
-          "TinyBDD": "[1.0.0, )"
+          "TinyBDD": "[1.0.0-dev, )"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.1, )",
+        "resolved": "10.0.1",
+        "contentHash": "zerXV0GAR9LCSXoSIApbWn+Dq1/T+6vbXMHGduq1LoVQRHT0BXsGQEau0jeLUBUcsoF/NaUT8ADPu8b+eNcIyg==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1"
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
@@ -1279,14 +1383,27 @@
         "contentHash": "wVYO4/71Pk177uQ3TG8ZQFS3Pnmr98cF9pYxnpuIb/bMnbEWsdZZoLU/euv29mfSi2/Iuypj0TRUchPk7aqBGg=="
       },
       "tinybdd": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "[10.0.1, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )"
+        }
       },
       "tinybdd.extensions.dependencyinjection": {
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )",
           "Microsoft.Extensions.Options": "[10.0.1, )",
-          "TinyBDD": "[1.0.0, )"
+          "TinyBDD": "[1.0.0-dev, )"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.1, )",
+        "resolved": "10.0.1",
+        "contentHash": "zerXV0GAR9LCSXoSIApbWn+Dq1/T+6vbXMHGduq1LoVQRHT0BXsGQEau0jeLUBUcsoF/NaUT8ADPu8b+eNcIyg==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1"
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
@@ -1367,14 +1484,27 @@
         "contentHash": "wVYO4/71Pk177uQ3TG8ZQFS3Pnmr98cF9pYxnpuIb/bMnbEWsdZZoLU/euv29mfSi2/Iuypj0TRUchPk7aqBGg=="
       },
       "tinybdd": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "[10.0.1, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )"
+        }
       },
       "tinybdd.extensions.dependencyinjection": {
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )",
           "Microsoft.Extensions.Options": "[10.0.1, )",
-          "TinyBDD": "[1.0.0, )"
+          "TinyBDD": "[1.0.0-dev, )"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.1, )",
+        "resolved": "10.0.1",
+        "contentHash": "zerXV0GAR9LCSXoSIApbWn+Dq1/T+6vbXMHGduq1LoVQRHT0BXsGQEau0jeLUBUcsoF/NaUT8ADPu8b+eNcIyg==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1"
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
