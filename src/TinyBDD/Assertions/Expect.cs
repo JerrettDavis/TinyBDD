@@ -311,8 +311,9 @@ public sealed class FluentAssertion<T>(T actual, string? subject)
                 return default;
             }
             
-            if (enumerable.Cast<object?>().Any())
-                Throw($"expected {_state.Subject ?? "collection"} to be empty, but it had {enumerable.Cast<object?>().Count()} item(s)", 0, enumerable.Cast<object?>().Count());
+            var items = enumerable.Cast<object?>().ToList();
+            if (items.Count > 0)
+                Throw($"expected {_state.Subject ?? "collection"} to be empty, but it had {items.Count} item(s)", 0, items.Count);
             return default;
         });
         return this;
