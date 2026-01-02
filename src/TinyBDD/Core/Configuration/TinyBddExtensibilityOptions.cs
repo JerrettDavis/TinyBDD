@@ -5,7 +5,7 @@ namespace TinyBDD;
 /// </summary>
 /// <remarks>
 /// This class is built via <see cref="TinyBddOptionsBuilder"/> and contains registered
-/// observers and services. It is typically constructed through <see cref="TinyBdd.Configure(System.Action{TinyBddOptionsBuilder})"/>.
+/// observers and services. It is typically constructed through <see cref="Bdd.Configure(System.Action{TinyBddOptionsBuilder})"/>.
 /// </remarks>
 /// <seealso cref="TinyBddOptionsBuilder"/>
 /// <seealso cref="IScenarioObserver"/>
@@ -23,7 +23,7 @@ public sealed class TinyBddExtensibilityOptions
     internal IReadOnlyList<IStepObserver> StepObservers { get; init; } = Array.Empty<IStepObserver>();
 
     /// <summary>
-    /// Gets the service registry for extensions.
+    /// Gets the service provider for extensions.
     /// </summary>
-    internal IServiceRegistry Services { get; init; } = new ReadOnlyServiceRegistry(new Dictionary<Type, object>());
+    internal IServiceProvider? ServiceProvider { get; init; }
 }

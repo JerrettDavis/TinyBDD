@@ -1,3 +1,5 @@
+using Microsoft.Extensions.DependencyInjection;
+
 namespace TinyBDD;
 
 /// <summary>
@@ -34,7 +36,7 @@ public sealed class TinyBddOptionsBuilder
 {
     private readonly List<IScenarioObserver> _scenarioObservers = new();
     private readonly List<IStepObserver> _stepObservers = new();
-    private readonly Dictionary<Type, object> _services = new();
+    private readonly ServiceCollection _services = new();
 
     /// <summary>
     /// Adds a scenario-level observer to the pipeline.
@@ -65,18 +67,17 @@ public sealed class TinyBddOptionsBuilder
     }
 
     /// <summary>
-    /// Configures services available to extensions and observers.
+    /// Configures services available to extensions and observers using Microsoft's IServiceCollection.
     /// </summary>
-    /// <param name="configure">An action that configures the service registry.</param>
+    /// <param name="configure">An action that configures the service collection.</param>
     /// <returns>This builder for fluent chaining.</returns>
     /// <remarks>
-    /// This provides a lightweight service registry for standalone usage without requiring
-    /// Microsoft.Extensions.DependencyInjection. Services are singleton-scoped.
+    /// This uses Microsoft.Extensions.DependencyInjection for service registration,
+    /// providing first-class DI features while maintaining flexibility for standalone scenarios.
     /// </remarks>
-    public TinyBddOptionsBuilder ConfigureServices(Action<ITinyBddServiceRegistry> configure)
+    public TinyBddOptionsBuilder ConfigureServices(Action<IServiceCollection> configure)
     {
-        var registry = new TinyBddServiceRegistry(_services);
-        configure(registry);
+        configure(_services);
         return this;
     }
 
@@ -86,11 +87,13 @@ public sealed class TinyBddOptionsBuilder
     /// <returns>A configured options instance ready for use.</returns>
     internal TinyBddExtensibilityOptions Build()
     {
+        var serviceProvider = _services.BuildServiceProvider();
+        
         return new TinyBddExtensibilityOptions
         {
             ScenarioObservers = _scenarioObservers.ToArray(),
             StepObservers = _stepObservers.ToArray(),
-            Services = new ReadOnlyServiceRegistry(_services)
+            ServiceProvider = serviceProvider
         };
     }
 }

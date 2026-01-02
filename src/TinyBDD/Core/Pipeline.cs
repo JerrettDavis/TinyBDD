@@ -314,7 +314,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
                     err = ex;
                     if (!continueOnError)
                     {
-                        CaptureStepResult();
+                        await CaptureStepResultAsync();
 
                         if (markRemainingAsSkipped)
                             DrainAsSkipped();
@@ -325,7 +325,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
                 }
                 finally
                 {
-                    CaptureStepResult();
+                    await CaptureStepResultAsync();
                 }
 
                 if (canceled)
@@ -334,7 +334,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
                 continue;
 
                 // Local helper to ensure we add the step result exactly once, even if we throw later.
-                void CaptureStepResult()
+                async ValueTask CaptureStepResultAsync()
                 {
                     sw.Stop();
 
@@ -360,8 +360,9 @@ internal sealed class Pipeline(ScenarioContext ctx)
 
                     AfterStep?.Invoke(ctx, result);
 
-                    // Notify step observers in background (exceptions are caught inside NotifyStepFinished)
-                    Task.Run(async () => await NotifyStepFinished(ctx, stepInfo, result, io));
+                    // Notify step observers - await to ensure they complete
+                    // Exceptions are suppressed inside NotifyStepFinished to prevent masking test failures
+                    await NotifyStepFinished(ctx, stepInfo, result, io);
                 }
 
                 Exception? CaptureCancel()
