@@ -153,14 +153,33 @@
         "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
       },
       "tinybdd": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "[10.0.1, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )"
+        }
       },
       "tinybdd.mstest": {
         "type": "Project",
         "dependencies": {
           "MSTest.TestFramework": "[4.0.2, )",
-          "TinyBDD": "[1.0.0, )"
+          "TinyBDD": "[1.0.0-dev, )"
         }
+      },
+      "Microsoft.Extensions.DependencyInjection": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.1, )",
+        "resolved": "10.0.1",
+        "contentHash": "zerXV0GAR9LCSXoSIApbWn+Dq1/T+6vbXMHGduq1LoVQRHT0BXsGQEau0jeLUBUcsoF/NaUT8ADPu8b+eNcIyg==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.1, )",
+        "resolved": "10.0.1",
+        "contentHash": "oIy8fQxxbUsSrrOvgBqlVgOeCtDmrcynnTG+FQufcUWBrwyPfwlUkCDB2vaiBeYPyT+20u9/HeuHeBf+H4F/8g=="
       },
       "MSTest.TestFramework": {
         "type": "CentralTransitive",
@@ -324,14 +343,33 @@
         "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
       },
       "tinybdd": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "[10.0.1, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )"
+        }
       },
       "tinybdd.mstest": {
         "type": "Project",
         "dependencies": {
           "MSTest.TestFramework": "[4.0.2, )",
-          "TinyBDD": "[1.0.0, )"
+          "TinyBDD": "[1.0.0-dev, )"
         }
+      },
+      "Microsoft.Extensions.DependencyInjection": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.1, )",
+        "resolved": "10.0.1",
+        "contentHash": "zerXV0GAR9LCSXoSIApbWn+Dq1/T+6vbXMHGduq1LoVQRHT0BXsGQEau0jeLUBUcsoF/NaUT8ADPu8b+eNcIyg==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.1, )",
+        "resolved": "10.0.1",
+        "contentHash": "oIy8fQxxbUsSrrOvgBqlVgOeCtDmrcynnTG+FQufcUWBrwyPfwlUkCDB2vaiBeYPyT+20u9/HeuHeBf+H4F/8g=="
       },
       "MSTest.TestFramework": {
         "type": "CentralTransitive",
@@ -495,14 +533,33 @@
         "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
       },
       "tinybdd": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "[10.0.1, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.1, )"
+        }
       },
       "tinybdd.mstest": {
         "type": "Project",
         "dependencies": {
           "MSTest.TestFramework": "[4.0.2, )",
-          "TinyBDD": "[1.0.0, )"
+          "TinyBDD": "[1.0.0-dev, )"
         }
+      },
+      "Microsoft.Extensions.DependencyInjection": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.1, )",
+        "resolved": "10.0.1",
+        "contentHash": "zerXV0GAR9LCSXoSIApbWn+Dq1/T+6vbXMHGduq1LoVQRHT0BXsGQEau0jeLUBUcsoF/NaUT8ADPu8b+eNcIyg==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.1, )",
+        "resolved": "10.0.1",
+        "contentHash": "oIy8fQxxbUsSrrOvgBqlVgOeCtDmrcynnTG+FQufcUWBrwyPfwlUkCDB2vaiBeYPyT+20u9/HeuHeBf+H4F/8g=="
       },
       "MSTest.TestFramework": {
         "type": "CentralTransitive",

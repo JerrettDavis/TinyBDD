@@ -44,7 +44,60 @@ Expect.For(v).Because("why").With("hint").ToBe(5);
 Expect.For(v).ToBe(5).Because("why").With("hint"); // still fine (message metadata stored then applied when awaited)
 ```
 
+### Collection Assertion Examples
+```csharp
+// Exact count
+await Expect.That(items, "cart items").ToHaveCount(3);
+
+// Empty check
+await Expect.That(emptyList).ToBeEmpty();
+
+// Range checks
+await Expect.That(results).ToHaveAtLeast(1);
+await Expect.That(results).ToHaveNoMoreThan(100);
+
+// Contains checks
+await Expect.That(names).ToContain("Alice");
+await Expect.That(orders).ToContainMatch<Order>(o => o.Total > 100, "expensive orders");
+
+// Predicate matching with counts
+await Expect.That(users).ToHaveCountMatching<User>(3, u => u.IsActive, "active users");
+await Expect.That(items).ToHaveMoreThanCountMatching<Item>(5, i => i.InStock);
+```
+
+### Instance State Examples
+```csharp
+// Type checks
+await Expect.That(result).ToBeOfType<CustomerDto>();
+await Expect.That(handler).ToBeAssignableTo<IRequestHandler>();
+```
+
+### Exception Assertion Examples
+```csharp
+// Any exception
+await Expect.That<object>(null!).ToThrow(() => service.Execute());
+
+// Specific exception type
+await Expect.That<object>(null!).ToThrowExactly<ArgumentException>(
+    () => validator.Validate(null));
+
+// Exception with message
+await Expect.That<object>(null!).ToThrowWithMessage(
+    () => parser.Parse("invalid"), 
+    "Invalid format");
+
+// Specific type with message
+await Expect.That<object>(null!).ToThrowExactlyWithMessage<FormatException>(
+    () => parser.Parse("bad"), 
+    "Invalid format");
+
+// No exception expected
+await Expect.That<object>(null!).ToNotThrow(() => service.SafeOperation());
+```
+
 ### Supported Fluent Methods
+
+#### Basic Value Assertions
 | Method | Purpose |
 |--------|---------|
 | `ToBe(expected)` | Equality via `EqualityComparer<T>.Default` |
@@ -52,6 +105,38 @@ Expect.For(v).ToBe(5).Because("why").With("hint"); // still fine (message metada
 | `ToBeTrue()` / `ToBeFalse()` | Strong boolean check (type + value) |
 | `ToBeNull()` / `ToNotBeNull()` | Nullability checks |
 | `ToSatisfy(predicate, description?)` | Arbitrary predicate with optional human description |
+
+#### Collection Assertions
+| Method | Purpose |
+|--------|---------|
+| `ToHaveCount(expectedCount)` | Verify exact collection count |
+| `ToBeEmpty()` | Verify collection has no items |
+| `ToHaveAtLeast(minCount)` | Verify collection has at least N items |
+| `ToHaveNoMoreThan(maxCount)` | Verify collection has no more than N items |
+| `ToContain<TItem>(item)` | Verify collection contains specific item |
+| `ToContainMatch<TItem>(predicate, description?)` | Verify collection contains item matching predicate |
+| `ToHaveCountMatching<TItem>(expectedCount, predicate, description?)` | Verify N items match predicate |
+| `ToHaveFewerThanCountMatching<TItem>(maxCount, predicate, description?)` | Verify fewer than N items match predicate |
+| `ToHaveMoreThanCountMatching<TItem>(minCount, predicate, description?)` | Verify more than N items match predicate |
+
+#### Instance State Assertions
+| Method | Purpose |
+|--------|---------|
+| `ToBeOfType<TExpected>()` | Verify exact type match |
+| `ToBeAssignableTo<TExpected>()` | Verify type compatibility / assignability |
+
+#### Exception Assertions
+| Method | Purpose |
+|--------|---------|
+| `ToThrow(action)` | Verify action throws any exception |
+| `ToThrowExactly<TException>(action)` | Verify action throws specific exception type |
+| `ToThrowWithMessage(action, expectedMessage)` | Verify action throws with specific message |
+| `ToThrowExactlyWithMessage<TException>(action, expectedMessage)` | Verify action throws specific type with specific message |
+| `ToNotThrow(action)` | Verify action completes without throwing |
+
+#### Message Decorators
+| Method | Purpose |
+|--------|---------|
 | `Because(reason)` | Adds a `because {reason}` suffix segment |
 | `With(hint)` | Adds a trailing parenthetical hint `(hint)` |
 | `As(subject)` | Override / set subject label used in messages |
@@ -96,6 +181,9 @@ All fluent expectations implicitly convert to `ValueTask`, so any chain expectin
 |------|----------------|
 | Quick boolean check | Simple predicate form |
 | Rich, human message with reason/hint | Fluent `Expect.For/That` |
+| Collection validation (count, contains, etc.) | Fluent collection assertions (`ToHaveCount`, `ToContain`, etc.) |
+| Type checking | Instance state assertions (`ToBeOfType`, `ToBeAssignableTo`) |
+| Exception validation | Exception assertions (`ToThrow`, `ToThrowExactly`, etc.) |
 | 3rd party library integration | Action variant (`Then("desc", v => lib.Assertion(v))`) |
 | Many related checks on one subject | Chain multiple fluent methods before awaiting |
 
