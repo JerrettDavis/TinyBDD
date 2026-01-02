@@ -13,7 +13,11 @@
 | **TinyBDD** | [![NuGet](https://img.shields.io/nuget/v/TinyBDD.svg)](https://www.nuget.org/packages/TinyBDD/) | [![NuGet Downloads](https://img.shields.io/nuget/dt/TinyBDD.svg)](https://www.nuget.org/packages/TinyBDD/) |
 | **TinyBDD.MSTest** | [![NuGet](https://img.shields.io/nuget/v/TinyBDD.MSTest.svg)](https://www.nuget.org/packages/TinyBDD.MSTest/) | [![NuGet Downloads](https://img.shields.io/nuget/dt/TinyBDD.MSTest.svg)](https://www.nuget.org/packages/TinyBDD.MSTest/) |
 | **TinyBDD.Xunit** | [![NuGet](https://img.shields.io/nuget/v/TinyBDD.Xunit.svg)](https://www.nuget.org/packages/TinyBDD.Xunit/) | [![NuGet Downloads](https://img.shields.io/nuget/dt/TinyBDD.Xunit.svg)](https://www.nuget.org/packages/TinyBDD.Xunit/) |
+| **TinyBDD.Xunit.v3** | [![NuGet](https://img.shields.io/nuget/v/TinyBDD.Xunit.v3.svg)](https://www.nuget.org/packages/TinyBDD.Xunit.v3/) | [![NuGet Downloads](https://img.shields.io/nuget/dt/TinyBDD.Xunit.v3.svg)](https://www.nuget.org/packages/TinyBDD.Xunit.v3/) |
 | **TinyBDD.NUnit** | [![NuGet](https://img.shields.io/nuget/v/TinyBDD.NUnit.svg)](https://www.nuget.org/packages/TinyBDD.NUnit/) | [![NuGet Downloads](https://img.shields.io/nuget/dt/TinyBDD.NUnit.svg)](https://www.nuget.org/packages/TinyBDD.NUnit/) |
+| **TinyBDD.Extensions.DependencyInjection** | [![NuGet](https://img.shields.io/nuget/v/TinyBDD.Extensions.DependencyInjection.svg)](https://www.nuget.org/packages/TinyBDD.Extensions.DependencyInjection/) | [![NuGet Downloads](https://img.shields.io/nuget/dt/TinyBDD.Extensions.DependencyInjection.svg)](https://www.nuget.org/packages/TinyBDD.Extensions.DependencyInjection/) |
+| **TinyBDD.Extensions.Hosting** | [![NuGet](https://img.shields.io/nuget/v/TinyBDD.Extensions.Hosting.svg)](https://www.nuget.org/packages/TinyBDD.Extensions.Hosting/) | [![NuGet Downloads](https://img.shields.io/nuget/dt/TinyBDD.Extensions.Hosting.svg)](https://www.nuget.org/packages/TinyBDD.Extensions.Hosting/) |
+| **TinyBDD.Extensions.Reporting** | [![NuGet](https://img.shields.io/nuget/v/TinyBDD.Extensions.Reporting.svg)](https://www.nuget.org/packages/TinyBDD.Extensions.Reporting/) | [![NuGet Downloads](https://img.shields.io/nuget/dt/TinyBDD.Extensions.Reporting.svg)](https://www.nuget.org/packages/TinyBDD.Extensions.Reporting/) |
 
 ---
 
@@ -90,6 +94,25 @@ For xUnit:
 
 ```powershell
 dotnet add package TinyBDD.Xunit
+```
+
+For xUnit v3:
+
+```powershell
+dotnet add package TinyBDD.Xunit.v3
+```
+
+For Extensions:
+
+```powershell
+# Dependency Injection
+dotnet add package TinyBDD.Extensions.DependencyInjection
+
+# Hosting (includes DI)
+dotnet add package TinyBDD.Extensions.Hosting
+
+# JSON Reporting
+dotnet add package TinyBDD.Extensions.Reporting
 ```
 
 ---
