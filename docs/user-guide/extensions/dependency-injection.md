@@ -303,6 +303,7 @@ services.AddTinyBdd(options =>
 ## Next Steps
 
 - [Hosting Integration](hosting.md) - Run workflows as hosted services
+- [Reporting Extension](reporting.md) - JSON reporting and observer pattern
 - [Orchestrator Patterns](../orchestrator-patterns.md) - Advanced workflow patterns
 - [Enterprise Samples](../samples-enterprise.md) - Production-ready examples
 

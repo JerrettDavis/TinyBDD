@@ -1,6 +1,43 @@
 # Reporting
 
-This guide covers TinyBDD's reporting capabilities, from built-in reporters and output configuration to creating custom reporters and integrating with CI/CD systems.
+This guide covers TinyBDD's reporting capabilities, from built-in reporters and output configuration to the JSON reporting extension and creating custom reporters for CI/CD integration.
+
+## Overview
+
+TinyBDD provides multiple reporting mechanisms:
+
+1. **Built-in framework reporters** - Console output for test frameworks
+2. **JSON reporting extension** - Structured reports via `TinyBDD.Extensions.Reporting`
+3. **Custom reporters** - Implement `IBddReporter` for specialized formats
+4. **Observer pattern** - Hook into scenario/step lifecycle for telemetry
+
+## JSON Reporting Extension
+
+For structured reporting with JSON output, see the **[Reporting Extension](extensions/reporting.md)** documentation. This extension provides:
+
+- Structured JSON reports for CI/CD artifacts
+- Observer pattern integration for scenario and step lifecycle
+- Configurable serialization options
+- Support for trend analysis and diagnostics
+
+Quick example:
+
+```csharp
+using TinyBDD.Extensions.Reporting;
+
+var options = TinyBdd.Configure(builder => builder
+    .AddJsonReport("artifacts/report.json"));
+
+var ctx = Bdd.CreateContext(this, options: options);
+
+await Bdd.Given(ctx, "start", () => 1)
+    .When("add one", x => x + 1)
+    .Then("equals two", x => x == 2);
+```
+
+For complete details, see **[Reporting Extension Guide](extensions/reporting.md)**.
+
+---
 
 ## Built-In Reporters
 
@@ -705,20 +742,105 @@ public class ScenarioTiming
 
 ## Best Practices
 
-1. **Use framework reporters**: Start with built-in reporters for standard scenarios
-2. **Implement IBddReporter**: Create custom reporters for specialized needs
-3. **Keep reporters simple**: Focus on output formatting, not business logic
-4. **Test your reporters**: Ensure custom reporters handle edge cases
-5. **Consider performance**: Avoid expensive operations in WriteLine
-6. **Support multiple outputs**: Use MultiReporter pattern when needed
-7. **Document formats**: Provide examples of reporter output
-8. **Handle errors gracefully**: Catch and log exceptions in custom reporters
-9. **Version control output**: Store sample outputs for regression testing
-10. **Integrate with CI/CD**: Use appropriate reporter for your build system
+1. **Use JSON extension for structured reporting**: For CI/CD and trend analysis, use `TinyBDD.Extensions.Reporting`
+2. **Use framework reporters for test output**: Start with built-in reporters for standard scenarios
+3. **Implement IBddReporter for custom formats**: Create custom reporters for specialized needs
+4. **Use observer pattern for telemetry**: Implement `IScenarioObserver` and `IStepObserver` for cross-cutting concerns
+5. **Keep reporters simple**: Focus on output formatting, not business logic
+6. **Test your reporters**: Ensure custom reporters handle edge cases
+7. **Consider performance**: Avoid expensive operations in WriteLine
+8. **Support multiple outputs**: Use MultiReporter pattern when needed
+9. **Document formats**: Provide examples of reporter output
+10. **Handle errors gracefully**: Catch and log exceptions in custom reporters
+11. **Version control output**: Store sample outputs for regression testing
+12. **Integrate with CI/CD**: Use appropriate reporter for your build system
+
+## Observer Pattern for Advanced Reporting
+
+For advanced scenarios requiring lifecycle hooks, implement the observer interfaces:
+
+### IScenarioObserver
+
+```csharp
+public class TelemetryScenarioObserver : IScenarioObserver
+{
+    private readonly TelemetryClient _telemetry;
+
+    public TelemetryScenarioObserver(TelemetryClient telemetry)
+    {
+        _telemetry = telemetry;
+    }
+
+    public ValueTask OnScenarioStarting(ScenarioContext context)
+    {
+        _telemetry.TrackEvent("ScenarioStarted", new Dictionary<string, string>
+        {
+            ["Feature"] = context.FeatureName,
+            ["Scenario"] = context.ScenarioName
+        });
+        return default;
+    }
+
+    public ValueTask OnScenarioFinished(ScenarioContext context)
+    {
+        var passed = context.Steps.All(s => s.Error == null);
+        _telemetry.TrackEvent("ScenarioFinished", new Dictionary<string, string>
+        {
+            ["Feature"] = context.FeatureName,
+            ["Scenario"] = context.ScenarioName,
+            ["Passed"] = passed.ToString()
+        });
+        return default;
+    }
+}
+```
+
+### IStepObserver
+
+```csharp
+public class StepTimingObserver : IStepObserver
+{
+    private readonly ILogger _logger;
+
+    public StepTimingObserver(ILogger logger)
+    {
+        _logger = logger;
+    }
+
+    public ValueTask OnStepStarting(ScenarioContext context, StepInfo step)
+    {
+        _logger.LogInformation("Step starting: {Kind} {Title}", step.Kind, step.Title);
+        return default;
+    }
+
+    public ValueTask OnStepFinished(ScenarioContext context, StepInfo step, StepResult result, StepIO io)
+    {
+        _logger.LogInformation(
+            "Step finished: {Kind} {Title} in {Duration}ms, Passed: {Passed}",
+            step.Kind, step.Title, result.Elapsed.TotalMilliseconds, result.Error == null);
+        return default;
+    }
+}
+```
+
+### Registering Observers
+
+```csharp
+var options = TinyBdd.Configure(builder => builder
+    .AddObserver(new TelemetryScenarioObserver(telemetryClient))
+    .AddObserver(new StepTimingObserver(logger)));
+
+var ctx = Bdd.CreateContext(this, options: options);
+```
+
+For more details on the observer pattern and JSON reporting, see **[Reporting Extension](extensions/reporting.md)**.
+
+---
 
 ## Next Steps
 
-- Learn about [Troubleshooting & FAQ](troubleshooting-faq.md) for common issues
-- Explore [Extensibility & Advanced](advanced-usage.md) for advanced patterns
-- See [Samples Index](samples-index.md) for example implementations
+- **[Reporting Extension Guide](extensions/reporting.md)** - Complete JSON reporting documentation
+- [Troubleshooting & FAQ](troubleshooting-faq.md) - Common issues and solutions
+- [Extensibility & Advanced](advanced-usage.md) - Advanced patterns and extensibility
+- [Samples Index](samples-index.md) - Example implementations
 

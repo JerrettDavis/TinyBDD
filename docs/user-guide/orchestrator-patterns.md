@@ -500,5 +500,6 @@ public class WorkflowTests
 - [Enterprise Samples](samples-enterprise.md) - Production-ready examples
 - [Dependency Injection](extensions/dependency-injection.md) - DI integration
 - [Hosting](extensions/hosting.md) - Background service patterns
+- [Reporting Extension](extensions/reporting.md) - JSON reporting and observer pattern
 
 Return to: [User Guide](index.md)

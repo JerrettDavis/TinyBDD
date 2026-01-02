@@ -18,6 +18,13 @@ TinyBDD provides extension packages that integrate the BDD workflow engine with 
 - `WorkflowHostedService<T>` for background workflow execution
 - `UseTinyBdd()` host builder extensions
 
+### [Reporting](reporting.md)
+**TinyBDD.Extensions.Reporting** provides structured JSON reporting through the observer pattern:
+- `JsonReportObserver` for capturing scenario execution data
+- JSON reports suitable for CI/CD artifacts and trend analysis
+- Integration with TinyBDD's observer extensibility layer
+- Configurable JSON serialization options
+
 ## Why Use TinyBDD as an Orchestrator?
 
 TinyBDD's Given/When/Then pattern isn't just for testing. The same structured approach works for:
@@ -51,6 +58,7 @@ Install the packages:
 ```bash
 dotnet add package TinyBDD.Extensions.DependencyInjection
 dotnet add package TinyBDD.Extensions.Hosting
+dotnet add package TinyBDD.Extensions.Reporting
 ```
 
 Register services:
@@ -87,6 +95,7 @@ public class StartupWorkflow : IWorkflowDefinition
 
 - [Dependency Injection Guide](dependency-injection.md) - Full DI integration reference
 - [Hosting Guide](hosting.md) - Hosted service patterns and configuration
+- [Reporting Guide](reporting.md) - JSON reporting and observer pattern
 - [Orchestrator Patterns](../orchestrator-patterns.md) - Advanced workflow patterns
 - [Enterprise Samples](../samples-enterprise.md) - Production-ready examples
 
