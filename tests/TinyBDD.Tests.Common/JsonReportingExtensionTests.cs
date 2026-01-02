@@ -287,4 +287,61 @@ public class JsonReportingExtensionTests
     {
         Assert.Throws<ArgumentNullException>(() => new JsonReportObserver(null!));
     }
+
+    [Scenario("JSON report handles write failures gracefully")]
+    [Fact]
+    public async Task JsonReport_HandlesWriteFailuresGracefully()
+    {
+        // Use a directory path instead of a file path - this will cause WriteAllText to fail
+        var invalidPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(invalidPath); // Create directory so the path exists
+        
+        try
+        {
+            var options = Bdd.Configure(b => b.AddJsonReport(invalidPath)); // Path is a directory, not a file
+
+            var ctx = Bdd.CreateContext(new Host(), options: options);
+            
+            // Should not throw even though write will fail (trying to write to a directory)
+            await Bdd.Given(ctx, "start", () => 1)
+                .Then("is 1", x => x == 1);
+
+            // Test passes if no exception was thrown - verify scenario completed
+            Assert.Equal(2, ctx.Steps.Count);
+            Assert.True(ctx.Steps.All(s => s.Error is null));
+        }
+        finally
+        {
+            if (Directory.Exists(invalidPath))
+                Directory.Delete(invalidPath, true);
+        }
+    }
+
+    [Scenario("JSON report OnStepStarting is called")]
+    [Fact]
+    public async Task JsonReport_OnStepStarting_IsCalled()
+    {
+        var tempFile = Path.GetTempFileName();
+        try
+        {
+            var options = Bdd.Configure(b => b.AddJsonReport(tempFile));
+
+            var ctx = Bdd.CreateContext(new Host(), options: options);
+            await Bdd.Given(ctx, "start", () => 1)
+                .When("process", x => x + 1)
+                .Then("is 2", x => x == 2);
+
+            // Verify report was generated (OnStepStarting was called for all steps)
+            Assert.True(File.Exists(tempFile));
+            var json = File.ReadAllText(tempFile);
+            var report = JsonSerializer.Deserialize<JsonReport>(json);
+            Assert.NotNull(report);
+            Assert.Equal(3, report.Scenarios[0].Steps.Count);
+        }
+        finally
+        {
+            if (File.Exists(tempFile))
+                File.Delete(tempFile);
+        }
+    }
 }
