@@ -201,4 +201,299 @@ public class ExpectTests
         // Verify the exception message contains "null" for the expected value
         Assert.Contains("null", ex.Message);
     }
+
+    // ====== Collection Assertions Tests ======
+
+    [Fact]
+    public async Task ToHaveCount_Succeeds_For_Correct_Count()
+    {
+        var list = new List<int> { 1, 2, 3 };
+        await Expect.That(list).ToHaveCount(3);
+    }
+
+    [Fact]
+    public async Task ToHaveCount_Fails_For_Incorrect_Count()
+    {
+        var list = new List<int> { 1, 2, 3 };
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(list, "numbers").ToHaveCount(2));
+        Assert.Contains("expected numbers to have count 2", ex.Message);
+        Assert.Contains("but was 3", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToBeEmpty_Succeeds_For_Empty_Collection()
+    {
+        var list = new List<int>();
+        await Expect.That(list).ToBeEmpty();
+    }
+
+    [Fact]
+    public async Task ToBeEmpty_Fails_For_Non_Empty_Collection()
+    {
+        var list = new List<int> { 1, 2 };
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(list, "items").ToBeEmpty());
+        Assert.Contains("expected items to be empty", ex.Message);
+        Assert.Contains("but it had 2 item(s)", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToHaveAtLeast_Succeeds_For_Sufficient_Count()
+    {
+        var list = new List<int> { 1, 2, 3 };
+        await Expect.That(list).ToHaveAtLeast(2);
+        await Expect.That(list).ToHaveAtLeast(3);
+    }
+
+    [Fact]
+    public async Task ToHaveAtLeast_Fails_For_Insufficient_Count()
+    {
+        var list = new List<int> { 1, 2 };
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(list).ToHaveAtLeast(3));
+        Assert.Contains("expected collection to have at least 3 item(s)", ex.Message);
+        Assert.Contains("but was 2", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToHaveNoMoreThan_Succeeds_For_Valid_Count()
+    {
+        var list = new List<int> { 1, 2, 3 };
+        await Expect.That(list).ToHaveNoMoreThan(3);
+        await Expect.That(list).ToHaveNoMoreThan(5);
+    }
+
+    [Fact]
+    public async Task ToHaveNoMoreThan_Fails_For_Exceeding_Count()
+    {
+        var list = new List<int> { 1, 2, 3, 4 };
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(list).ToHaveNoMoreThan(3));
+        Assert.Contains("expected collection to have no more than 3 item(s)", ex.Message);
+        Assert.Contains("but was 4", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToContain_Succeeds_When_Item_Present()
+    {
+        var list = new List<string> { "apple", "banana", "cherry" };
+        await Expect.That(list).ToContain("banana");
+    }
+
+    [Fact]
+    public async Task ToContain_Fails_When_Item_Absent()
+    {
+        var list = new List<string> { "apple", "banana" };
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(list, "fruits").ToContain("cherry"));
+        Assert.Contains("expected fruits to contain \"cherry\"", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToContainMatch_Succeeds_When_Predicate_Matches()
+    {
+        var list = new List<int> { 1, 2, 3, 4, 5 };
+        await Expect.That(list).ToContainMatch<int>(x => x > 3);
+    }
+
+    [Fact]
+    public async Task ToContainMatch_Fails_When_No_Match()
+    {
+        var list = new List<int> { 1, 2, 3 };
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(list).ToContainMatch<int>(x => x > 10, "greater than 10"));
+        Assert.Contains("expected collection to contain an item greater than 10", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToHaveCountMatching_Succeeds_For_Correct_Count()
+    {
+        var list = new List<int> { 1, 2, 3, 4, 5, 6 };
+        await Expect.That(list).ToHaveCountMatching<int>(3, x => x % 2 == 0, "even numbers");
+    }
+
+    [Fact]
+    public async Task ToHaveCountMatching_Fails_For_Incorrect_Count()
+    {
+        var list = new List<int> { 1, 2, 3, 4 };
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(list).ToHaveCountMatching<int>(3, x => x % 2 == 0));
+        Assert.Contains("expected collection to have 3 item(s) matching predicate", ex.Message);
+        Assert.Contains("but was 2", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToHaveFewerThanCountMatching_Succeeds_When_Count_Is_Less()
+    {
+        var list = new List<int> { 1, 2, 3, 4 };
+        await Expect.That(list).ToHaveFewerThanCountMatching<int>(3, x => x % 2 == 0);
+    }
+
+    [Fact]
+    public async Task ToHaveFewerThanCountMatching_Fails_When_Count_Equals_Or_Exceeds()
+    {
+        var list = new List<int> { 1, 2, 3, 4, 6 };
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(list).ToHaveFewerThanCountMatching<int>(3, x => x % 2 == 0));
+        Assert.Contains("expected collection to have fewer than 3 item(s) matching predicate", ex.Message);
+        Assert.Contains("but was 3", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToHaveMoreThanCountMatching_Succeeds_When_Count_Exceeds()
+    {
+        var list = new List<int> { 1, 2, 3, 4, 6 };
+        await Expect.That(list).ToHaveMoreThanCountMatching<int>(2, x => x % 2 == 0);
+    }
+
+    [Fact]
+    public async Task ToHaveMoreThanCountMatching_Fails_When_Count_Is_Less_Or_Equal()
+    {
+        var list = new List<int> { 1, 2, 3, 4 };
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(list).ToHaveMoreThanCountMatching<int>(2, x => x % 2 == 0));
+        Assert.Contains("expected collection to have more than 2 item(s) matching predicate", ex.Message);
+        Assert.Contains("but was 2", ex.Message);
+    }
+
+    // ====== Instance State Assertions Tests ======
+
+    [Fact]
+    public async Task ToBeOfType_Succeeds_For_Exact_Type()
+    {
+        var obj = "test";
+        await Expect.That(obj).ToBeOfType<string>();
+    }
+
+    [Fact]
+    public async Task ToBeOfType_Fails_For_Different_Type()
+    {
+        var obj = "test";
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(obj).ToBeOfType<int>());
+        Assert.Contains("expected value to be of type Int32", ex.Message);
+        Assert.Contains("but was String", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToBeAssignableTo_Succeeds_For_Compatible_Type()
+    {
+        var obj = "test";
+        await Expect.That(obj).ToBeAssignableTo<object>();
+        await Expect.That(obj).ToBeAssignableTo<IEnumerable<char>>();
+    }
+
+    [Fact]
+    public async Task ToBeAssignableTo_Fails_For_Incompatible_Type()
+    {
+        var obj = "test";
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(obj).ToBeAssignableTo<int>());
+        Assert.Contains("expected value to be assignable to Int32", ex.Message);
+        Assert.Contains("but was String", ex.Message);
+    }
+
+    // ====== Exception Assertions Tests ======
+
+    [Fact]
+    public async Task ToThrow_Succeeds_When_Exception_Thrown()
+    {
+        await Expect.That<object>(null!).ToThrow(() => throw new Exception("test"));
+    }
+
+    [Fact]
+    public async Task ToThrow_Fails_When_No_Exception()
+    {
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That<object>(null!, "operation").ToThrow(() => { }));
+        Assert.Contains("expected operation to throw an exception", ex.Message);
+        Assert.Contains("but it did not", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToThrowExactly_Succeeds_For_Exact_Exception_Type()
+    {
+        await Expect.That<object>(null!).ToThrowExactly<InvalidOperationException>(
+            () => throw new InvalidOperationException("test"));
+    }
+
+    [Fact]
+    public async Task ToThrowExactly_Fails_When_No_Exception()
+    {
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That<object>(null!).ToThrowExactly<InvalidOperationException>(() => { }));
+        Assert.Contains("expected action to throw InvalidOperationException", ex.Message);
+        Assert.Contains("but it did not", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToThrowExactly_Fails_For_Different_Exception_Type()
+    {
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That<object>(null!).ToThrowExactly<ArgumentException>(
+                () => throw new InvalidOperationException("test")));
+        Assert.Contains("expected action to throw ArgumentException", ex.Message);
+        Assert.Contains("but threw InvalidOperationException", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToThrowWithMessage_Succeeds_For_Matching_Message()
+    {
+        await Expect.That<object>(null!).ToThrowWithMessage(
+            () => throw new Exception("expected message"), "expected message");
+    }
+
+    [Fact]
+    public async Task ToThrowWithMessage_Fails_For_Different_Message()
+    {
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That<object>(null!).ToThrowWithMessage(
+                () => throw new Exception("actual"), "expected"));
+        Assert.Contains("expected action to throw exception with message \"expected\"", ex.Message);
+        Assert.Contains("but message was \"actual\"", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToThrowExactlyWithMessage_Succeeds_For_Exact_Type_And_Message()
+    {
+        await Expect.That<object>(null!).ToThrowExactlyWithMessage<ArgumentException>(
+            () => throw new ArgumentException("test message"), "test message");
+    }
+
+    [Fact]
+    public async Task ToThrowExactlyWithMessage_Fails_For_Wrong_Exception_Type()
+    {
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That<object>(null!).ToThrowExactlyWithMessage<ArgumentException>(
+                () => throw new InvalidOperationException("test"), "test"));
+        Assert.Contains("expected action to throw ArgumentException", ex.Message);
+        Assert.Contains("but threw InvalidOperationException", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToThrowExactlyWithMessage_Fails_For_Wrong_Message()
+    {
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That<object>(null!).ToThrowExactlyWithMessage<ArgumentException>(
+                () => throw new ArgumentException("actual"), "expected"));
+        Assert.Contains("expected action to throw ArgumentException with message \"expected\"", ex.Message);
+        Assert.Contains("but message was \"actual\"", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToNotThrow_Succeeds_When_No_Exception()
+    {
+        await Expect.That<object>(null!).ToNotThrow(() => { });
+    }
+
+    [Fact]
+    public async Task ToNotThrow_Fails_When_Exception_Thrown()
+    {
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That<object>(null!, "safe operation").ToNotThrow(
+                () => throw new InvalidOperationException("boom")));
+        Assert.Contains("expected safe operation to not throw", ex.Message);
+        Assert.Contains("but threw InvalidOperationException", ex.Message);
+    }
 }
