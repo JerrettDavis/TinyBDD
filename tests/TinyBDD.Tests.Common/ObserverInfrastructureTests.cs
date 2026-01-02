@@ -1,3 +1,5 @@
+using Microsoft.Extensions.DependencyInjection;
+
 namespace TinyBDD.Tests.Common;
 
 public class ObserverInfrastructureTests
@@ -102,7 +104,178 @@ public class ObserverInfrastructureTests
         Assert.Equal(10, whenStep.io.Output);
     }
 
-    // Test helper classes
+    [Scenario("ConfigureServices registers and resolves services")]
+    [Fact]
+    public async Task ConfigureServices_RegistersAndResolvesServices()
+    {
+        var testService = new TestService();
+        var observer = new ServiceAwareObserver();
+
+        var options = Bdd.Configure(b => b
+            .ConfigureServices(services =>
+            {
+                services.AddSingleton<ITestService>(testService);
+            })
+            .AddObserver(observer));
+
+        var ctx = Bdd.CreateContext(new Host(), options: options);
+        
+        // Service should be accessible via options
+        var serviceProvider = options.ExtensibilityOptions?.ServiceProvider;
+        Assert.NotNull(serviceProvider);
+        
+        var resolvedService = serviceProvider.GetService(typeof(ITestService)) as ITestService;
+        Assert.NotNull(resolvedService);
+        Assert.Same(testService, resolvedService);
+
+        await Bdd.Given(ctx, "start", () => 1)
+            .Then("is 1", x => x == 1);
+
+        Assert.True(observer.ServiceWasResolved);
+    }
+
+    [Scenario("Empty observers list does not cause errors")]
+    [Fact]
+    public async Task EmptyObservers_DoesNotCauseErrors()
+    {
+        var options = Bdd.Configure(b => { }); // No observers
+
+        var ctx = Bdd.CreateContext(new Host(), options: options);
+        await Bdd.Given(ctx, "start", () => 1)
+            .Then("is 1", x => x == 1);
+
+        Assert.Single(ctx.Steps.Where(s => s.Kind == "Given"));
+    }
+
+    [Scenario("Faulty step observer does not mask test failures")]
+    [Fact]
+    public async Task FaultyStepObserver_DoesNotMaskTestFailure()
+    {
+        var observer = new FaultyStepObserver();
+        var options = Bdd.Configure(b => b.AddObserver(observer));
+
+        var ctx = Bdd.CreateContext(new Host(), options: options);
+        
+        // Should complete despite step observer throwing
+        await Bdd.Given(ctx, "start", () => 1)
+            .When("add", x => x + 1)
+            .Then("is 2", x => x == 2);
+
+        Assert.Equal(3, ctx.Steps.Count);
+    }
+
+    [Scenario("StepInfo contains correct metadata")]
+    [Fact]
+    public async Task StepInfo_ContainsCorrectMetadata()
+    {
+        var observer = new TestStepObserver();
+        var options = Bdd.Configure(b => b.AddObserver(observer));
+
+        var ctx = Bdd.CreateContext(new Host(), options: options);
+        await Bdd.Given(ctx, "initial", () => 1)
+            .And("another", x => x)
+            .When("process", x => x * 2)
+            .Then("verify", x => x == 2);
+
+        // Verify StepInfo properties
+        Assert.Collection(observer.StepsStarted,
+            s =>
+            {
+                Assert.Equal("Given", s.Kind);
+                Assert.Equal("initial", s.Title);
+                Assert.Equal(StepPhase.Given, s.Phase);
+                Assert.Equal(StepWord.Primary, s.Word);
+            },
+            s =>
+            {
+                Assert.Equal("And", s.Kind);
+                Assert.Equal("another", s.Title);
+                Assert.Equal(StepPhase.Given, s.Phase);
+                Assert.Equal(StepWord.And, s.Word);
+            },
+            s =>
+            {
+                Assert.Equal("When", s.Kind);
+                Assert.Equal("process", s.Title);
+                Assert.Equal(StepPhase.When, s.Phase);
+                Assert.Equal(StepWord.Primary, s.Word);
+            },
+            s =>
+            {
+                Assert.Equal("Then", s.Kind);
+                Assert.Equal("verify", s.Title);
+                Assert.Equal(StepPhase.Then, s.Phase);
+                Assert.Equal(StepWord.Primary, s.Word);
+            });
+    }
+
+    [Scenario("Options builder chains methods fluently")]
+    [Fact]
+    public void OptionsBuilder_ChainsMethodsFluently()
+    {
+        var observer1 = new TestScenarioObserver();
+        var observer2 = new TestStepObserver();
+
+        var options = Bdd.Configure(b =>
+        {
+            var result1 = b.AddObserver(observer1);
+            var result2 = result1.AddObserver(observer2);
+            var result3 = result2.ConfigureServices(s => s.AddSingleton<ITestService>(new TestService()));
+
+            Assert.Same(b, result1);
+            Assert.Same(b, result2);
+            Assert.Same(b, result3);
+        });
+
+        Assert.NotNull(options);
+    }
+
+    [Scenario("Scenario without extensibility options works normally")]
+    [Fact]
+    public async Task ScenarioWithoutExtensibilityOptions_WorksNormally()
+    {
+        // Create context without Configure
+        var ctx = Bdd.CreateContext(new Host());
+        
+        await Bdd.Given(ctx, "start", () => 1)
+            .When("add", x => x + 1)
+            .Then("is 2", x => x == 2);
+
+        Assert.Equal(3, ctx.Steps.Count);
+    }
+
+    // Test helper classes and interfaces
+
+    private interface ITestService
+    {
+        string GetValue();
+    }
+
+    private class TestService : ITestService
+    {
+        public string GetValue() => "test";
+    }
+
+    private class ServiceAwareObserver : IScenarioObserver
+    {
+        public bool ServiceWasResolved { get; private set; }
+
+        public ValueTask OnScenarioStarting(ScenarioContext context)
+        {
+            var serviceProvider = context.Options.ExtensibilityOptions?.ServiceProvider;
+            if (serviceProvider != null)
+            {
+                var service = serviceProvider.GetService(typeof(ITestService));
+                ServiceWasResolved = service != null;
+            }
+            return default;
+        }
+
+        public ValueTask OnScenarioFinished(ScenarioContext context)
+        {
+            return default;
+        }
+    }
 
     private class TestScenarioObserver : IScenarioObserver
     {
@@ -157,6 +330,19 @@ public class ObserverInfrastructureTests
         public ValueTask OnScenarioFinished(ScenarioContext context)
         {
             throw new InvalidOperationException("Observer failed");
+        }
+    }
+
+    private class FaultyStepObserver : IStepObserver
+    {
+        public ValueTask OnStepStarting(ScenarioContext context, StepInfo step)
+        {
+            throw new InvalidOperationException("Step observer failed");
+        }
+
+        public ValueTask OnStepFinished(ScenarioContext context, StepInfo step, StepResult result, StepIO io)
+        {
+            throw new InvalidOperationException("Step observer failed");
         }
     }
 }
