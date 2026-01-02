@@ -496,4 +496,107 @@ public class ExpectTests
         Assert.Contains("expected safe operation to not throw", ex.Message);
         Assert.Contains("but threw InvalidOperationException", ex.Message);
     }
+
+    // ====== Error Path Coverage Tests ======
+
+    [Fact]
+    public async Task ToHaveCount_Fails_For_Non_Enumerable()
+    {
+        var nonEnumerable = 42;
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(nonEnumerable).ToHaveCount(1));
+        Assert.Contains("expected value to be enumerable for count check", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToBeEmpty_Fails_For_Non_Enumerable()
+    {
+        var nonEnumerable = 42; // int is not enumerable
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(nonEnumerable).ToBeEmpty());
+        Assert.Contains("expected value to be enumerable for empty check", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToHaveAtLeast_Fails_For_Non_Enumerable()
+    {
+        var nonEnumerable = 3.14;
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(nonEnumerable).ToHaveAtLeast(1));
+        Assert.Contains("expected value to be enumerable for count check", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToHaveNoMoreThan_Fails_For_Non_Enumerable()
+    {
+        var nonEnumerable = true;
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(nonEnumerable).ToHaveNoMoreThan(5));
+        Assert.Contains("expected value to be enumerable for count check", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToContain_Fails_For_Non_Enumerable()
+    {
+        var nonEnumerable = 123;
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(nonEnumerable).ToContain("item"));
+        Assert.Contains("expected value to be enumerable for contains check", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToContainMatch_Fails_For_Non_Enumerable()
+    {
+        var nonEnumerable = 456; // int is not enumerable
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(nonEnumerable).ToContainMatch<int>(x => x > 0));
+        Assert.Contains("expected value to be enumerable", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToHaveCountMatching_Fails_For_Non_Enumerable()
+    {
+        var nonEnumerable = DateTime.Now;
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(nonEnumerable).ToHaveCountMatching<int>(2, x => x > 0));
+        Assert.Contains("expected value to be enumerable", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToHaveFewerThanCountMatching_Fails_For_Non_Enumerable()
+    {
+        var nonEnumerable = new object();
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(nonEnumerable).ToHaveFewerThanCountMatching<int>(3, x => x > 0));
+        Assert.Contains("expected value to be enumerable", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToHaveMoreThanCountMatching_Fails_For_Non_Enumerable()
+    {
+        var nonEnumerable = 'c';
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(nonEnumerable).ToHaveMoreThanCountMatching<int>(1, x => x > 0));
+        Assert.Contains("expected value to be enumerable", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToBeOfType_Fails_For_Null_Value()
+    {
+        object? nullValue = null;
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(nullValue).ToBeOfType<string>());
+        Assert.Contains("expected value to be of type String", ex.Message);
+        Assert.Contains("but was null", ex.Message);
+    }
+
+    [Fact]
+    public async Task ToBeAssignableTo_Fails_For_Null_Value()
+    {
+        object? nullValue = null;
+        var ex = await Assert.ThrowsAsync<TinyBddAssertionException>(async () =>
+            await Expect.That(nullValue).ToBeAssignableTo<string>());
+        Assert.Contains("expected value to be assignable to String", ex.Message);
+        Assert.Contains("but was null", ex.Message);
+    }
 }
