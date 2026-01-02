@@ -40,4 +40,9 @@ public record ScenarioOptions
     /// Defaults to false (feature teardown is typically internal and not shown).
     /// </summary>
     public bool ShowFeatureTeardown { get; init; }
+
+    /// <summary>
+    /// TinyBDD extensibility options including observers and services.
+    /// </summary>
+    internal TinyBddOptions? ExtensibilityOptions { get; init; }
 }
