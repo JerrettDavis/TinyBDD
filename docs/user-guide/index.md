@@ -86,9 +86,10 @@ Where next
 - [Reporting](reporting.md) - Built-in reporters and custom report generation
 
 **Extensions and Orchestration**
-- [Extensions Overview](extensions/index.md) - DI and Hosting integration packages
+- [Extensions Overview](extensions/index.md) - DI, Hosting, and Reporting integration packages
 - [Dependency Injection](extensions/dependency-injection.md) - IServiceCollection integration
 - [Hosting](extensions/hosting.md) - Background services and hosted workflows
+- [Reporting Extension](extensions/reporting.md) - JSON reporting and observer pattern
 - [Orchestrator Patterns](orchestrator-patterns.md) - Advanced workflow patterns
 - [Enterprise Samples](samples-enterprise.md) - Production-ready examples
 

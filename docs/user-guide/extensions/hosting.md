@@ -458,6 +458,7 @@ public class WorkflowTests
 ## Next Steps
 
 - [Dependency Injection Guide](dependency-injection.md) - DI integration details
+- [Reporting Extension](reporting.md) - JSON reporting and observer pattern
 - [Orchestrator Patterns](../orchestrator-patterns.md) - Advanced workflow patterns
 - [Enterprise Samples](../samples-enterprise.md) - Production-ready examples
 

@@ -46,6 +46,90 @@ File.WriteAllText("scenario.json", reporter.ToString());
 ```
 Format is entirely up to you (structured JSON, markdown, HTML, etc.).
 
+For structured JSON reporting with full scenario/step metadata, use **[TinyBDD.Extensions.Reporting](extensions/reporting.md)**.
+
+## Observer Pattern
+
+TinyBDD provides an observer pattern through `IScenarioObserver` and `IStepObserver` interfaces for adding cross-cutting concerns like telemetry, logging, and custom reporting without modifying core execution logic.
+
+### IScenarioObserver
+
+Observe scenario-level lifecycle events:
+
+```csharp
+public class LoggingScenarioObserver : IScenarioObserver
+{
+    private readonly ILogger _logger;
+
+    public LoggingScenarioObserver(ILogger logger) => _logger = logger;
+
+    public ValueTask OnScenarioStarting(ScenarioContext context)
+    {
+        _logger.LogInformation("Starting: {Feature} - {Scenario}", 
+            context.FeatureName, context.ScenarioName);
+        return default;
+    }
+
+    public ValueTask OnScenarioFinished(ScenarioContext context)
+    {
+        var passed = context.Steps.All(s => s.Error == null);
+        _logger.LogInformation("Finished: {Feature} - {Scenario}, Passed: {Passed}", 
+            context.FeatureName, context.ScenarioName, passed);
+        return default;
+    }
+}
+```
+
+### IStepObserver
+
+Observe individual step lifecycle events:
+
+```csharp
+public class MetricsStepObserver : IStepObserver
+{
+    private readonly IMetricsCollector _metrics;
+
+    public MetricsStepObserver(IMetricsCollector metrics) => _metrics = metrics;
+
+    public ValueTask OnStepStarting(ScenarioContext context, StepInfo step)
+    {
+        _metrics.IncrementCounter($"step.{step.Kind}.started");
+        return default;
+    }
+
+    public ValueTask OnStepFinished(ScenarioContext context, StepInfo step, 
+        StepResult result, StepIO io)
+    {
+        _metrics.RecordDuration($"step.{step.Kind}.duration", result.Elapsed);
+        if (result.Error != null)
+            _metrics.IncrementCounter($"step.{step.Kind}.failed");
+        return default;
+    }
+}
+```
+
+### Registering Observers
+
+Use `TinyBdd.Configure()` to register observers:
+
+```csharp
+var options = TinyBdd.Configure(builder => builder
+    .AddObserver(new LoggingScenarioObserver(logger))
+    .AddObserver(new MetricsStepObserver(metrics)));
+
+var ctx = Bdd.CreateContext(this, options: options);
+```
+
+### Use Cases
+
+- **Telemetry**: Send scenario/step metrics to Application Insights, DataDog, etc.
+- **Distributed Tracing**: Integrate with OpenTelemetry for distributed trace spans
+- **Audit Logging**: Record all scenario executions for compliance
+- **Performance Monitoring**: Track step durations and identify bottlenecks
+- **Structured Reporting**: Generate JSON reports for CI/CD (see [Reporting Extension](extensions/reporting.md))
+
+For complete JSON reporting capabilities, see **[TinyBDD.Extensions.Reporting](extensions/reporting.md)**.
+
 ## Integrating With CI
 - Emit Gherkin output to standard test logs (adapters do this automatically).
 - Convert reporter output to build annotations (GitHub Actions `::notice`, Azure DevOps logging commands) for fast triage.
