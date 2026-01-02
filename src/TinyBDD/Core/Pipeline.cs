@@ -7,7 +7,7 @@ namespace TinyBDD;
 /// <summary>
 /// Identifies the high-level BDD phase of a step: <c>Given</c>, <c>When</c>, or <c>Then</c>.
 /// </summary>
-internal enum StepPhase
+public enum StepPhase
 {
     /// <summary>Setup and preconditions.</summary>
     Given,
@@ -22,7 +22,7 @@ internal enum StepPhase
 /// <summary>
 /// Identifies the BDD connective used for a step within a phase: primary keyword, <c>And</c>, or <c>But</c>.
 /// </summary>
-internal enum StepWord
+public enum StepWord
 {
     /// <summary>The primary keyword for the phase (e.g., <c>Given</c>, <c>When</c>, <c>Then</c>).</summary>
     Primary,
@@ -255,6 +255,9 @@ internal sealed class Pipeline(ScenarioContext ctx)
         var markRemainingAsSkipped = ctx.Options.MarkRemainingAsSkippedOnFailure;
         var haltOnFailedAssert = ctx.Options.HaltOnFailedAssertion;
 
+        // Notify scenario observers
+        await NotifyScenarioStarting(ctx);
+
         try
         {
             while (_steps.Count > 0)
@@ -272,8 +275,12 @@ internal sealed class Pipeline(ScenarioContext ctx)
                 var canceled = false;
                 var captured = false;
                 var input = _state; // capture input before executing
+                var stepInfo = new StepInfo(kind, title, step.Phase, step.Word);
 
                 BeforeStep?.Invoke(ctx, new StepMetadata(kind, title, step.Phase, step.Word));
+
+                // Notify step observers
+                await NotifyStepStarting(ctx, stepInfo);
 
                 try
                 {
@@ -307,7 +314,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
                     err = ex;
                     if (!continueOnError)
                     {
-                        CaptureStepResult();
+                        await CaptureStepResultAsync();
 
                         if (markRemainingAsSkipped)
                             DrainAsSkipped();
@@ -318,7 +325,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
                 }
                 finally
                 {
-                    CaptureStepResult();
+                    await CaptureStepResultAsync();
                 }
 
                 if (canceled)
@@ -327,7 +334,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
                 continue;
 
                 // Local helper to ensure we add the step result exactly once, even if we throw later.
-                void CaptureStepResult()
+                async ValueTask CaptureStepResultAsync()
                 {
                     sw.Stop();
 
@@ -347,10 +354,15 @@ internal sealed class Pipeline(ScenarioContext ctx)
                     // Record step timing/result
                     ctx.AddStep(result);
                     // Record IO and update the current item pointer
-                    ctx.AddIO(new StepIO(kind, title, input, _state));
+                    var io = new StepIO(kind, title, input, _state);
+                    ctx.AddIO(io);
                     ctx.CurrentItem = _state;
 
                     AfterStep?.Invoke(ctx, result);
+
+                    // Notify step observers - await to ensure they complete
+                    // Exceptions are suppressed inside NotifyStepFinished to prevent masking test failures
+                    await NotifyStepFinished(ctx, stepInfo, result, io);
                 }
 
                 Exception? CaptureCancel()
@@ -363,6 +375,9 @@ internal sealed class Pipeline(ScenarioContext ctx)
         }
         finally
         {
+            // Notify scenario observers
+            await NotifyScenarioFinished(ctx);
+
             // Execute all finally handlers in order, even if steps threw exceptions
             foreach (var handler in _finallyHandlers)
             {
@@ -398,6 +413,94 @@ internal sealed class Pipeline(ScenarioContext ctx)
                 Elapsed = TimeSpan.Zero,
                 Error = new InvalidOperationException("Skipped due to previous failure.")
             });
+        }
+    }
+
+    /// <summary>
+    /// Notifies scenario observers that a scenario is starting.
+    /// </summary>
+    private async ValueTask NotifyScenarioStarting(ScenarioContext context)
+    {
+        var observers = context.Options.ExtensibilityOptions?.ScenarioObservers;
+        if (observers is null or { Count: 0 })
+            return;
+
+        foreach (var observer in observers)
+        {
+            try
+            {
+                await observer.OnScenarioStarting(context).ConfigureAwait(false);
+            }
+            catch
+            {
+                // Suppress observer exceptions to prevent masking test failures
+            }
+        }
+    }
+
+    /// <summary>
+    /// Notifies scenario observers that a scenario has finished.
+    /// </summary>
+    private async ValueTask NotifyScenarioFinished(ScenarioContext context)
+    {
+        var observers = context.Options.ExtensibilityOptions?.ScenarioObservers;
+        if (observers is null or { Count: 0 })
+            return;
+
+        foreach (var observer in observers)
+        {
+            try
+            {
+                await observer.OnScenarioFinished(context).ConfigureAwait(false);
+            }
+            catch
+            {
+                // Suppress observer exceptions to prevent masking test failures
+            }
+        }
+    }
+
+    /// <summary>
+    /// Notifies step observers that a step is starting.
+    /// </summary>
+    private async ValueTask NotifyStepStarting(ScenarioContext context, StepInfo step)
+    {
+        var observers = context.Options.ExtensibilityOptions?.StepObservers;
+        if (observers is null or { Count: 0 })
+            return;
+
+        foreach (var observer in observers)
+        {
+            try
+            {
+                await observer.OnStepStarting(context, step).ConfigureAwait(false);
+            }
+            catch
+            {
+                // Suppress observer exceptions to prevent masking test failures
+            }
+        }
+    }
+
+    /// <summary>
+    /// Notifies step observers that a step has finished.
+    /// </summary>
+    private async ValueTask NotifyStepFinished(ScenarioContext context, StepInfo step, StepResult result, StepIO io)
+    {
+        var observers = context.Options.ExtensibilityOptions?.StepObservers;
+        if (observers is null or { Count: 0 })
+            return;
+
+        foreach (var observer in observers)
+        {
+            try
+            {
+                await observer.OnStepFinished(context, step, result, io).ConfigureAwait(false);
+            }
+            catch
+            {
+                // Suppress observer exceptions to prevent masking test failures
+            }
         }
     }
 }

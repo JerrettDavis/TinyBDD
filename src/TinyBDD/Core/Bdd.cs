@@ -572,4 +572,40 @@ public static partial class Bdd
         /// <returns>A fully populated <see cref="ScenarioContext"/> with feature, scenario, and tag metadata.</returns>
         public ScenarioContext Build() => _ctx;
     }
+
+    /// <summary>
+    /// Configures TinyBDD with extensibility options including observers and services.
+    /// </summary>
+    /// <param name="configure">An action to configure the <see cref="TinyBddOptionsBuilder"/>.</param>
+    /// <returns>Configured <see cref="ScenarioOptions"/> with extensibility options applied.</returns>
+    /// <remarks>
+    /// <para>
+    /// This method provides an EF Core-style fluent API for adding cross-cutting functionality
+    /// to TinyBDD scenarios. Extensions like structured logging, OpenTelemetry, and JSON reporting
+    /// are added through this builder.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// var options = TinyBdd.Configure(builder => builder
+    ///     .AddObserver(new LoggingObserver())
+    ///     .AddObserver(new TelemetryObserver()));
+    ///
+    /// var ctx = Bdd.CreateContext(this, options: options);
+    /// await Bdd.Given(ctx, "start", () => 1)
+    ///     .When("add", x => x + 1)
+    ///     .Then("is 2", x => x == 2);
+    /// </code>
+    /// </example>
+    public static ScenarioOptions Configure(Action<TinyBddOptionsBuilder> configure)
+    {
+        var builder = new TinyBddOptionsBuilder();
+        configure(builder);
+        var tinyBddOptions = builder.Build();
+
+        return new ScenarioOptions
+        {
+            ExtensibilityOptions = tinyBddOptions
+        };
+    }
 }
