@@ -111,6 +111,19 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+      - name: Run benchmarks (smoke test)
+        run: |
+          cd benchmarks/TinyBDD.Benchmarks
+          dotnet run -c Release -- --filter 'TinyBDD.Benchmarks.SingleAssertionBenchmark.*' --job short --exporters json markdown
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: |
+            benchmarks/TinyBDD.Benchmarks/BenchmarkDotNet.Artifacts/results/*.md
+            benchmarks/TinyBDD.Benchmarks/BenchmarkDotNet.Artifacts/results/*.json
+
   release:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -254,3 +267,40 @@ jobs:
             --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
             --api-key "${{ secrets.GITHUB_TOKEN }}" \
             --skip-duplicate
+
+  benchmarks:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+          cache: true
+          cache-dependency-path: |
+            **/packages.lock.json
+            global.json
+
+      - name: Restore
+        run: dotnet restore --use-lock-file
+
+      - name: Build benchmarks
+        run: dotnet build benchmarks/TinyBDD.Benchmarks/TinyBDD.Benchmarks.csproj -c Release --no-restore
+
+      - name: Run full benchmark suite
+        run: |
+          cd benchmarks/TinyBDD.Benchmarks
+          dotnet run -c Release --no-build -- --exporters json markdown html
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results-full
+          path: |
+            benchmarks/TinyBDD.Benchmarks/BenchmarkDotNet.Artifacts/results/*
+
