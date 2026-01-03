@@ -13,7 +13,7 @@ namespace TinyBDD.Benchmarks;
 public class MultipleAssertionsBenchmark
 {
     private ScenarioContext? _context;
-    private int[] _values = Array.Empty<int>();
+    private int[]? _values;
 
     [Params(10, 100, 1000)]
     public int N { get; set; }
@@ -37,7 +37,7 @@ public class MultipleAssertionsBenchmark
     [Benchmark(Baseline = true)]
     public bool Baseline_MultipleAssertions()
     {
-        foreach (var value in _values)
+        foreach (var value in _values!)
         {
             var result = value >= 0;
             if (!result)
@@ -52,7 +52,7 @@ public class MultipleAssertionsBenchmark
     [Benchmark]
     public async Task<bool> TinyBDD_MultipleAssertions()
     {
-        var chain = Bdd.Given(_context!, "array of values", () => _values)
+        var chain = Bdd.Given(_context!, "array of values", () => _values!)
             .When("validate all", arr =>
             {
                 foreach (var value in arr)
