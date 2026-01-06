@@ -76,6 +76,8 @@ internal static class KindStrings
 /// </summary>
 internal static class AssertUtil
 {
+    private const string AssertionFailedPrefix = "Assertion failed: ";
+    
     /// <summary>
     /// Throws <see cref="TinyBddAssertionException"/> if the provided condition is <see langword="false"/>.
     /// </summary>
@@ -85,7 +87,7 @@ internal static class AssertUtil
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Ensure(bool ok, string title)
     {
-        if (!ok) throw new TinyBddAssertionException($"Assertion failed: {title}");
+        if (!ok) throw new TinyBddAssertionException(AssertionFailedPrefix + title);
     }
 }
 
@@ -273,7 +275,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
         var stepTimeout = ctx.Options.StepTimeout;
         var markRemainingAsSkipped = ctx.Options.MarkRemainingAsSkippedOnFailure;
         var haltOnFailedAssert = ctx.Options.HaltOnFailedAssertion;
-        var hasStepObservers = ctx.Options.ExtensibilityOptions?.StepObservers is { Count: > 0 };
+        var hasStepObservers = ctx.Options.ExtensibilityOptions?.StepObservers?.Count > 0;
 
         // Notify scenario observers
         await NotifyScenarioStarting(ctx);
@@ -285,9 +287,9 @@ internal sealed class Pipeline(ScenarioContext ctx)
                 ct.ThrowIfCancellationRequested();
 
                 var step = _steps.Dequeue();
-                var title = !string.IsNullOrWhiteSpace(step.Title)
-                    ? step.Title
-                    : KindStrings.For(step.Phase, StepWord.Primary); // Reuse cached phase strings
+                var title = string.IsNullOrWhiteSpace(step.Title)
+                    ? KindStrings.For(step.Phase, StepWord.Primary)
+                    : step.Title; // Reuse cached phase strings or provided title
                 var kind = step.KindCached();
                 var sw = Stopwatch.StartNew();
 
