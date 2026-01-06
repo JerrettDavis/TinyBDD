@@ -295,11 +295,14 @@ internal sealed class Pipeline(ScenarioContext ctx)
                 var canceled = false;
                 var captured = false;
                 var input = _state; // capture input before executing
-                
-                // Only create StepInfo if we have observers
-                var stepInfo = new StepInfo(kind, title, step.Phase, step.Word);
 
-                BeforeStep?.Invoke(ctx, new StepMetadata(kind, title, step.Phase, step.Word));
+                // Only create StepInfo and StepMetadata if needed
+                StepInfo stepInfo = default;
+                if (hasStepObservers)
+                    stepInfo = new StepInfo(kind, title, step.Phase, step.Word);
+
+                if (BeforeStep is not null)
+                    BeforeStep.Invoke(ctx, new StepMetadata(kind, title, step.Phase, step.Word));
 
                 // Notify step observers only if we have any
                 if (hasStepObservers)
