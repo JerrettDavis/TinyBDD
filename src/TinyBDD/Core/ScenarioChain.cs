@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace TinyBDD;
 
 /// <summary>
@@ -44,6 +46,7 @@ public sealed partial class ScenarioChain<T>
 
     #region Core step implementations
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScenarioChain<TOut> Transform<TOut>(
         StepPhase phase,
         StepWord word,
@@ -55,6 +58,7 @@ public sealed partial class ScenarioChain<T>
         return new ScenarioChain<TOut>(_p);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScenarioChain<TOut> TransformInherit<TOut>(
         StepWord word,
         string? title,
@@ -66,6 +70,7 @@ public sealed partial class ScenarioChain<T>
         return new ScenarioChain<TOut>(_p);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScenarioChain<T> Effect(
         StepPhase phase,
         StepWord word,
@@ -81,6 +86,7 @@ public sealed partial class ScenarioChain<T>
         return this;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScenarioChain<T> EffectInherit(
         StepWord word,
         string? title,
@@ -96,6 +102,7 @@ public sealed partial class ScenarioChain<T>
         return this;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScenarioChain<T> FinallyEffect(
         string? title,
         Func<T, CancellationToken, ValueTask> effect)
@@ -104,6 +111,7 @@ public sealed partial class ScenarioChain<T>
         return this;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ThenChain<TOut> ThenAssert<TOut>(string? title, Func<T, CancellationToken, Task<TOut>> assert)
     {
         _p.Enqueue(StepPhase.Then, StepWord.Primary, title ?? "",
@@ -111,6 +119,7 @@ public sealed partial class ScenarioChain<T>
         return new ThenChain<TOut>(_p);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ThenChain<T> ThenAssert(string? title, Func<T, CancellationToken, Task> assert)
     {
         _p.Enqueue(StepPhase.Then, StepWord.Primary, title ?? "",
@@ -122,6 +131,7 @@ public sealed partial class ScenarioChain<T>
         return new ThenChain<T>(_p);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ThenChain<T> ThenAssert(string? title, Func<T, CancellationToken, ValueTask> assert)
     {
         _p.Enqueue(StepPhase.Then, StepWord.Primary, title ?? "",
@@ -133,6 +143,7 @@ public sealed partial class ScenarioChain<T>
         return new ThenChain<T>(_p);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ThenChain<T> ThenPredicate(string? title, Func<T, CancellationToken, ValueTask<bool>> pred)
     {
         _p.Enqueue(StepPhase.Then, StepWord.Primary, title ?? "",
@@ -144,6 +155,7 @@ public sealed partial class ScenarioChain<T>
         return new ThenChain<T>(_p);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ThenChain<T> ThenPredicateNoValue(string? title, Func<CancellationToken, ValueTask<bool>> pred)
     {
         _p.Enqueue(StepPhase.Then, StepWord.Primary, title ?? "",

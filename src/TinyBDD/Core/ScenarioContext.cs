@@ -55,9 +55,9 @@ public sealed class ScenarioContext
     /// <summary>The current carried item (latest successful state).</summary>
     public object? CurrentItem { get; internal set; }
 
-    private readonly List<StepResult> _steps = new();
-    private readonly HashSet<string> _tags = new();
-    private readonly List<StepIO> _io = new();
+    private readonly List<StepResult> _steps = new(capacity: 8); // Pre-allocate for typical scenario
+    private readonly HashSet<string> _tags = new(StringComparer.Ordinal); // Use ordinal comparison for performance
+    private readonly List<StepIO> _io = new(capacity: 8); // Pre-allocate for typical scenario
 
     /// <summary>
     /// Bridge for integrating tags/categories with a host test framework.
