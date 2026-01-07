@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -12,7 +13,7 @@ internal sealed class WorkflowHostedService<TWorkflow> : BackgroundService
     where TWorkflow : class, IWorkflowDefinition
 {
     private readonly TWorkflow _workflow;
-    private readonly IWorkflowRunner _runner;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly IHostApplicationLifetime _lifetime;
     private readonly TinyBddHostingOptions _options;
     private readonly ILogger<WorkflowHostedService<TWorkflow>> _logger;
@@ -22,13 +23,13 @@ internal sealed class WorkflowHostedService<TWorkflow> : BackgroundService
     /// </summary>
     public WorkflowHostedService(
         TWorkflow workflow,
-        IWorkflowRunner runner,
+        IServiceScopeFactory scopeFactory,
         IHostApplicationLifetime lifetime,
         IOptions<TinyBddHostingOptions> options,
         ILogger<WorkflowHostedService<TWorkflow>> logger)
     {
         _workflow = workflow;
-        _runner = runner;
+        _scopeFactory = scopeFactory;
         _lifetime = lifetime;
         _options = options.Value;
         _logger = logger;
@@ -49,7 +50,9 @@ internal sealed class WorkflowHostedService<TWorkflow> : BackgroundService
 
         try
         {
-            var context = await _runner.RunAsync(_workflow, stoppingToken);
+            using var scope = _scopeFactory.CreateScope();
+            var runner = scope.ServiceProvider.GetRequiredService<IWorkflowRunner>();
+            var context = await runner.RunAsync(_workflow, stoppingToken);
 
             var hasFailed = context.Steps.Any(s => s.Error is not null);
 

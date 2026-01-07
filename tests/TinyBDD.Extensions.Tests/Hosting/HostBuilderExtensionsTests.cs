@@ -20,8 +20,9 @@ public class HostBuilderExtensionsTests
         var provider = services.BuildServiceProvider();
 
         // Assert
-        Assert.NotNull(provider.GetService<IScenarioContextFactory>());
-        Assert.NotNull(provider.GetService<IWorkflowRunner>());
+        using var scope = provider.CreateScope();
+        Assert.NotNull(scope.ServiceProvider.GetService<IScenarioContextFactory>());
+        Assert.NotNull(scope.ServiceProvider.GetService<IWorkflowRunner>());
         Assert.NotNull(provider.GetService<IOptions<TinyBddHostingOptions>>());
     }
 
@@ -62,7 +63,8 @@ public class HostBuilderExtensionsTests
         var provider = services.BuildServiceProvider();
 
         // Assert - Core DI services should be registered
-        Assert.NotNull(provider.GetService<IScenarioContextFactory>());
+        using var scope = provider.CreateScope();
+        Assert.NotNull(scope.ServiceProvider.GetService<IScenarioContextFactory>());
         Assert.NotNull(provider.GetService<ITraitBridge>());
         Assert.NotNull(provider.GetService<IOptions<TinyBddOptions>>());
     }
@@ -113,8 +115,9 @@ public class HostBuilderExtensionsTests
         using var host = builder.Build();
 
         // Assert
-        Assert.NotNull(host.Services.GetService<IWorkflowRunner>());
-        Assert.NotNull(host.Services.GetService<IScenarioContextFactory>());
+        using var scope = host.Services.CreateScope();
+        Assert.NotNull(scope.ServiceProvider.GetService<IWorkflowRunner>());
+        Assert.NotNull(scope.ServiceProvider.GetService<IScenarioContextFactory>());
     }
 
     [Fact]

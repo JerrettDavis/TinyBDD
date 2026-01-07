@@ -12,7 +12,7 @@ namespace TinyBDD;
 /// OpenTelemetry, and JSON reporting are added through methods on this builder.
 /// </para>
 /// <para>
-/// The builder is typically used via <see cref="TinyBdd.Configure(System.Action{TinyBddOptionsBuilder})"/>
+/// The builder is typically used via <see cref="TinyBdd.Configure"/>
 /// for standalone scenarios, or injected into test adapter base classes for framework integration.
 /// </para>
 /// </remarks>

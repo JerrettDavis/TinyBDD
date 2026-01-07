@@ -114,9 +114,10 @@ public sealed class ScenarioContext
     public void AddTags(IEnumerable<string> tags) => AddTags(tags.ToArray());
 
     /// <summary>
-    /// Adds a recorded step to <see cref="Steps"/>. Intended for internal use by the framework.
+    /// Adds a recorded step to <see cref="Steps"/>. 
+    /// Can be used by generated code or custom step implementations.
     /// </summary>
-    internal void AddStep(StepResult s) => _steps.Add(s);
+    public void AddStep(StepResult s) => _steps.Add(s);
 
     /// <summary>
     /// Records input/output for a step. Intended for internal use by the framework.

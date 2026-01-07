@@ -36,7 +36,7 @@ namespace TinyBDD;
 public sealed class StepResult
 {
     /// <summary>Step kind keyword as rendered in reports (e.g., <c>Given</c>, <c>When</c>, <c>Then</c>, <c>And</c>, <c>But</c>).</summary>
-    public required string Kind { get; init; }     // Given, When, Then, And, But
+    public required string Kind { get; init; }
 
     /// <summary>Human-readable step title.</summary>
     public required string Title { get; init; }

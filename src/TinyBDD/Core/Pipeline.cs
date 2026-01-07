@@ -299,7 +299,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
                 var input = _state; // capture input before executing
 
                 // Only create StepInfo and StepMetadata if needed
-                StepInfo stepInfo = default;
+                StepInfo? stepInfo = null;
                 if (hasStepObservers)
                     stepInfo = new StepInfo(kind, title, step.Phase, step.Word);
 
@@ -307,7 +307,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
                     BeforeStep.Invoke(ctx, new StepMetadata(kind, title, step.Phase, step.Word));
 
                 // Notify step observers only if we have any
-                if (hasStepObservers)
+                if (hasStepObservers && stepInfo is not null)
                     await NotifyStepStarting(ctx, stepInfo);
 
                 try
@@ -390,7 +390,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
 
                     // Notify step observers - await to ensure they complete
                     // Exceptions are suppressed inside NotifyStepFinished to prevent masking test failures
-                    if (hasStepObservers)
+                    if (hasStepObservers && stepInfo is not null)
                         await NotifyStepFinished(ctx, stepInfo, result, io);
                 }
 
