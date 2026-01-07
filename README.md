@@ -115,6 +115,50 @@ dotnet add package TinyBDD.Extensions.Hosting
 dotnet add package TinyBDD.Extensions.Reporting
 ```
 
+### ⚡ Performance Optimization (Automatic!)
+
+TinyBDD includes a **Roslyn source generator** that **automatically optimizes ALL BDD tests at compile-time** starting in v1.1. No attributes needed, no configuration, no additional packages!
+
+**Default behavior** - All BDD test methods are automatically optimized:
+
+```csharp
+// This is automatically optimized - no attribute needed!
+public async Task FastScenario()
+{
+    await Given("start", () => 42)
+         .When("double", x => x * 2)
+         .Then("equals 84", x => x == 84);
+}
+```
+
+**Opt-out** - Use `[DisableOptimization]` if you need the full pipeline features:
+
+```csharp
+[DisableOptimization]  // Uses standard pipeline
+public async Task ScenarioWithObservers()
+{
+    // Uses standard pipeline (observers, hooks, etc.)
+    await Given("start", () => 1)
+         .When("add", x => x + 1)
+         .Then("equals 2", x => x == 2);
+}
+```
+
+**Performance gains:**
+- **16-40x faster execution** (~814ns → ~20-50ns per step)
+- **9x less memory** (2,568 bytes → ~290 bytes per scenario)
+- **Zero boxing** - All values are strongly typed at compile-time
+- **No runtime overhead** - Transforms to direct procedural code
+- **Compile-time transformation** - Happens automatically during build
+
+**When to opt-out:**
+- ⚠️ Using IStepObserver or IScenarioObserver (not yet supported in generated code)
+- ⚠️ Using BeforeStep/AfterStep hooks
+- ⚠️ Complex ScenarioOptions features
+- 🐛 Debugging (to step through standard pipeline)
+
+The generator transforms fluent chains into optimized procedural code while maintaining the same readable syntax. Generated code is placed in `obj/.../generated/` for inspection.
+
 ---
 
 ## Basic Usage

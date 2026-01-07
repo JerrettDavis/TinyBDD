@@ -40,6 +40,13 @@ public enum StepWord
 /// </summary>
 internal static class KindStrings
 {
+    // Cache common phase strings to avoid repeated ToString() calls
+    private const string GivenStr = "Given";
+    private const string WhenStr = "When";
+    private const string ThenStr = "Then";
+    private const string AndStr = "And";
+    private const string ButStr = "But";
+    
     /// <summary>
     /// Gets the display keyword for a step based on its phase and connective.
     /// </summary>
@@ -48,8 +55,20 @@ internal static class KindStrings
     /// <returns>
     /// <c>And</c> or <c>But</c> for connective steps; otherwise the phase name (<c>Given</c>, <c>When</c>, <c>Then</c>).
     /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string For(StepPhase phase, StepWord word)
-        => word switch { StepWord.And => "And", StepWord.But => "But", _ => phase.ToString() };
+    {
+        if (word == StepWord.And) return AndStr;
+        if (word == StepWord.But) return ButStr;
+        
+        return phase switch
+        {
+            StepPhase.Given => GivenStr,
+            StepPhase.When => WhenStr,
+            StepPhase.Then => ThenStr,
+            _ => phase.ToString()
+        };
+    }
 }
 
 /// <summary>
@@ -57,6 +76,8 @@ internal static class KindStrings
 /// </summary>
 internal static class AssertUtil
 {
+    private const string AssertionFailedPrefix = "Assertion failed: ";
+    
     /// <summary>
     /// Throws <see cref="TinyBddAssertionException"/> if the provided condition is <see langword="false"/>.
     /// </summary>
@@ -66,7 +87,7 @@ internal static class AssertUtil
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Ensure(bool ok, string title)
     {
-        if (!ok) throw new TinyBddAssertionException($"Assertion failed: {title}");
+        if (!ok) throw new TinyBddAssertionException(AssertionFailedPrefix + title);
     }
 }
 
@@ -109,8 +130,8 @@ internal sealed class Pipeline(ScenarioContext ctx)
 {
     private object? _state;
     private StepPhase _lastPhase = StepPhase.Given;
-    private readonly Queue<Step> _steps = new();
-    private readonly List<Func<CancellationToken, ValueTask>> _finallyHandlers = [];
+    private readonly Queue<Step> _steps = new(capacity: 8); // Pre-allocate for typical scenario
+    private readonly List<Func<CancellationToken, ValueTask>> _finallyHandlers = new(capacity: 2);
     
     /// <summary>
     /// Gets the owning <see cref="ScenarioContext"/>.
@@ -254,6 +275,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
         var stepTimeout = ctx.Options.StepTimeout;
         var markRemainingAsSkipped = ctx.Options.MarkRemainingAsSkippedOnFailure;
         var haltOnFailedAssert = ctx.Options.HaltOnFailedAssertion;
+        var hasStepObservers = ctx.Options.ExtensibilityOptions?.StepObservers?.Count > 0;
 
         // Notify scenario observers
         await NotifyScenarioStarting(ctx);
@@ -266,8 +288,8 @@ internal sealed class Pipeline(ScenarioContext ctx)
 
                 var step = _steps.Dequeue();
                 var title = string.IsNullOrWhiteSpace(step.Title)
-                    ? step.Phase.ToString()
-                    : step.Title;
+                    ? KindStrings.For(step.Phase, StepWord.Primary)
+                    : step.Title; // Reuse cached phase strings or provided title
                 var kind = step.KindCached();
                 var sw = Stopwatch.StartNew();
 
@@ -275,12 +297,18 @@ internal sealed class Pipeline(ScenarioContext ctx)
                 var canceled = false;
                 var captured = false;
                 var input = _state; // capture input before executing
-                var stepInfo = new StepInfo(kind, title, step.Phase, step.Word);
 
-                BeforeStep?.Invoke(ctx, new StepMetadata(kind, title, step.Phase, step.Word));
+                // Only create StepInfo and StepMetadata if needed
+                StepInfo? stepInfo = null;
+                if (hasStepObservers)
+                    stepInfo = new StepInfo(kind, title, step.Phase, step.Word);
 
-                // Notify step observers
-                await NotifyStepStarting(ctx, stepInfo);
+                if (BeforeStep is not null)
+                    BeforeStep.Invoke(ctx, new StepMetadata(kind, title, step.Phase, step.Word));
+
+                // Notify step observers only if we have any
+                if (hasStepObservers && stepInfo is not null)
+                    await NotifyStepStarting(ctx, stepInfo);
 
                 try
                 {
@@ -362,7 +390,8 @@ internal sealed class Pipeline(ScenarioContext ctx)
 
                     // Notify step observers - await to ensure they complete
                     // Exceptions are suppressed inside NotifyStepFinished to prevent masking test failures
-                    await NotifyStepFinished(ctx, stepInfo, result, io);
+                    if (hasStepObservers && stepInfo is not null)
+                        await NotifyStepFinished(ctx, stepInfo, result, io);
                 }
 
                 Exception? CaptureCancel()
@@ -402,9 +431,9 @@ internal sealed class Pipeline(ScenarioContext ctx)
         while (_steps.Count > 0)
         {
             var pending = _steps.Dequeue();
-            var title = string.IsNullOrWhiteSpace(pending.Title)
-                ? pending.Phase.ToString()
-                : pending.Title;
+            var title = !string.IsNullOrWhiteSpace(pending.Title)
+                ? pending.Title
+                : KindStrings.For(pending.Phase, StepWord.Primary); // Reuse cached phase strings
 
             ctx.AddStep(new StepResult
             {
@@ -419,6 +448,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
     /// <summary>
     /// Notifies scenario observers that a scenario is starting.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private async ValueTask NotifyScenarioStarting(ScenarioContext context)
     {
         var observers = context.Options.ExtensibilityOptions?.ScenarioObservers;
@@ -441,6 +471,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
     /// <summary>
     /// Notifies scenario observers that a scenario has finished.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private async ValueTask NotifyScenarioFinished(ScenarioContext context)
     {
         var observers = context.Options.ExtensibilityOptions?.ScenarioObservers;
@@ -463,6 +494,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
     /// <summary>
     /// Notifies step observers that a step is starting.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private async ValueTask NotifyStepStarting(ScenarioContext context, StepInfo step)
     {
         var observers = context.Options.ExtensibilityOptions?.StepObservers;
@@ -485,6 +517,7 @@ internal sealed class Pipeline(ScenarioContext ctx)
     /// <summary>
     /// Notifies step observers that a step has finished.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private async ValueTask NotifyStepFinished(ScenarioContext context, StepInfo step, StepResult result, StepIO io)
     {
         var observers = context.Options.ExtensibilityOptions?.StepObservers;

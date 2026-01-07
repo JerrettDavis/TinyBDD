@@ -55,9 +55,9 @@ public sealed class ScenarioContext
     /// <summary>The current carried item (latest successful state).</summary>
     public object? CurrentItem { get; internal set; }
 
-    private readonly List<StepResult> _steps = new();
-    private readonly HashSet<string> _tags = new();
-    private readonly List<StepIO> _io = new();
+    private readonly List<StepResult> _steps = new(capacity: 8); // Pre-allocate for typical scenario
+    private readonly HashSet<string> _tags = new(StringComparer.Ordinal); // Use ordinal comparison for performance
+    private readonly List<StepIO> _io = new(capacity: 8); // Pre-allocate for typical scenario
 
     /// <summary>
     /// Bridge for integrating tags/categories with a host test framework.
@@ -114,9 +114,10 @@ public sealed class ScenarioContext
     public void AddTags(IEnumerable<string> tags) => AddTags(tags.ToArray());
 
     /// <summary>
-    /// Adds a recorded step to <see cref="Steps"/>. Intended for internal use by the framework.
+    /// Adds a recorded step to <see cref="Steps"/>. 
+    /// Can be used by generated code or custom step implementations.
     /// </summary>
-    internal void AddStep(StepResult s) => _steps.Add(s);
+    public void AddStep(StepResult s) => _steps.Add(s);
 
     /// <summary>
     /// Records input/output for a step. Intended for internal use by the framework.

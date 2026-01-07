@@ -21,6 +21,11 @@
         <Delete Files="$(_OuterSentinel)"/>
     </Target>
 
+    <!-- Clean up script temp directory to prevent lock file issues -->
+    <Target Name="CleanupScriptTemp" AfterTargets="Build;Pack">
+        <RemoveDir Directories="$(_ScriptTmp)" Condition="Exists('$(_ScriptTmp)')" ContinueOnError="true" />
+    </Target>
+
     <!-- Run codegen once, skip design-time, isolate temp to avoid file locks -->
     <Target Name="GenerateOverloads"
             BeforeTargets="PrepareForBuild"
@@ -29,6 +34,8 @@
             Outputs="$(OverloadsStamp)"
             Condition="
             '$(DesignTimeBuild)' != 'true' AND
+            '$(GeneratePackageOnBuild)' != 'true' AND
+            '$(IsInnerBuild)' != 'true' AND
             (
               '$(IsCrossTargetingBuild)' == 'true'                             
               OR ('$(TargetFrameworks)' == '' AND '$(TargetFramework)' != '') 
@@ -58,6 +65,22 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
         <PackageReference Include="System.Threading.Tasks.Extensions" />
+    </ItemGroup>
+
+    <!-- Include source generator as analyzer in the package -->
+    <ItemGroup>
+        <!-- Build dependency (not for runtime) -->
+        <ProjectReference Include="..\TinyBDD.SourceGenerators\TinyBDD.SourceGenerators.csproj" 
+                          ReferenceOutputAssembly="false" 
+                          OutputItemType="Analyzer"
+                          PrivateAssets="all" />
+        
+        <!-- Manually pack the analyzer DLL -->
+        <None Include="..\TinyBDD.SourceGenerators\bin\Release\netstandard2.0\TinyBDD.SourceGenerators.dll" 
+              Pack="true" 
+              PackagePath="analyzers/dotnet/cs" 
+              Visible="false"
+              Condition="Exists('..\TinyBDD.SourceGenerators\bin\Release\netstandard2.0\TinyBDD.SourceGenerators.dll')" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'netstandard2.1' OR '$(TargetFramework)' == 'net462' OR '$(TargetFramework)' == 'net47' OR '$(TargetFramework)' == 'net471' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'net48' OR '$(TargetFramework)' == 'net481'">

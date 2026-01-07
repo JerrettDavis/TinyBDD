@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Override Directory.Build.props - generators must target netstandard2.0 only -->
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks></TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    
+    <!-- Package metadata -->
+    <IsPackable>true</IsPackable>
+    <PackageId>TinyBDD.SourceGenerators</PackageId>
+    <Description>Source generator for TinyBDD that optimizes BDD scenarios at compile-time. Included automatically when referencing TinyBDD.</Description>
+    <PackageTags>bdd;testing;source-generator;roslyn;performance</PackageTags>
+    
+    <!-- Disable implicit usings for generators -->
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Pack the generator in the analyzers/dotnet/cs path -->
+    <None Include="$(OutputPath)\$(TargetFramework)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+  </ItemGroup>
+
+</Project>
