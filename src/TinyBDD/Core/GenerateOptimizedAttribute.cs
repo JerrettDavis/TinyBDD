@@ -1,30 +1,32 @@
 namespace TinyBDD;
 
 /// <summary>
-/// Marks a test method for compile-time optimization via Roslyn source generation.
+/// Explicitly marks a test method for compile-time optimization via Roslyn source generation.
 /// </summary>
 /// <remarks>
+/// <para>
+/// **NOTE:** Starting in TinyBDD v1.1, source generation optimization is **ENABLED BY DEFAULT**
+/// for all BDD test methods. This attribute is **optional** and only needed for:
+/// - Explicitly documenting that a method should be optimized
+/// - Temporarily disabling optimization via <c>Enabled = false</c>
+/// </para>
+/// <para>
+/// To disable optimization, prefer using <see cref="DisableOptimizationAttribute"/> instead.
+/// </para>
 /// <para>
 /// The source generator transforms fluent BDD chains into direct procedural code,
 /// providing dramatic performance improvements:
 /// - **16-40x faster execution** (~814ns → ~20-50ns per step)
 /// - **9x less memory** (2,568 bytes → ~290 bytes per scenario)
 /// - No boxing/unboxing (each step uses strongly-typed variables)
-/// - No runtime casts (type transitions handled at compile-time)
+/// - No runtime casts (type transitions handled at compile-time)  
 /// - No delegate allocations (lambdas inlined directly)
 /// - Optimal JIT inlining (plain method calls)
 /// </para>
 /// <para>
-/// **When to use:**
-/// - ✅ Performance-critical test suites with many BDD scenarios
-/// - ✅ CI/CD pipelines where faster tests mean faster feedback
-/// - ✅ Benchmarking scenarios that need accurate measurements
-/// - ⚠️ Skip if using IStepObserver or IScenarioObserver (not yet supported)
-/// </para>
-/// <para>
-/// Example:
+/// Example (explicit, but not required):
 /// <code>
-/// [GenerateOptimized]
+/// [GenerateOptimized]  // Optional - already happens by default
 /// public async Task MyScenario()
 /// {
 ///     await Given("user ID", () => 123)
@@ -34,8 +36,11 @@ namespace TinyBDD;
 /// </code>
 /// </para>
 /// <para>
-/// The generator creates a `{MethodName}_Optimized` method that the original calls.
-/// Generated code is placed in `obj/.../generated/` for inspection during development.
+/// Example (temporarily disable):
+/// <code>
+/// [GenerateOptimized(Enabled = false)]  // Or use [DisableOptimization]
+/// public async Task MyScenario() { ... }
+/// </code>
 /// </para>
 /// </remarks>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
