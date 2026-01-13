@@ -96,7 +96,7 @@ jobs:
             --logger "trx;LogFileName=test-results.trx"
 
       - name: Publish test results
-        uses: EnricoMi/publish-unit-test-result-action@v3
+        uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
           files: |
