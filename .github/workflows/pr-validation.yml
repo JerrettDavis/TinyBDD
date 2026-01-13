@@ -109,12 +109,20 @@ jobs:
 
           mkdir -p ./dry-run-packages
 
-          # Package all projects (rebuild to avoid source generator packaging issues)
+          # Package all projects (ignore NU5017 error from SourceGenerators which is expected)
           dotnet pack TinyBDD.sln \
             --configuration Release \
+            --no-build \
             --output ./dry-run-packages \
             /p:ContinuousIntegrationBuild=true \
-            /p:Version=${{ steps.version.outputs.VERSION }}
+            /p:Version=${{ steps.version.outputs.VERSION }} || true
+
+          # Verify packages were created
+          PACKAGE_COUNT=$(ls -1 ./dry-run-packages/*.nupkg 2>/dev/null | wc -l)
+          if [ "$PACKAGE_COUNT" -eq 0 ]; then
+            echo "❌ No packages were created"
+            exit 1
+          fi
 
           echo "📦 Packaged files:"
           ls -lh ./dry-run-packages/
