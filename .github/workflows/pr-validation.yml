@@ -1,0 +1,150 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.vscode/**'
+      - '.editorconfig'
+
+env:
+  DOTNET_NOLOGO: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  validate-pr:
+    name: Validate PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history for GitVersion
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+          cache: true
+          cache-dependency-path: |
+            **/packages.lock.json
+            global.json
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v1
+        with:
+          versionSpec: '5.x'
+
+      - name: Run GitVersion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v1
+
+      - name: Set version
+        id: version
+        run: |
+          VERSION=${{ steps.gitversion.outputs.nuGetVersionV2 }}
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "📦 Version: $VERSION"
+
+      - name: Restore
+        run: |
+          dotnet tool restore
+          dotnet restore --use-lock-file
+
+      - name: Drift check (generated files)
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config --global core.autocrlf false
+          # Re-generate
+          dotnet script src/TinyBDD/build/GenerateOverloads.csx --no-cache
+          # Fail if anything under Generated/ changed
+          if ! git diff --quiet --exit-code -- src/TinyBDD/Generated; then
+            echo "::group::Generated diff"
+            git --no-pager diff -- src/TinyBDD/Generated
+            echo "::endgroup::"
+            echo "::error title=Generated files out of date::Run 'dotnet script src/TinyBDD/build/GenerateOverloads.csx --no-cache' and commit the results."
+            exit 1
+          fi
+
+      - name: Build solution
+        run: |
+          dotnet build TinyBDD.sln \
+            --configuration Release \
+            --no-restore \
+            /p:ContinuousIntegrationBuild=true \
+            /p:Deterministic=true
+
+      - name: Run tests
+        run: |
+          dotnet test TinyBDD.sln \
+            --configuration Release \
+            --no-build \
+            --verbosity normal \
+            --logger "trx;LogFileName=test-results.trx"
+
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: |
+            **/TestResults/**/*.trx
+          check_name: Test Results
+
+      - name: Dry-run NuGet packaging
+        run: |
+          echo "📦 Performing dry-run of NuGet packaging..."
+
+          mkdir -p ./dry-run-packages
+
+          # Package all projects (ignore NU5017 error from SourceGenerators which is expected)
+          dotnet pack TinyBDD.sln \
+            --configuration Release \
+            --no-build \
+            --output ./dry-run-packages \
+            /p:ContinuousIntegrationBuild=true \
+            /p:Version=${{ steps.version.outputs.VERSION }} || true
+
+          # Verify packages were created
+          PACKAGE_COUNT=$(ls -1 ./dry-run-packages/*.nupkg 2>/dev/null | wc -l)
+          if [ "$PACKAGE_COUNT" -eq 0 ]; then
+            echo "❌ No packages were created"
+            exit 1
+          fi
+
+          echo "📦 Packaged files:"
+          ls -lh ./dry-run-packages/
+
+      - name: Upload dry-run packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: dry-run-packages
+          path: ./dry-run-packages/*.nupkg
+          retention-days: 7
+
+      - name: PR Summary
+        if: always()
+        run: |
+          echo "## 🎯 PR Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Version**: ${{ steps.version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Packages" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The following packages will be created on merge:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          ls -1 ./dry-run-packages/*.nupkg | xargs -n1 basename >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
