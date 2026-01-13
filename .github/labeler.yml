@@ -1,0 +1,60 @@
+# Auto-labeling configuration for pull requests
+
+'area: core':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/TinyBDD/**/*'
+
+'area: source-generators':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/TinyBDD.SourceGenerators/**/*'
+
+'area: mstest':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/TinyBDD.MSTest/**/*'
+
+'area: xunit':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/TinyBDD.Xunit/**/*'
+      - 'src/TinyBDD.Xunit.v3/**/*'
+
+'area: nunit':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/TinyBDD.NUnit/**/*'
+
+'area: extensions':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/TinyBDD.Extensions.*/**/*'
+
+'area: documentation':
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.md'
+      - 'docs/**/*'
+
+'area: tests':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'tests/**/*'
+
+'area: benchmarks':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'benchmarks/**/*'
+
+'area: ci/cd':
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/**/*'
+
+'dependencies':
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/packages.lock.json'
+      - 'Directory.Packages.props'
+      - '**/*.csproj'

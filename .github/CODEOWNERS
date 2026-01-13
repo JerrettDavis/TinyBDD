@@ -1,0 +1,31 @@
+# Code Owners for TinyBDD
+# These users will be automatically requested for review when PRs are opened
+
+# Global owners
+* @jerrettdavis
+
+# Workflows and CI/CD
+/.github/ @jerrettdavis
+
+# Documentation
+/docs/ @jerrettdavis
+*.md @jerrettdavis
+
+# Core projects
+/src/TinyBDD/ @jerrettdavis
+/src/TinyBDD.SourceGenerators/ @jerrettdavis
+
+# Framework integrations
+/src/TinyBDD.MSTest/ @jerrettdavis
+/src/TinyBDD.Xunit/ @jerrettdavis
+/src/TinyBDD.Xunit.v3/ @jerrettdavis
+/src/TinyBDD.NUnit/ @jerrettdavis
+
+# Extensions
+/src/TinyBDD.Extensions.*/ @jerrettdavis
+
+# Tests
+/tests/ @jerrettdavis
+
+# Benchmarks
+/benchmarks/ @jerrettdavis
