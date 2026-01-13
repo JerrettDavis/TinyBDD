@@ -109,10 +109,9 @@ jobs:
 
           mkdir -p ./dry-run-packages
 
-          # Package all projects
+          # Package all projects (rebuild to avoid source generator packaging issues)
           dotnet pack TinyBDD.sln \
             --configuration Release \
-            --no-build \
             --output ./dry-run-packages \
             /p:ContinuousIntegrationBuild=true \
             /p:Version=${{ steps.version.outputs.VERSION }}
