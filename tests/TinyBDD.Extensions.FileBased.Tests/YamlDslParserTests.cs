@@ -65,4 +65,97 @@ public class YamlDslParserTests
         await Assert.ThrowsAsync<FileNotFoundException>(
             async () => await parser.ParseAsync(yamlPath));
     }
+
+    [Fact]
+    public async Task ParseAsync_InvalidYaml_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var parser = new YamlDslParser();
+        var tempFile = Path.GetTempFileName();
+        await File.WriteAllTextAsync(tempFile, "invalid: yaml: syntax: [unclosed");
+
+        try
+        {
+            // Act & Assert
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+                async () => await parser.ParseAsync(tempFile));
+            Assert.Contains("Failed to parse YAML file", ex.Message);
+        }
+        finally
+        {
+            File.Delete(tempFile);
+        }
+    }
+
+    [Fact]
+    public async Task ParseAsync_EmptyYaml_ReturnsFeatureWithDefaults()
+    {
+        // Arrange
+        var parser = new YamlDslParser();
+        var tempFile = Path.GetTempFileName();
+        await File.WriteAllTextAsync(tempFile, "{}");
+
+        try
+        {
+            // Act
+            var feature = await parser.ParseAsync(tempFile);
+
+            // Assert
+            Assert.NotNull(feature);
+            Assert.Equal("Unnamed Feature", feature.Name);
+            Assert.Empty(feature.Scenarios);
+        }
+        finally
+        {
+            File.Delete(tempFile);
+        }
+    }
+
+    [Fact]
+    public async Task ParseAsync_MinimalYaml_UsesDefaults()
+    {
+        // Arrange
+        var parser = new YamlDslParser();
+        var tempFile = Path.GetTempFileName();
+        await File.WriteAllTextAsync(tempFile, @"
+scenarios:
+  - steps:
+      - text: test step
+");
+
+        try
+        {
+            // Act
+            var feature = await parser.ParseAsync(tempFile);
+
+            // Assert
+            Assert.Equal("Unnamed Feature", feature.Name);
+            Assert.Null(feature.Description);
+            Assert.Empty(feature.Tags);
+            Assert.Single(feature.Scenarios);
+            Assert.Equal("Unnamed Scenario", feature.Scenarios[0].Name);
+            Assert.Single(feature.Scenarios[0].Steps);
+            Assert.Equal("Given", feature.Scenarios[0].Steps[0].Keyword); // Default keyword
+        }
+        finally
+        {
+            File.Delete(tempFile);
+        }
+    }
+
+    [Fact]
+    public async Task ParseAsync_WithCancellationToken_CompletesSuccessfully()
+    {
+        // Arrange
+        var parser = new YamlDslParser();
+        var yamlPath = Path.Combine(Directory.GetCurrentDirectory(), "TestScenarios", "Calculator.yml");
+        var cts = new CancellationTokenSource();
+
+        // Act
+        var feature = await parser.ParseAsync(yamlPath, cts.Token);
+
+        // Assert
+        Assert.NotNull(feature);
+        Assert.Equal("Calculator Operations", feature.Name);
+    }
 }

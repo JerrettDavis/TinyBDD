@@ -34,7 +34,7 @@ public sealed class GherkinDslParser : IDslParser
     private static readonly Regex ScenarioRegex = new(@"^\s*Scenario:\s*(.+)$", RegexOptions.Compiled);
     private static readonly Regex ScenarioOutlineRegex = new(@"^\s*Scenario Outline:\s*(.+)$", RegexOptions.Compiled);
     private static readonly Regex StepRegex = new(@"^\s*(Given|When|Then|And|But)\s+(.+)$", RegexOptions.Compiled);
-    private static readonly Regex TagRegex = new(@"@(\w+)", RegexOptions.Compiled);
+    private static readonly Regex TagRegex = new(@"@([\w-]+)", RegexOptions.Compiled);
     private static readonly Regex ExamplesRegex = new(@"^\s*Examples:\s*$", RegexOptions.Compiled);
     private static readonly Regex TableRowRegex = new(@"^\s*\|(.+)\|\s*$", RegexOptions.Compiled);
     

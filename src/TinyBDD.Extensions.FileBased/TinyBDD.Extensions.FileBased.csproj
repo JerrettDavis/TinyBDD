@@ -6,6 +6,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <InternalsVisibleTo Include="TinyBDD.Extensions.FileBased.Tests" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="YamlDotNet" />
         <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" />
     </ItemGroup>
