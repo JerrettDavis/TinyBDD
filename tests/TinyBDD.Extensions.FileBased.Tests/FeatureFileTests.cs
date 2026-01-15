@@ -26,4 +26,23 @@ public class FeatureFileTests : FileBasedTestBase<CalculatorDriver>
                    .WithBaseDirectory(Directory.GetCurrentDirectory());
         });
     }
+    
+    [Scenario("Mixing AddFeatureFiles and AddYamlFiles uses last parser set")]
+    [Fact]
+    public async Task MixedParsers_UsesLastParserSet()
+    {
+        // This test documents the current behavior where only the last parser is used
+        // When both AddFeatureFiles and AddYamlFiles are called, only the last one's parser applies
+        
+        // This will fail because YAML parser will be used for .feature files
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        {
+            await ExecuteScenariosAsync(options =>
+            {
+                options.AddFeatureFiles("Features/Calculator.feature")
+                       .AddYamlFiles("TestScenarios/Calculator.yml")
+                       .WithBaseDirectory(Directory.GetCurrentDirectory());
+            });
+        });
+    }
 }

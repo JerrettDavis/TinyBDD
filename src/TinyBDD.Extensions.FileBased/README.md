@@ -346,7 +346,7 @@ public Task ApplicationIsRunning() { ... }  // Used by multiple scenarios
 - [ ] Source generator for driver scaffolding
 - [ ] Driver method analyzer (compile-time diagnostics)
 - [ ] Step parameter validation
-- [ ] Table/data-driven step parameters (Scenario Outline support)
+- [x] Table/data-driven step parameters (Scenario Outline support)
 
 ---
 

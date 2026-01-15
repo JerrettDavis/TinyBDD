@@ -17,6 +17,18 @@ public class StepResolverTests
 
         [DriverMethod("step with {a} and {b}")]
         public Task StepWithMultipleParameters(int a, int b) => Task.CompletedTask;
+        
+        [DriverMethod("I add 5+3")]
+        public Task AddWithPlusSign() => Task.CompletedTask;
+        
+        [DriverMethod("I check [value]")]
+        public Task CheckWithBrackets() => Task.CompletedTask;
+        
+        [DriverMethod("I call method()")]
+        public Task CallMethodWithParentheses() => Task.CompletedTask;
+        
+        [DriverMethod("I multiply {a}*{b}")]
+        public Task MultiplyWithAsterisk(int a, int b) => Task.CompletedTask;
 
         public Task InitializeAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task CleanupAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
@@ -133,5 +145,92 @@ public class StepResolverTests
         // Assert
         Assert.False(result);
         Assert.Null(methodInfo);
+    }
+
+    [Fact]
+    public void TryResolve_StepWithPlusSign_MatchesCorrectly()
+    {
+        // Arrange
+        var resolver = new StepResolver(typeof(TestDriver));
+        var step = new StepDefinition
+        {
+            Keyword = "When",
+            Text = "I add 5+3",
+            Parameters = new Dictionary<string, object?>()
+        };
+
+        // Act
+        var result = resolver.TryResolve(step, out var methodInfo, out var arguments);
+
+        // Assert
+        Assert.True(result);
+        Assert.NotNull(methodInfo);
+        Assert.Equal("AddWithPlusSign", methodInfo.Method.Name);
+    }
+
+    [Fact]
+    public void TryResolve_StepWithBrackets_MatchesCorrectly()
+    {
+        // Arrange
+        var resolver = new StepResolver(typeof(TestDriver));
+        var step = new StepDefinition
+        {
+            Keyword = "Then",
+            Text = "I check [value]",
+            Parameters = new Dictionary<string, object?>()
+        };
+
+        // Act
+        var result = resolver.TryResolve(step, out var methodInfo, out var arguments);
+
+        // Assert
+        Assert.True(result);
+        Assert.NotNull(methodInfo);
+        Assert.Equal("CheckWithBrackets", methodInfo.Method.Name);
+    }
+
+    [Fact]
+    public void TryResolve_StepWithParentheses_MatchesCorrectly()
+    {
+        // Arrange
+        var resolver = new StepResolver(typeof(TestDriver));
+        var step = new StepDefinition
+        {
+            Keyword = "When",
+            Text = "I call method()",
+            Parameters = new Dictionary<string, object?>()
+        };
+
+        // Act
+        var result = resolver.TryResolve(step, out var methodInfo, out var arguments);
+
+        // Assert
+        Assert.True(result);
+        Assert.NotNull(methodInfo);
+        Assert.Equal("CallMethodWithParentheses", methodInfo.Method.Name);
+    }
+
+    [Fact]
+    public void TryResolve_StepWithAsteriskAndParameters_MatchesCorrectly()
+    {
+        // Arrange
+        var resolver = new StepResolver(typeof(TestDriver));
+        var step = new StepDefinition
+        {
+            Keyword = "When",
+            Text = "I multiply 4*7",
+            Parameters = new Dictionary<string, object?>()
+        };
+
+        // Act
+        var result = resolver.TryResolve(step, out var methodInfo, out var arguments);
+
+        // Assert
+        Assert.True(result);
+        Assert.NotNull(methodInfo);
+        Assert.Equal("MultiplyWithAsterisk", methodInfo.Method.Name);
+        Assert.Equal(2, arguments.Length);
+        Assert.Equal(4, arguments[0]);
+        Assert.Equal(7, arguments[1]);
     }
 }

@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <Description>File-based DSL extension for TinyBDD, enabling YAML scenario definitions with convention-based application drivers.</Description>
-        <PackageTags>bdd;testing;dsl;yaml;source-generation;file-based</PackageTags>
+        <Description>File-based DSL extension for TinyBDD, enabling Gherkin .feature files as first-class scenarios, with optional YAML-based scenario definitions for tooling and convention-based application drivers.</Description>
+        <PackageTags>bdd;testing;dsl;gherkin;feature-files;yaml;file-based</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>

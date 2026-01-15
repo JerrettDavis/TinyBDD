@@ -9,6 +9,17 @@ namespace TinyBDD.Extensions.FileBased;
 /// Base class for file-based BDD tests.
 /// </summary>
 /// <typeparam name="TDriver">The application driver type.</typeparam>
+/// <remarks>
+/// <para>
+/// Each scenario execution creates a new driver instance, ensuring scenario isolation.
+/// Driver state is not shared between scenarios within the same test run.
+/// </para>
+/// <para>
+/// Driver method discovery is cached statically per driver type for performance.
+/// The first scenario execution will discover and cache driver methods, and subsequent
+/// executions (even across different test runs in the same process) will reuse the cache.
+/// </para>
+/// </remarks>
 public abstract class FileBasedTestBase<TDriver> where TDriver : IApplicationDriver, new()
 {
     /// <summary>

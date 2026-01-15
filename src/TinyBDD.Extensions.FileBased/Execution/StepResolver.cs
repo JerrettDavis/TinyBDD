@@ -85,12 +85,33 @@ public sealed class StepResolver
 
     private static Regex BuildRegexFromPattern(string pattern)
     {
-        // Convert {paramName} to named capture groups
-        // Use \S+ to match non-whitespace parameters (spaces in parameters not supported)
-        // For more complex parameter matching, use explicit YAML parameters section
-        var regexPattern = Regex.Replace(pattern, @"\{(\w+)\}", @"(?<$1>\S+)");
-        // Escape special regex characters except our capture groups
-        regexPattern = "^" + regexPattern + "$";
+        // Strategy: Escape special regex characters, but preserve {paramName} placeholders
+        // to convert them to capture groups.
+        
+        // Step 1: Temporarily replace {paramName} with a placeholder that won't be escaped
+        var tempPlaceholder = Guid.NewGuid().ToString();
+        var paramNames = new List<string>();
+        var tempPattern = Regex.Replace(pattern, @"\{(\w+)\}", match =>
+        {
+            paramNames.Add(match.Groups[1].Value);
+            return $"{tempPlaceholder}{paramNames.Count - 1}{tempPlaceholder}";
+        });
+        
+        // Step 2: Escape the pattern (now special chars are escaped, but placeholders are safe)
+        var escapedPattern = Regex.Escape(tempPattern);
+        
+        // Step 3: Replace escaped spaces with flexible whitespace
+        escapedPattern = escapedPattern.Replace(@"\ ", @"\s+");
+        
+        // Step 4: Convert placeholders back to capture groups
+        for (int i = 0; i < paramNames.Count; i++)
+        {
+            var placeholder = Regex.Escape($"{tempPlaceholder}{i}{tempPlaceholder}");
+            escapedPattern = escapedPattern.Replace(placeholder, $@"(?<{paramNames[i]}>\S+)");
+        }
+        
+        // Step 5: Anchor the regex to match the whole step text
+        var regexPattern = "^" + escapedPattern + "$";
         return new Regex(regexPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
     }
 
@@ -147,8 +168,17 @@ public sealed class StepResolver
         if (targetType.IsAssignableFrom(value.GetType()))
             return value;
 
-        // Handle basic type conversions
-        return Convert.ChangeType(value, targetType);
+        // Handle basic type conversions with better error messages
+        try
+        {
+            return Convert.ChangeType(value, targetType);
+        }
+        catch (Exception ex) when (ex is FormatException or InvalidCastException)
+        {
+            throw new InvalidOperationException(
+                $"Cannot convert parameter value '{value}' to type '{targetType.Name}'. " +
+                $"Ensure the value format matches the expected type.", ex);
+        }
     }
 }
 
