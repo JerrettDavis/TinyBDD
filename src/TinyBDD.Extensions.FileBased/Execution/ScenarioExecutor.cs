@@ -86,6 +86,12 @@ public sealed class ScenarioExecutor
                     {
                         state = result;
                     }
+
+                    // For Then steps, if the result is a boolean, treat false as an assertion failure
+                    if (currentPhase == StepPhase.Then && state is bool boolResult && !boolResult)
+                    {
+                        throw new InvalidOperationException($"Assertion failed: {step.Text}");
+                    }
                 }
                 catch (Exception ex)
                 {

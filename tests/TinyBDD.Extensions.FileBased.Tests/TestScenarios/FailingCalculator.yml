@@ -1,0 +1,17 @@
+feature: Failing Calculator Test
+description: Test scenario that should fail
+
+scenarios:
+  - name: Add two numbers incorrectly
+    steps:
+      - keyword: Given
+        text: a calculator
+      - keyword: When
+        text: I add 5 and 3
+        parameters:
+          a: 5
+          b: 3
+      - keyword: Then
+        text: the result should be 99
+        parameters:
+          expected: 99

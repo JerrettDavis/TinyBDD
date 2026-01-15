@@ -1,0 +1,40 @@
+feature: Calculator Operations
+description: Basic arithmetic operations
+tags:
+  - calculator
+  - smoke
+
+scenarios:
+  - name: Add two numbers
+    description: Verify that two numbers can be added
+    tags:
+      - addition
+    steps:
+      - keyword: Given
+        text: a calculator
+      - keyword: When
+        text: I add 5 and 3
+        parameters:
+          a: 5
+          b: 3
+      - keyword: Then
+        text: the result should be 8
+        parameters:
+          expected: 8
+
+  - name: Multiply two numbers
+    description: Verify multiplication
+    tags:
+      - multiplication
+    steps:
+      - keyword: Given
+        text: a calculator
+      - keyword: When
+        text: I multiply 4 and 7
+        parameters:
+          a: 4
+          b: 7
+      - keyword: Then
+        text: the result should be 28
+        parameters:
+          expected: 28

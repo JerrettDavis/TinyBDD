@@ -48,7 +48,7 @@ namespace TinyBDD.Extensions.FileBased;
 ///     public Task RegisterUser(string email) { /* ... */ }
 ///     
 ///     [DriverMethod("the user should exist")]
-///     public Task<bool> UserExists() { /* ... */ }
+///     public Task UserExists() { /* ... */ }
 ///     
 ///     public Task InitializeAsync(CancellationToken ct = default) => Task.CompletedTask;
 ///     public Task CleanupAsync(CancellationToken ct = default) => Task.CompletedTask;
