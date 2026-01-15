@@ -15,4 +15,15 @@ public class FeatureFileTests : FileBasedTestBase<CalculatorDriver>
                    .WithBaseDirectory(Directory.GetCurrentDirectory());
         });
     }
+    
+    [Scenario("Execute scenario outline from .feature file")]
+    [Fact]
+    public async Task ExecuteScenarioOutlineFeatureFile()
+    {
+        await ExecuteScenariosAsync(options =>
+        {
+            options.AddFeatureFiles("Features/ScenarioOutline.feature")
+                   .WithBaseDirectory(Directory.GetCurrentDirectory());
+        });
+    }
 }
