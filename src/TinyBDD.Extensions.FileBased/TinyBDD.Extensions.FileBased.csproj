@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Description>File-based DSL extension for TinyBDD, enabling YAML/JSON scenario definitions with source-generated application drivers.</Description>
+        <PackageTags>bdd;testing;dsl;yaml;source-generation;file-based</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="YamlDotNet" />
+        <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'netstandard2.1' OR '$(TargetFramework)' == 'net462' OR '$(TargetFramework)' == 'net47' OR '$(TargetFramework)' == 'net471' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'net48' OR '$(TargetFramework)' == 'net481'">
+        <PackageReference Include="PolySharp">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\TinyBDD\TinyBDD.csproj" />
+    </ItemGroup>
+
+</Project>
