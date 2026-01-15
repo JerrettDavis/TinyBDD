@@ -11,6 +11,22 @@ public sealed class FileBasedDslOptionsBuilder
     private readonly FileBasedDslOptions _options = new();
 
     /// <summary>
+    /// Adds Gherkin .feature files matching the specified pattern.
+    /// This is the recommended first-class approach for file-based scenarios.
+    /// </summary>
+    /// <param name="pattern">File pattern (e.g., "Features/**/*.feature").</param>
+    /// <returns>This builder for chaining.</returns>
+    public FileBasedDslOptionsBuilder AddFeatureFiles(string pattern)
+    {
+        if (string.IsNullOrWhiteSpace(pattern))
+            throw new ArgumentException("Pattern cannot be null or empty", nameof(pattern));
+
+        _options.FilePatterns.Add(pattern);
+        _options.Parser = new GherkinDslParser();
+        return this;
+    }
+
+    /// <summary>
     /// Adds YAML files matching the specified pattern.
     /// </summary>
     /// <param name="pattern">File pattern (e.g., "Features/**/*.yml").</param>
