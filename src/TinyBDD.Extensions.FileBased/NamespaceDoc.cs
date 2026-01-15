@@ -2,7 +2,7 @@ namespace TinyBDD.Extensions.FileBased;
 
 /// <summary>
 /// File-based DSL extension for TinyBDD, enabling YAML and Gherkin .feature scenario definitions 
-/// with convention-based, source-generated application drivers.
+/// with convention-based application drivers resolved via reflection.
 /// </summary>
 /// <remarks>
 /// <para>

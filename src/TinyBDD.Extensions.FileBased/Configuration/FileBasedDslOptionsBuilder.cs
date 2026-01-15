@@ -16,6 +16,12 @@ public sealed class FileBasedDslOptionsBuilder
     /// </summary>
     /// <param name="pattern">File pattern (e.g., "Features/**/*.feature").</param>
     /// <returns>This builder for chaining.</returns>
+    /// <remarks>
+    /// Note: Only one parser type can be active at a time. Calling this method 
+    /// will set the parser to GherkinDslParser, overriding any previously set parser.
+    /// To use multiple file formats, call this method multiple times with different patterns,
+    /// or use WithParser() with a custom parser that handles multiple formats.
+    /// </remarks>
     public FileBasedDslOptionsBuilder AddFeatureFiles(string pattern)
     {
         if (string.IsNullOrWhiteSpace(pattern))
@@ -31,6 +37,12 @@ public sealed class FileBasedDslOptionsBuilder
     /// </summary>
     /// <param name="pattern">File pattern (e.g., "Features/**/*.yml").</param>
     /// <returns>This builder for chaining.</returns>
+    /// <remarks>
+    /// Note: Only one parser type can be active at a time. Calling this method 
+    /// will set the parser to YamlDslParser, overriding any previously set parser.
+    /// To use multiple file formats, call this method multiple times with different patterns,
+    /// or use WithParser() with a custom parser that handles multiple formats.
+    /// </remarks>
     public FileBasedDslOptionsBuilder AddYamlFiles(string pattern)
     {
         if (string.IsNullOrWhiteSpace(pattern))

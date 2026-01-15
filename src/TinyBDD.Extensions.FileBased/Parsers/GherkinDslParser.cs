@@ -79,6 +79,7 @@ public sealed class GherkinDslParser : IDslParser
         var parsingExamples = false;
         var exampleHeaders = new List<string>();
         var exampleRows = new List<List<string>>();
+        var isScenarioOutline = false;
 
         for (int i = 0; i < lines.Length; i++)
         {
@@ -127,8 +128,17 @@ public sealed class GherkinDslParser : IDslParser
             
             if (scenarioMatch.Success || scenarioOutlineMatch.Success)
             {
+                // Expand previous scenario outline if needed
+                if (currentScenario != null && isScenarioOutline && exampleRows.Count > 0)
+                {
+                    ExpandScenarioOutline(feature, currentScenario, exampleHeaders, exampleRows);
+                }
+
                 parsingFeatureDescription = false;
                 parsingExamples = false;
+                isScenarioOutline = scenarioOutlineMatch.Success;
+                exampleHeaders.Clear();
+                exampleRows.Clear();
                 
                 if (!string.IsNullOrWhiteSpace(string.Join(" ", featureDescriptionLines)))
                 {
@@ -185,39 +195,8 @@ public sealed class GherkinDslParser : IDslParser
                 var keyword = stepMatch.Groups[1].Value;
                 var text = stepMatch.Groups[2].Value.Trim();
                 
-                // If we have example data and this is a scenario outline, expand it
-                if (exampleRows.Count > 0)
-                {
-                    // For scenario outlines with examples, we'll create multiple scenarios
-                    // Remove the current scenario and replace with expanded versions
-                    feature.Scenarios.Remove(currentScenario);
-                    
-                    foreach (var exampleRow in exampleRows)
-                    {
-                        var expandedScenario = new ScenarioDefinition
-                        {
-                            Name = $"{currentScenario.Name} (Example: {string.Join(", ", exampleRow)})",
-                            Tags = new List<string>(currentScenario.Tags)
-                        };
-
-                        // Clone and expand all previous steps
-                        foreach (var prevStep in currentScenario.Steps)
-                        {
-                            expandedScenario.Steps.Add(ExpandStep(prevStep, exampleHeaders, exampleRow));
-                        }
-
-                        // Add current step
-                        expandedScenario.Steps.Add(CreateStep(keyword, text, exampleHeaders, exampleRow));
-                        
-                        feature.Scenarios.Add(expandedScenario);
-                    }
-                    
-                    currentScenario = feature.Scenarios.Last();
-                }
-                else
-                {
-                    currentScenario.Steps.Add(CreateStep(keyword, text, null, null));
-                }
+                // Just collect steps for scenario outlines, expansion happens later
+                currentScenario.Steps.Add(CreateStep(keyword, text, null, null));
                 continue;
             }
 
@@ -228,6 +207,12 @@ public sealed class GherkinDslParser : IDslParser
             }
         }
 
+        // Expand final scenario outline if needed
+        if (currentScenario != null && isScenarioOutline && exampleRows.Count > 0)
+        {
+            ExpandScenarioOutline(feature, currentScenario, exampleHeaders, exampleRows);
+        }
+
         // Finalize feature description
         if (featureDescriptionLines.Count > 0 && string.IsNullOrWhiteSpace(feature.Description))
         {
@@ -235,6 +220,34 @@ public sealed class GherkinDslParser : IDslParser
         }
 
         return feature;
+    }
+
+    private static void ExpandScenarioOutline(
+        FeatureDefinition feature,
+        ScenarioDefinition outlineScenario,
+        List<string> exampleHeaders,
+        List<List<string>> exampleRows)
+    {
+        // Remove the outline scenario from the feature
+        feature.Scenarios.Remove(outlineScenario);
+
+        // Create expanded scenarios for each example row
+        foreach (var exampleRow in exampleRows)
+        {
+            var expandedScenario = new ScenarioDefinition
+            {
+                Name = $"{outlineScenario.Name} (Example: {string.Join(", ", exampleRow)})",
+                Tags = new List<string>(outlineScenario.Tags)
+            };
+
+            // Expand all steps with the example data
+            foreach (var step in outlineScenario.Steps)
+            {
+                expandedScenario.Steps.Add(ExpandStep(step, exampleHeaders, exampleRow));
+            }
+
+            feature.Scenarios.Add(expandedScenario);
+        }
     }
 
     private static StepDefinition CreateStep(string keyword, string text, List<string>? headers, List<string>? values)

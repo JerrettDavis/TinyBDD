@@ -10,7 +10,10 @@ namespace TinyBDD.Extensions.FileBased.Execution;
 /// </summary>
 public sealed class StepResolver
 {
-    private readonly List<DriverMethodInfo> _driverMethods = new();
+    private static readonly Dictionary<Type, List<DriverMethodInfo>> _cache = new();
+    private static readonly object _cacheLock = new();
+    
+    private readonly List<DriverMethodInfo> _driverMethods;
 
     public StepResolver(Type driverType)
     {
@@ -20,11 +23,21 @@ public sealed class StepResolver
         if (!typeof(IApplicationDriver).IsAssignableFrom(driverType))
             throw new ArgumentException($"Type {driverType.Name} must implement IApplicationDriver", nameof(driverType));
 
-        DiscoverDriverMethods(driverType);
+        // Use cached driver methods if available
+        lock (_cacheLock)
+        {
+            if (!_cache.TryGetValue(driverType, out var cachedMethods))
+            {
+                cachedMethods = DiscoverDriverMethods(driverType);
+                _cache[driverType] = cachedMethods;
+            }
+            _driverMethods = cachedMethods;
+        }
     }
 
-    private void DiscoverDriverMethods(Type driverType)
+    private static List<DriverMethodInfo> DiscoverDriverMethods(Type driverType)
     {
+        var driverMethods = new List<DriverMethodInfo>();
         var methods = driverType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
 
         foreach (var method in methods)
@@ -32,7 +45,7 @@ public sealed class StepResolver
             var attributes = method.GetCustomAttributes<DriverMethodAttribute>();
             foreach (var attr in attributes)
             {
-                _driverMethods.Add(new DriverMethodInfo
+                driverMethods.Add(new DriverMethodInfo
                 {
                     Method = method,
                     Pattern = attr.StepPattern,
@@ -40,6 +53,8 @@ public sealed class StepResolver
                 });
             }
         }
+
+        return driverMethods;
     }
 
     /// <summary>

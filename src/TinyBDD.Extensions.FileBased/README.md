@@ -343,11 +343,10 @@ public Task ApplicationIsRunning() { ... }  // Used by multiple scenarios
 ## Roadmap
 
 - [ ] JSON DSL support
-- [ ] Gherkin `.feature` file support
 - [ ] Source generator for driver scaffolding
 - [ ] Driver method analyzer (compile-time diagnostics)
 - [ ] Step parameter validation
-- [ ] Table/data-driven step parameters
+- [ ] Table/data-driven step parameters (Scenario Outline support)
 
 ---
 
