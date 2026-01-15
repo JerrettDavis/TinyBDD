@@ -1,19 +1,19 @@
 namespace TinyBDD.Extensions.FileBased;
 
 /// <summary>
-/// File-based DSL extension for TinyBDD, enabling YAML/JSON scenario definitions 
+/// File-based DSL extension for TinyBDD, enabling YAML and Gherkin .feature scenario definitions 
 /// with convention-based, source-generated application drivers.
 /// </summary>
 /// <remarks>
 /// <para>
 /// This extension enables non-developers to author executable tests using file-based 
-/// scenario definitions (YAML, JSON, etc.) that can be transpiled into executable 
+/// scenario definitions (YAML and Gherkin .feature files) that can be transpiled into executable 
 /// TinyBDD scenarios via convention-based application drivers.
 /// </para>
 /// <para>
 /// Key features:
 /// <list type="bullet">
-/// <item>YAML-based scenario definitions</item>
+/// <item>YAML and Gherkin .feature-based scenario definitions</item>
 /// <item>Convention-based step resolution via <see cref="Core.DriverMethodAttribute"/></item>
 /// <item>Type-safe driver methods with compile-time validation</item>
 /// <item>Seamless integration with TinyBDD's fluent API</item>
