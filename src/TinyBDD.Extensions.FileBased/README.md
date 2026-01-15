@@ -1,6 +1,6 @@
 # TinyBDD.Extensions.FileBased
 
-**File-based DSL extension for TinyBDD** - enabling YAML/JSON scenario definitions with convention-based, source-generated application drivers.
+**File-based DSL extension for TinyBDD** - enabling Gherkin .feature files and YAML scenario definitions with convention-based application drivers.
 
 [![NuGet](https://img.shields.io/nuget/v/TinyBDD.Extensions.FileBased.svg)](https://www.nuget.org/packages/TinyBDD.Extensions.FileBased/)
 
@@ -8,7 +8,8 @@
 
 ## Features
 
-- **File-based scenario definitions** using YAML (JSON support coming soon)
+- **Gherkin .feature files** - First-class support for standard Gherkin syntax (recommended)
+- **YAML scenarios** - Alternative format for tooling and automation
 - **Convention-based step matching** via `[DriverMethod]` attributes
 - **Type-safe driver methods** with compile-time validation
 - **Seamless TinyBDD integration** - leverages existing fluent API and reporting
@@ -30,35 +31,20 @@ dotnet add package TinyBDD.Xunit  # or TinyBDD.NUnit, TinyBDD.MSTest
 
 ---
 
-## Quick Start
+## Quick Start (Gherkin)
 
-### 1. Define Scenarios in YAML
+### 1. Define Scenarios in Gherkin
 
-Create a YAML file (e.g., `Features/Calculator.yml`):
+Create a .feature file (e.g., `Features/Calculator.feature`):
 
-```yaml
-feature: Calculator Operations
-description: Basic arithmetic operations
-tags:
-  - calculator
-  - smoke
+```gherkin
+Feature: Calculator Operations
 
-scenarios:
-  - name: Add two numbers
-    tags:
-      - addition
-    steps:
-      - keyword: Given
-        text: a calculator
-      - keyword: When
-        text: I add 5 and 3
-        parameters:
-          a: 5
-          b: 3
-      - keyword: Then
-        text: the result should be 8
-        parameters:
-          expected: 8
+@calculator @smoke
+Scenario: Add two numbers
+  Given a calculator
+  When I add 5 and 3
+  Then the result should be 8
 ```
 
 ### 2. Implement an Application Driver
@@ -110,7 +96,7 @@ public class CalculatorTests : FileBasedTestBase<CalculatorDriver>
     {
         await ExecuteScenariosAsync(options =>
         {
-            options.AddYamlFiles("Features/Calculator.yml")
+            options.AddFeatureFiles("Features/**/*.feature")
                    .WithBaseDirectory(Directory.GetCurrentDirectory());
         });
     }
@@ -134,7 +120,49 @@ Scenario: Add two numbers
 
 ---
 
+## Alternative: YAML Format
+
+For tooling and automation scenarios, YAML is also supported:
+
+```yaml
+feature: Calculator Operations
+scenarios:
+  - name: Add two numbers
+    steps:
+      - keyword: When
+        text: I add 5 and 3
+        parameters: { a: 5, b: 3 }
+```
+
+Use the same driver implementation and test class structure, but call `AddYamlFiles()` instead:
+
+```csharp
+options.AddYamlFiles("Features/**/*.yml")
+```
+
+---
+
 ## How It Works
+
+### Gherkin Syntax
+
+Standard Gherkin keywords are supported:
+- `Feature:` - Feature name and description
+- `Scenario:` - Individual test scenarios
+- `Given/When/Then/And/But` - Test steps
+- `@tags` - Scenario tagging
+
+Example:
+```gherkin
+Feature: User Management
+  User authentication and registration
+
+@auth @smoke
+Scenario: Login with valid credentials
+  Given the application is running
+  When I login with username "admin" and password "secret"
+  Then I should be logged in
+```
 
 ### Step Resolution
 
@@ -189,8 +217,11 @@ public Task<bool> UserExists() => Task.FromResult(_userExists);
 ```csharp
 await ExecuteScenariosAsync(options =>
 {
-    // Add YAML files
-    options.AddYamlFiles("Features/**/*.yml")
+    // Add Gherkin .feature files (recommended)
+    options.AddFeatureFiles("Features/**/*.feature")
+    
+           // OR: Add YAML files for tooling scenarios
+           //.AddYamlFiles("Features/**/*.yml")
     
            // Set base directory for relative paths
            .WithBaseDirectory(Path.Combine(Directory.GetCurrentDirectory(), ".."))
@@ -204,27 +235,39 @@ await ExecuteScenariosAsync(options =>
 
 The extension uses [Microsoft.Extensions.FileSystemGlobbing](https://www.nuget.org/packages/Microsoft.Extensions.FileSystemGlobbing/) for file pattern matching:
 
-- `Features/*.yml` - all YAML files in Features directory
-- `**/*.yml` - all YAML files recursively
-- `Features/Calculator.yml` - specific file
+- `Features/*.feature` - all .feature files in Features directory
+- `**/*.feature` - all .feature files recursively
+- `Features/Calculator.feature` - specific file
 
 ---
 
-## YAML Schema
+## Format Reference
 
-### Feature
+### Gherkin .feature Files (Recommended)
+
+Standard Gherkin syntax with full support for:
+- Feature definitions with descriptions
+- Scenarios with tags
+- Given/When/Then/And/But steps
+- Quoted string parameters (automatically extracted)
+- Multiple tags per scenario (`@tag1 @tag2`)
+
+See examples in the [Quick Start](#quick-start-gherkin) section above.
+
+### YAML Schema (Alternative)
+
+For tooling scenarios, YAML provides programmatic scenario definition:
+
+#### Feature
 
 ```yaml
 feature: Feature Name              # Required
 description: Optional description  # Optional
-tags:                              # Optional
-  - tag1
-  - tag2
 scenarios:                         # Required
   - # Scenario definitions
 ```
 
-### Scenario
+#### Scenario
 
 ```yaml
 - name: Scenario Name              # Required
@@ -235,7 +278,7 @@ scenarios:                         # Required
     - # Step definitions
 ```
 
-### Step
+#### Step
 
 ```yaml
 - keyword: Given|When|Then|And|But  # Required
