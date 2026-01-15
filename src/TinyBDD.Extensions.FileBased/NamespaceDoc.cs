@@ -56,7 +56,7 @@ namespace TinyBDD.Extensions.FileBased;
 /// </code>
 /// <para>Example test class:</para>
 /// <code>
-/// public class UserRegistrationTests : FileBasedTestBase{TDriver} where TDriver : UserRegistrationDriver
+/// public class UserRegistrationTests : FileBasedTestBase<UserRegistrationDriver>
 /// {
 ///     [Fact]
 ///     public async Task ExecuteUserRegistrationScenarios()
