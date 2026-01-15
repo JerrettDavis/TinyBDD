@@ -71,7 +71,8 @@ public sealed class StepResolver
     private static Regex BuildRegexFromPattern(string pattern)
     {
         // Convert {paramName} to named capture groups
-        // Use [^\s]+ to match non-whitespace characters or .+? for greedy matching
+        // Use \S+ to match non-whitespace parameters (spaces in parameters not supported)
+        // For more complex parameter matching, use explicit YAML parameters section
         var regexPattern = Regex.Replace(pattern, @"\{(\w+)\}", @"(?<$1>\S+)");
         // Escape special regex characters except our capture groups
         regexPattern = "^" + regexPattern + "$";

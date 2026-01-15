@@ -52,7 +52,13 @@ public sealed class YamlDslParser : IDslParser
         }
 
 #if NETSTANDARD2_0 || NET462 || NET47 || NET471 || NET472 || NET48 || NET481
-        var yaml = await Task.Run(() => File.ReadAllText(filePath), cancellationToken).ConfigureAwait(false);
+        // Use synchronous file reading for older frameworks to avoid thread pool overhead
+        string yaml;
+        using (var reader = new StreamReader(filePath))
+        {
+            yaml = reader.ReadToEnd();
+        }
+        await Task.CompletedTask.ConfigureAwait(false); // Make method async-compatible
 #else
         var yaml = await File.ReadAllTextAsync(filePath, cancellationToken).ConfigureAwait(false);
 #endif

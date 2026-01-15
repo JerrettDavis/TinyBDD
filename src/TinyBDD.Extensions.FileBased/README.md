@@ -165,6 +165,10 @@ Parameters can come from:
 
 Priority: YAML parameters > Pattern placeholders > Method defaults
 
+**Limitations:**
+- Pattern placeholder parameters must not contain whitespace (use YAML `parameters` section for complex values)
+- Example: `{email}` matches `"user@example.com"` but not `"John Doe"`
+
 ### Boolean Assertions
 
 For `Then` steps, if the driver method returns `Task<bool>`:

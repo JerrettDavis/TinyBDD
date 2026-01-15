@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <Description>File-based DSL extension for TinyBDD, enabling YAML/JSON scenario definitions with source-generated application drivers.</Description>
+        <Description>File-based DSL extension for TinyBDD, enabling YAML scenario definitions with convention-based application drivers.</Description>
         <PackageTags>bdd;testing;dsl;yaml;source-generation;file-based</PackageTags>
     </PropertyGroup>
 
