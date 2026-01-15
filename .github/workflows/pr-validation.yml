@@ -143,8 +143,14 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📦 Packages" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "The following packages will be created on merge:" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          ls -1 ./dry-run-packages/*.nupkg | xargs -n1 basename >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          
+          # Check if packages exist before listing them
+          if ls ./dry-run-packages/*.nupkg 1> /dev/null 2>&1; then
+            echo "The following packages will be created on merge:" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            ls -1 ./dry-run-packages/*.nupkg | xargs -n1 basename >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ No packages were created during the dry-run." >> $GITHUB_STEP_SUMMARY
+          fi
