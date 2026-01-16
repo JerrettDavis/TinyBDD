@@ -45,7 +45,7 @@ jobs:
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v4
         with:
-          versionSpec: '5.x'
+          versionSpec: '6.x'
 
       - name: Run GitVersion
         id: gitversion
@@ -54,7 +54,7 @@ jobs:
       - name: Set version
         id: version
         run: |
-          VERSION=${{ steps.gitversion.outputs.nuGetVersionV2 }}
+          VERSION=${{ steps.gitversion.outputs.majorMinorPatch }}
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "📦 Version: $VERSION"
 

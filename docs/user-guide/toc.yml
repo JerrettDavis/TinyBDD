@@ -40,10 +40,18 @@
 - name: Extensions
   href: extensions/index.md
   items:
+  - name: File-Based DSL
+    href: extensions/file-based.md
+  - name: Gherkin .feature Files
+    href: extensions/file-based-gherkin.md
+  - name: YAML Format
+    href: extensions/file-based-yaml.md
   - name: Dependency Injection
     href: extensions/dependency-injection.md
   - name: Hosting
     href: extensions/hosting.md
+  - name: Reporting
+    href: extensions/reporting.md
 
 - name: Orchestrator Patterns
   href: orchestrator-patterns.md

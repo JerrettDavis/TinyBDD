@@ -15,7 +15,9 @@ Behavior‑Driven Development focuses on expressing **system behavior** in a ubi
 | And / But | Additional Givens/Whens/Thens | `And(...)` / `But(...)` chain continuations |
 
 ## Gherkin Essentials
-Gherkin is the lightweight syntax (Feature, Scenario, Given, When, Then, And, But). TinyBDD mirrors the structure **without parsing external .feature files**. Instead, your C# code *is* the specification.
+Gherkin is the lightweight syntax (Feature, Scenario, Given, When, Then, And, But). TinyBDD supports Gherkin through two approaches:
+1. **Code-first**: Your C# code using the fluent API mirrors Gherkin structure
+2. **File-based**: Standard `.feature` files executed through convention-based drivers (via `TinyBDD.Extensions.FileBased`)
 
 A canonical Gherkin example:
 ```
@@ -29,7 +31,7 @@ Feature: Inventory display
     When I open the dashboard
     Then it shows 0 items
 ```
-Same scenario in TinyBDD:
+Same scenario in TinyBDD code-first:
 ```csharp
 [Feature("Inventory display", Description = "Shows counts for purchasing decisions")]
 public class InventoryTests : TinyBddXunitBase
@@ -42,7 +44,7 @@ public class InventoryTests : TinyBddXunitBase
             .AssertPassed();
 }
 ```
-No external file, no code generation. Your test runner output becomes the living documentation.
+Both approaches produce the same readable test runner output as living documentation.
 
 ## BDD vs TDD (Short Form)
 TDD cycle: *Red → Green → Refactor* on tiny units. BDD broadens the frame:
@@ -58,9 +60,9 @@ Large BDD toolchains introduce friction: glue code, attribute collisions, parser
 - Avoids runtime reflection magic where possible.
 - Embraces your test framework instead of replacing it.
 - Treats steps as **simple delegates** (`Func<T, bool>`, `Func<CancellationToken, ValueTask>`, etc.).
-- Doesn't mandate a feature file DSL.
+- Supports both code-first and file-based approaches without requiring either.
 
-Result: near‑zero ceremony. You can read the entire core source quickly.
+Result: near‑zero ceremony. Choose the approach that fits your team, with optional `.feature` file support when needed.
 
 ## Mapping the Chain Internals
 Every chain builds a pipeline of *step descriptors* executed sequentially:

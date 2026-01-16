@@ -16,25 +16,30 @@
 | **TinyBDD.Xunit.v3** | [![NuGet](https://img.shields.io/nuget/v/TinyBDD.Xunit.v3.svg)](https://www.nuget.org/packages/TinyBDD.Xunit.v3/) | [![NuGet Downloads](https://img.shields.io/nuget/dt/TinyBDD.Xunit.v3.svg)](https://www.nuget.org/packages/TinyBDD.Xunit.v3/) |
 | **TinyBDD.NUnit** | [![NuGet](https://img.shields.io/nuget/v/TinyBDD.NUnit.svg)](https://www.nuget.org/packages/TinyBDD.NUnit/) | [![NuGet Downloads](https://img.shields.io/nuget/dt/TinyBDD.NUnit.svg)](https://www.nuget.org/packages/TinyBDD.NUnit/) |
 | **TinyBDD.Extensions.DependencyInjection** | [![NuGet](https://img.shields.io/nuget/v/TinyBDD.Extensions.DependencyInjection.svg)](https://www.nuget.org/packages/TinyBDD.Extensions.DependencyInjection/) | [![NuGet Downloads](https://img.shields.io/nuget/dt/TinyBDD.Extensions.DependencyInjection.svg)](https://www.nuget.org/packages/TinyBDD.Extensions.DependencyInjection/) |
+| **TinyBDD.Extensions.FileBased** | [![NuGet](https://img.shields.io/nuget/v/TinyBDD.Extensions.FileBased.svg)](https://www.nuget.org/packages/TinyBDD.Extensions.FileBased/) | [![NuGet Downloads](https://img.shields.io/nuget/dt/TinyBDD.Extensions.FileBased.svg)](https://www.nuget.org/packages/TinyBDD.Extensions.FileBased/) |
 | **TinyBDD.Extensions.Hosting** | [![NuGet](https://img.shields.io/nuget/v/TinyBDD.Extensions.Hosting.svg)](https://www.nuget.org/packages/TinyBDD.Extensions.Hosting/) | [![NuGet Downloads](https://img.shields.io/nuget/dt/TinyBDD.Extensions.Hosting.svg)](https://www.nuget.org/packages/TinyBDD.Extensions.Hosting/) |
 | **TinyBDD.Extensions.Reporting** | [![NuGet](https://img.shields.io/nuget/v/TinyBDD.Extensions.Reporting.svg)](https://www.nuget.org/packages/TinyBDD.Extensions.Reporting/) | [![NuGet Downloads](https://img.shields.io/nuget/dt/TinyBDD.Extensions.Reporting.svg)](https://www.nuget.org/packages/TinyBDD.Extensions.Reporting/) |
 
 ---
 
-**TinyBDD** is a minimal, fluent **Behavior-Driven Development** library for .NET.  
-It provides a lightweight `Given` / `When` / `Then` syntax with optional `And` / `But` chaining, supporting both **sync** and **async** steps.
+**TinyBDD** is a minimal, fluent **Behavior-Driven Development** library for .NET.
+It supports two complementary approaches:
+- **Code-first**: Fluent `Given` / `When` / `Then` syntax directly in C#
+- **File-based**: Gherkin `.feature` files and YAML scenarios with convention-based drivers
 
-It is designed to:
+Both approaches are designed to:
 
 - Be **framework-agnostic** (works with MSTest, xUnit, NUnit, etc.).
-- Keep scenarios **clear and concise** without heavy DSLs or external tooling.
-- Support **async and sync predicates** for maximum flexibility.
-- Integrate with existing test runners’ output for easy step visibility.
+- Keep scenarios **clear and concise** with readable syntax.
+- Support **async and sync** operations for maximum flexibility.
+- Integrate with existing test runners' output for easy step visibility.
 
 
 ---
 
 ## Features
+
+### Code-First Approach
 
 - **Readable BDD syntax**:
   ```csharp
@@ -60,6 +65,33 @@ It is designed to:
   And <= 20 (async) [OK]
   But != 11 [OK]
   ```
+
+### File-Based Approach
+
+- **Gherkin .feature files**:
+  ```gherkin
+  Feature: Calculator Operations
+
+  Scenario: Add two numbers
+    Given a calculator
+    When I add 5 and 3
+    Then the result should be 8
+  ```
+
+- **Convention-based driver methods**:
+  ```csharp
+  [DriverMethod("I add {a} and {b}")]
+  public Task Add(int a, int b)
+  {
+      _calculator.Add(a, b);
+      return Task.CompletedTask;
+  }
+  ```
+
+- **Scenario Outlines** with Examples tables for parameterized tests
+- **YAML format** as alternative to Gherkin for tooling integration
+
+### Framework Integration
 
 - **Test framework adapters**:
 
@@ -105,6 +137,9 @@ dotnet add package TinyBDD.Xunit.v3
 For Extensions:
 
 ```powershell
+# File-Based DSL (Gherkin and YAML)
+dotnet add package TinyBDD.Extensions.FileBased
+
 # Dependency Injection
 dotnet add package TinyBDD.Extensions.DependencyInjection
 
@@ -233,6 +268,109 @@ public class MathTests : TinyBddXunitBase
 
 ---
 
+## File-Based Usage
+
+### Gherkin Feature File
+
+Create `Features/Calculator.feature`:
+
+```gherkin
+Feature: Calculator Operations
+
+@calculator @smoke
+Scenario: Add two numbers
+  Given a calculator
+  When I add 5 and 3
+  Then the result should be 8
+
+Scenario Outline: Multiply numbers
+  Given a calculator
+  When I multiply <a> and <b>
+  Then the result should be <expected>
+
+Examples:
+  | a | b | expected |
+  | 2 | 3 | 6        |
+  | 4 | 5 | 20       |
+```
+
+### Driver Implementation
+
+```csharp
+using TinyBDD.Extensions.FileBased.Core;
+
+public class CalculatorDriver : IApplicationDriver
+{
+    private readonly Calculator _calculator = new();
+
+    [DriverMethod("a calculator")]
+    public Task Initialize()
+    {
+        _calculator.Clear();
+        return Task.CompletedTask;
+    }
+
+    [DriverMethod("I add {a} and {b}")]
+    public Task Add(int a, int b)
+    {
+        _calculator.Add(a, b);
+        return Task.CompletedTask;
+    }
+
+    [DriverMethod("I multiply {a} and {b}")]
+    public Task Multiply(int a, int b)
+    {
+        _calculator.Multiply(a, b);
+        return Task.CompletedTask;
+    }
+
+    [DriverMethod("the result should be {expected}")]
+    public Task<bool> VerifyResult(int expected)
+    {
+        return Task.FromResult(_calculator.GetResult() == expected);
+    }
+
+    public Task InitializeAsync(CancellationToken ct = default) => Task.CompletedTask;
+    public Task CleanupAsync(CancellationToken ct = default) => Task.CompletedTask;
+}
+```
+
+### Test Class
+
+```csharp
+using TinyBDD.Extensions.FileBased;
+
+public class CalculatorTests : FileBasedTestBase<CalculatorDriver>
+{
+    [Fact]
+    public async Task ExecuteCalculatorScenarios()
+    {
+        await ExecuteScenariosAsync(options =>
+        {
+            options.AddFeatureFiles("Features/**/*.feature")
+                   .WithBaseDirectory(Directory.GetCurrentDirectory());
+        });
+    }
+}
+```
+
+Output:
+
+```
+Feature: Calculator Operations
+Scenario: Add two numbers
+  Given a calculator [OK] 0 ms
+  When I add 5 and 3 [OK] 0 ms
+  Then the result should be 8 [OK] 1 ms
+
+Scenario Outline: Multiply numbers (Example 1: a=2, b=3, expected=6)
+  Given a calculator [OK] 0 ms
+  When I multiply 2 and 3 [OK] 0 ms
+  Then the result should be 6 [OK] 0 ms
+```
+
+---
+
 ## Step Types
 
 | Step    | Purpose                                     | Example                        |
@@ -328,18 +466,22 @@ This ensures that all steps passed and throws if any failed.
 
 TinyBDD was created with a few guiding principles:
 
-1. **Focus on readability, not ceremony**  
-   Steps should read like plain English and map directly to Gherkin-style thinking, but without requiring `.feature`
-   files, extra compilers, or DSL preprocessors.
+1. **Focus on readability, not ceremony**
+   Steps should read like plain English and map directly to Gherkin-style thinking. Choose the approach that best fits your team:
+   - **Code-first**: Write BDD tests directly in C# with fluent API
+   - **File-based**: Use standard Gherkin `.feature` files or YAML for business-readable specifications
 
-2. **Code is the spec**  
-   Instead of writing a separate Gherkin text file, you write directly in C# using a fluent API that mirrors `Given` →
-   `When` → `Then` → `And` → `But`.  
-   Your unit test runner output **is** the human-readable spec.
+2. **Flexible specification approach**
+   Both approaches produce the same readable output:
+   - **Code-first**: Your C# code using the fluent API serves as the executable specification
+   - **File-based**: Separate `.feature` or YAML files define scenarios, implemented through driver methods
 
-3. **Stay out of your way**  
-   TinyBDD is not an opinionated test framework; it’s a syntax layer that integrates with MSTest, xUnit, or NUnit and
-   leaves assertions, test discovery, and reporting to them.
+   Your test runner output **is** the human-readable spec in both cases.
+
+3. **Stay out of your way**
+   TinyBDD is not an opinionated test framework; it's a syntax layer that integrates with MSTest, xUnit, or NUnit and
+   leaves assertions, test discovery, and reporting to them. Choose code-first for flexibility and complex logic, or
+   file-based when business analysts need to author test specifications.
 
 ---
 
@@ -373,15 +515,23 @@ If a step fails, you’ll see exactly which step failed, how long it took, and t
 
 ---
 
-## Why Not Use SpecFlow / Cucumber?
+## Why Use TinyBDD?
 
-SpecFlow, Cucumber, and similar tools are powerful for large-scale BDD, but they:
+TinyBDD offers flexibility that traditional BDD tools don't:
 
-* Require separate `.feature` files and a parser/runner.
-* Often introduce a disconnect between the feature file and the code that actually runs.
-* Come with heavier setup and slower test discovery.
+**Compared to SpecFlow / Cucumber:**
+* **Choose your approach**: Start code-first, add `.feature` files later when business analysts join, or vice versa
+* **No runtime overhead**: File-based DSL uses convention-based matching without reflection or runtime parsing
+* **Lighter setup**: Works directly with standard test frameworks (xUnit, NUnit, MSTest)
+* **Better IDE support**: Code-first approach gets full IntelliSense, refactoring, and debugging
+* **Simpler integration**: No separate test runners, no complex step binding configurations
 
-TinyBDD keeps **everything in one place**—your test class—while still producing clear, human-readable steps.
+**Unique advantages:**
+* Seamlessly switch between approaches as your team's needs evolve
+* Both approaches produce identical readable Gherkin-style output
+* Test framework agnostic - use the test runner you already know
+* Performance-optimized with automatic source generation (code-first)
+* Convention-based driver methods for file-based tests (no attribute soup)
 
 ---
 
