@@ -27,7 +27,7 @@ internal static class FileDiscovery
                 new DirectoryInfo(baseDirectory)));
 
         return result.Files
-            .Select(f => Path.Combine(baseDirectory, f.Path))
+            .Select(f => Path.GetFullPath(Path.Combine(baseDirectory, f.Path)))
             .ToList();
     }
 }
