@@ -25,6 +25,14 @@ TinyBDD provides extension packages that integrate the BDD workflow engine with 
 - Integration with TinyBDD's observer extensibility layer
 - Configurable JSON serialization options
 
+### [File-Based DSL](file-based.md)
+**TinyBDD.Extensions.FileBased** enables writing BDD scenarios in external files:
+- Gherkin .feature files for business-readable specifications
+- YAML format for programmatic test generation
+- Convention-based driver methods with `[DriverMethod]` attributes
+- Scenario Outline support with Examples tables
+- Multi-framework support (xUnit, NUnit, MSTest)
+
 ## Why Use TinyBDD as an Orchestrator?
 
 TinyBDD's Given/When/Then pattern isn't just for testing. The same structured approach works for:
@@ -59,6 +67,7 @@ Install the packages:
 dotnet add package TinyBDD.Extensions.DependencyInjection
 dotnet add package TinyBDD.Extensions.Hosting
 dotnet add package TinyBDD.Extensions.Reporting
+dotnet add package TinyBDD.Extensions.FileBased
 ```
 
 Register services:
@@ -93,6 +102,7 @@ public class StartupWorkflow : IWorkflowDefinition
 
 ## Next Steps
 
+- [File-Based DSL Guide](file-based.md) - Gherkin and YAML scenario files
 - [Dependency Injection Guide](dependency-injection.md) - Full DI integration reference
 - [Hosting Guide](hosting.md) - Hosted service patterns and configuration
 - [Reporting Guide](reporting.md) - JSON reporting and observer pattern
