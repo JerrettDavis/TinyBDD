@@ -54,7 +54,7 @@ jobs:
       - name: Set version
         id: version
         run: |
-          VERSION=${{ steps.gitversion.outputs.nuGetVersionV2 }}
+          VERSION=${{ steps.gitversion.outputs.majorMinorPatch }}
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "📦 Version: $VERSION"
 

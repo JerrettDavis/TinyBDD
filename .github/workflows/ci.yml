@@ -182,7 +182,7 @@ jobs:
 
       - name: Set version env vars
         run: |
-          echo "PACKAGE_VERSION=${{ steps.gitversion.outputs.nuGetVersionV2 }}" >> $GITHUB_ENV
+          echo "PACKAGE_VERSION=${{ steps.gitversion.outputs.majorMinorPatch }}" >> $GITHUB_ENV
           echo "ASSEMBLY_VERSION=${{ steps.gitversion.outputs.assemblySemVer }}" >> $GITHUB_ENV
           echo "FILE_VERSION=${{ steps.gitversion.outputs.assemblySemFileVer }}" >> $GITHUB_ENV
 
