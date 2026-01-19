@@ -86,7 +86,7 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
       - name: Upload coverage HTML report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: coverage-report
           path: coverage-report
@@ -118,7 +118,7 @@ jobs:
           dotnet run -c Release -- --filter "TinyBDD.Benchmarks.SingleAssertionBenchmark.*" --job short --exporters json markdown
 
       - name: Upload benchmark results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: benchmark-results
           path: |
@@ -215,7 +215,7 @@ jobs:
           /p:PackageVersion=${{ env.PACKAGE_VERSION }}
 
       - name: Upload packages as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: nuget-packages
           path: |
@@ -300,7 +300,7 @@ jobs:
           dotnet run -c Release --no-build -- --exporters json markdown html
 
       - name: Upload benchmark results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: benchmark-results-full
           path: |

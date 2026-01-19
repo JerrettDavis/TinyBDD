@@ -128,7 +128,7 @@ jobs:
           ls -lh ./dry-run-packages/
 
       - name: Upload dry-run packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dry-run-packages
           path: ./dry-run-packages/*.nupkg
