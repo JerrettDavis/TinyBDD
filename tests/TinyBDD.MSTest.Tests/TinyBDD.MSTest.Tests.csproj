@@ -16,6 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="System.Text.Json" />
       <ProjectReference Include="..\..\src\TinyBDD.MSTest\TinyBDD.MSTest.csproj" />
     </ItemGroup>
 

@@ -17,6 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="System.Text.Json" />
         <ProjectReference Include="..\..\src\TinyBDD\TinyBDD.csproj" />
         <ProjectReference Include="..\..\src\TinyBDD.Extensions.DependencyInjection\TinyBDD.Extensions.DependencyInjection.csproj" />
         <ProjectReference Include="..\..\src\TinyBDD.Extensions.Hosting\TinyBDD.Extensions.Hosting.csproj" />
