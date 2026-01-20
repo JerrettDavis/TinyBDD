@@ -60,7 +60,7 @@ jobs:
           echo "::notice::Documentation validation passed! Generated $HTML_COUNT pages."
       
       - name: Upload build artifacts for review
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: documentation-preview
           path: docs/_site
