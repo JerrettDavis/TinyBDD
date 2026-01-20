@@ -18,7 +18,6 @@
     
     <!-- Suppress packaging warnings for source generators -->
     <NoWarn>$(NoWarn);NU5128</NoWarn>
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU5017</WarningsNotAsErrors>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     
     <!-- Disable implicit usings for generators -->
@@ -35,5 +34,12 @@
     <!-- Note: $(OutputPath) already includes $(TargetFramework) subdirectory -->
     <None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
   </ItemGroup>
+
+  <!-- Override symbol package settings to prevent empty snupkg creation -->
+  <Target Name="DisableSymbolPackageForSourceGenerators" BeforeTargets="_IntermediatePack;GenerateNuspec">
+    <PropertyGroup>
+      <IncludeSymbols>false</IncludeSymbols>
+    </PropertyGroup>
+  </Target>
 
 </Project>
