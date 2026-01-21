@@ -142,9 +142,17 @@ public class TinyBddOptimizer : IIncrementalGenerator
 
     /// <summary>
     /// Checks if a type is declared as partial in all of its declarations.
+    /// Returns false if the type has no declarations or if any declaration is not partial.
     /// </summary>
     private static bool IsPartial(INamedTypeSymbol type)
     {
+        // Type must have at least one declaration
+        if (type.DeclaringSyntaxReferences.Length == 0)
+        {
+            return false;
+        }
+
+        // All declarations must be partial
         foreach (var declRef in type.DeclaringSyntaxReferences)
         {
             if (declRef.GetSyntax() is TypeDeclarationSyntax typeDecl)
@@ -155,7 +163,8 @@ public class TinyBddOptimizer : IIncrementalGenerator
                 }
             }
         }
-        return type.DeclaringSyntaxReferences.Length > 0;
+
+        return true;
     }
 
     /// <summary>
@@ -166,7 +175,7 @@ public class TinyBddOptimizer : IIncrementalGenerator
         var groups = methods
             .GroupBy(m => m.MethodSymbol.ContainingType, SymbolEqualityComparer.Default)
             .Select(g => new TypeGroup(
-                (INamedTypeSymbol)g.Key!,
+                (INamedTypeSymbol)g.Key!,  // Key is guaranteed to be non-null after GroupBy
                 g.ToImmutableArray()))
             .ToImmutableArray();
 
