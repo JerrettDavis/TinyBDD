@@ -153,14 +153,13 @@ public class TinyBddOptimizer : IIncrementalGenerator
         }
 
         // All declarations must be partial
-        foreach (var declRef in type.DeclaringSyntaxReferences)
+        foreach (var typeDecl in type.DeclaringSyntaxReferences
+            .Select(r => r.GetSyntax())
+            .OfType<TypeDeclarationSyntax>())
         {
-            if (declRef.GetSyntax() is TypeDeclarationSyntax typeDecl)
+            if (!typeDecl.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)))
             {
-                if (!typeDecl.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)))
-                {
-                    return false;
-                }
+                return false;
             }
         }
 
@@ -209,16 +208,12 @@ public class TinyBddOptimizer : IIncrementalGenerator
                     var firstMethodName = firstMethod.MethodName;
 
                     // Try to get the type declaration location (preferred), otherwise use method location
-                    Location location;
                     var typeDecl = firstMethod.MethodSymbol.ContainingType.DeclaringSyntaxReferences.FirstOrDefault();
-                    if (typeDecl != null && typeDecl.GetSyntax() is TypeDeclarationSyntax typeDeclaration)
-                    {
-                        location = typeDeclaration.Identifier.GetLocation();
-                    }
-                    else
-                    {
-                        location = firstMethod.MethodSyntax.Identifier.GetLocation();
-                    }
+                    var typeDeclaration = typeDecl?.GetSyntax() as TypeDeclarationSyntax;
+
+                    var location = typeDeclaration != null
+                        ? typeDeclaration.Identifier.GetLocation()
+                        : firstMethod.MethodSyntax.Identifier.GetLocation();
 
                     var diagnostic = Diagnostic.Create(
                         reason,
