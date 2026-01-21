@@ -14,15 +14,21 @@ internal class MethodInfo
     public SemanticModel SemanticModel { get; }
     public string MethodName => MethodSymbol.Name;
     public string ContainingType => MethodSymbol.ContainingType.ToDisplayString();
+    public bool IsEligible { get; }
+    public DiagnosticDescriptor? IneligibilityReason { get; }
 
     public MethodInfo(
         MethodDeclarationSyntax methodSyntax,
         IMethodSymbol methodSymbol,
-        SemanticModel semanticModel)
+        SemanticModel semanticModel,
+        bool isEligible = true,
+        DiagnosticDescriptor? ineligibilityReason = null)
     {
         MethodSyntax = methodSyntax;
         MethodSymbol = methodSymbol;
         SemanticModel = semanticModel;
+        IsEligible = isEligible;
+        IneligibilityReason = ineligibilityReason;
     }
 }
 
