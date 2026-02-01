@@ -1,0 +1,56 @@
+Discovering projects...
+Analyzing project(s)...
+Analyzing dependencies...
+» TinyBDD.Extensions.Reporting
+  [net10.0]
+  System.Text.Json  10.0.1 -> 10.0.2
+  [net9.0]
+  System.Text.Json  10.0.1 -> 10.0.2
+  [net8.0]
+  System.Text.Json  10.0.1 -> 10.0.2
+  [.NETFramework,Version=v4.6.2]
+  System.Text.Json  10.0.1 -> 10.0.2
+  [.NETFramework,Version=v4.8.1]
+  System.Text.Json  10.0.1 -> 10.0.2
+  [.NETFramework,Version=v4.7.2]
+  System.Text.Json  10.0.1 -> 10.0.2
+  [.NETFramework,Version=v4.7]
+  System.Text.Json  10.0.1 -> 10.0.2
+  [.NETFramework,Version=v4.8]
+  System.Text.Json  10.0.1 -> 10.0.2
+  [.NETStandard,Version=v2.0]
+  System.Text.Json  10.0.1 -> 10.0.2
+  [.NETStandard,Version=v2.1]
+  System.Text.Json  10.0.1 -> 10.0.2
+
+» TinyBDD.NUnit.Tests
+  [net10.0]
+  NUnit3TestAdapter  6.0.1 -> 6.1.0
+  [net9.0]
+  NUnit3TestAdapter  6.0.1 -> 6.1.0
+  [net8.0]
+  NUnit3TestAdapter  6.0.1 -> 6.1.0
+
+Version color legend:
+<red>   : Major version update or pre-release version. Possible breaking changes.
+<yellow>: Minor version update. Backwards-compatible features added.
+<green> : Patch version update. Backwards-compatible bug fixes.
+
+Upgrading package System.Text.Json...
+Project TinyBDD.Extensions.Reporting [net10.0] upgraded successfully
+Project TinyBDD.Extensions.Reporting [net9.0] upgraded successfully
+Project TinyBDD.Extensions.Reporting [net8.0] upgraded successfully
+Project TinyBDD.Extensions.Reporting [.NETFramework,Version=v4.6.2] upgraded successfully
+Project TinyBDD.Extensions.Reporting [.NETFramework,Version=v4.8.1] upgraded successfully
+Project TinyBDD.Extensions.Reporting [.NETFramework,Version=v4.7.2] upgraded successfully
+Project TinyBDD.Extensions.Reporting [.NETFramework,Version=v4.7] upgraded successfully
+Project TinyBDD.Extensions.Reporting [.NETFramework,Version=v4.8] upgraded successfully
+Project TinyBDD.Extensions.Reporting [.NETStandard,Version=v2.0] upgraded successfully
+Project TinyBDD.Extensions.Reporting [.NETStandard,Version=v2.1] upgraded successfully
+
+Upgrading package NUnit3TestAdapter...
+Project TinyBDD.NUnit.Tests [net10.0] upgraded successfully
+Project TinyBDD.NUnit.Tests [net9.0] upgraded successfully
+Project TinyBDD.NUnit.Tests [net8.0] upgraded successfully
+
+Elapsed: 00:00:47.3910296
