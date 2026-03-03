@@ -15,6 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="System.Text.Json" VersionOverride="10.0.3" />
         <ProjectReference Include="..\..\src\TinyBDD\TinyBDD.csproj" />
     </ItemGroup>
 
