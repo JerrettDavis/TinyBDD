@@ -1,0 +1,306 @@
+Discovering projects...
+Analyzing project(s)...
+Analyzing dependencies...
+» TinyBDD
+  [net9.0]
+  Microsoft.Extensions.DependencyInjection               10.0.3 -> 10.0.5
+  Microsoft.Extensions.DependencyInjection.Abstractions  10.0.3 -> 10.0.5
+  [net10.0]
+  Microsoft.Extensions.DependencyInjection               10.0.3 -> 10.0.5
+  Microsoft.Extensions.DependencyInjection.Abstractions  10.0.3 -> 10.0.5
+  [net8.0]
+  Microsoft.Extensions.DependencyInjection               10.0.3 -> 10.0.5
+  Microsoft.Extensions.DependencyInjection.Abstractions  10.0.3 -> 10.0.5
+  [.NETFramework,Version=v4.8.1]
+  Microsoft.Extensions.DependencyInjection               10.0.3 -> 10.0.5
+  Microsoft.Extensions.DependencyInjection.Abstractions  10.0.3 -> 10.0.5
+  [.NETFramework,Version=v4.8]
+  Microsoft.Extensions.DependencyInjection               10.0.3 -> 10.0.5
+  Microsoft.Extensions.DependencyInjection.Abstractions  10.0.3 -> 10.0.5
+  [.NETFramework,Version=v4.7]
+  Microsoft.Extensions.DependencyInjection               10.0.3 -> 10.0.5
+  Microsoft.Extensions.DependencyInjection.Abstractions  10.0.3 -> 10.0.5
+  [.NETFramework,Version=v4.6.2]
+  Microsoft.Extensions.DependencyInjection               10.0.3 -> 10.0.5
+  Microsoft.Extensions.DependencyInjection.Abstractions  10.0.3 -> 10.0.5
+  [.NETFramework,Version=v4.7.2]
+  Microsoft.Extensions.DependencyInjection               10.0.3 -> 10.0.5
+  Microsoft.Extensions.DependencyInjection.Abstractions  10.0.3 -> 10.0.5
+  [.NETStandard,Version=v2.1]
+  Microsoft.Extensions.DependencyInjection               10.0.3 -> 10.0.5
+  Microsoft.Extensions.DependencyInjection.Abstractions  10.0.3 -> 10.0.5
+  [.NETStandard,Version=v2.0]
+  Microsoft.Extensions.DependencyInjection               10.0.3 -> 10.0.5
+  Microsoft.Extensions.DependencyInjection.Abstractions  10.0.3 -> 10.0.5
+
+» TinyBDD.Extensions.DependencyInjection
+  [net9.0]
+  Microsoft.Extensions.DependencyInjection.Abstractions  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Options                           10.0.3 -> 10.0.5
+  [net10.0]
+  Microsoft.Extensions.DependencyInjection.Abstractions  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Options                           10.0.3 -> 10.0.5
+  [net8.0]
+  Microsoft.Extensions.DependencyInjection.Abstractions  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Options                           10.0.3 -> 10.0.5
+  [.NETFramework,Version=v4.7.2]
+  Microsoft.Extensions.DependencyInjection.Abstractions  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Options                           10.0.3 -> 10.0.5
+  [.NETFramework,Version=v4.7]
+  Microsoft.Extensions.DependencyInjection.Abstractions  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Options                           10.0.3 -> 10.0.5
+  [.NETFramework,Version=v4.8.1]
+  Microsoft.Extensions.DependencyInjection.Abstractions  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Options                           10.0.3 -> 10.0.5
+  [.NETFramework,Version=v4.6.2]
+  Microsoft.Extensions.DependencyInjection.Abstractions  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Options                           10.0.3 -> 10.0.5
+  [.NETFramework,Version=v4.8]
+  Microsoft.Extensions.DependencyInjection.Abstractions  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Options                           10.0.3 -> 10.0.5
+  [.NETStandard,Version=v2.0]
+  Microsoft.Extensions.DependencyInjection.Abstractions  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Options                           10.0.3 -> 10.0.5
+  [.NETStandard,Version=v2.1]
+  Microsoft.Extensions.DependencyInjection.Abstractions  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Options                           10.0.3 -> 10.0.5
+
+» TinyBDD.Extensions.FileBased
+  [net9.0]
+  Microsoft.Extensions.FileSystemGlobbing  10.0.3 -> 10.0.5
+  [net10.0]
+  Microsoft.Extensions.FileSystemGlobbing  10.0.3 -> 10.0.5
+  [net8.0]
+  Microsoft.Extensions.FileSystemGlobbing  10.0.3 -> 10.0.5
+  [.NETFramework,Version=v4.8]
+  Microsoft.Extensions.FileSystemGlobbing  10.0.3 -> 10.0.5
+  [.NETFramework,Version=v4.8.1]
+  Microsoft.Extensions.FileSystemGlobbing  10.0.3 -> 10.0.5
+  [.NETFramework,Version=v4.7.2]
+  Microsoft.Extensions.FileSystemGlobbing  10.0.3 -> 10.0.5
+  [.NETFramework,Version=v4.7]
+  Microsoft.Extensions.FileSystemGlobbing  10.0.3 -> 10.0.5
+  [.NETFramework,Version=v4.6.2]
+  Microsoft.Extensions.FileSystemGlobbing  10.0.3 -> 10.0.5
+  [.NETStandard,Version=v2.1]
+  Microsoft.Extensions.FileSystemGlobbing  10.0.3 -> 10.0.5
+  [.NETStandard,Version=v2.0]
+  Microsoft.Extensions.FileSystemGlobbing  10.0.3 -> 10.0.5
+
+» TinyBDD.Extensions.Hosting
+  [net8.0]
+  Microsoft.Extensions.Hosting.Abstractions  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Logging.Abstractions  10.0.3 -> 10.0.5
+  [net9.0]
+  Microsoft.Extensions.Hosting.Abstractions  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Logging.Abstractions  10.0.3 -> 10.0.5
+  [net10.0]
+  Microsoft.Extensions.Hosting.Abstractions  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Logging.Abstractions  10.0.3 -> 10.0.5
+  [.NETFramework,Version=v4.7.2]
+  Microsoft.Extensions.Hosting.Abstractions  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Logging.Abstractions  10.0.3 -> 10.0.5
+  [.NETFramework,Version=v4.6.2]
+  Microsoft.Extensions.Hosting.Abstractions  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Logging.Abstractions  10.0.3 -> 10.0.5
+  [.NETFramework,Version=v4.7]
+  Microsoft.Extensions.Hosting.Abstractions  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Logging.Abstractions  10.0.3 -> 10.0.5
+  [.NETFramework,Version=v4.8.1]
+  Microsoft.Extensions.Hosting.Abstractions  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Logging.Abstractions  10.0.3 -> 10.0.5
+  [.NETFramework,Version=v4.8]
+  Microsoft.Extensions.Hosting.Abstractions  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Logging.Abstractions  10.0.3 -> 10.0.5
+  [.NETStandard,Version=v2.0]
+  Microsoft.Extensions.Hosting.Abstractions  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Logging.Abstractions  10.0.3 -> 10.0.5
+  [.NETStandard,Version=v2.1]
+  Microsoft.Extensions.Hosting.Abstractions  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Logging.Abstractions  10.0.3 -> 10.0.5
+
+» TinyBDD.Extensions.Reporting
+  [net8.0]
+  System.Text.Json  10.0.1 -> 10.0.5
+  [net10.0]
+  System.Text.Json  10.0.1 -> 10.0.5
+  [net9.0]
+  System.Text.Json  10.0.1 -> 10.0.5
+  [.NETFramework,Version=v4.7.2]
+  System.Text.Json  10.0.1 -> 10.0.5
+  [.NETFramework,Version=v4.7]
+  System.Text.Json  10.0.1 -> 10.0.5
+  [.NETFramework,Version=v4.8.1]
+  System.Text.Json  10.0.1 -> 10.0.5
+  [.NETFramework,Version=v4.8]
+  System.Text.Json  10.0.1 -> 10.0.5
+  [.NETFramework,Version=v4.6.2]
+  System.Text.Json  10.0.1 -> 10.0.5
+  [.NETStandard,Version=v2.1]
+  System.Text.Json  10.0.1 -> 10.0.5
+  [.NETStandard,Version=v2.0]
+  System.Text.Json  10.0.1 -> 10.0.5
+
+» TinyBDD.Extensions.Tests
+  [net9.0]
+  Microsoft.Extensions.DependencyInjection  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Hosting              10.0.3 -> 10.0.5
+  [net10.0]
+  Microsoft.Extensions.DependencyInjection  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Hosting              10.0.3 -> 10.0.5
+  [net8.0]
+  Microsoft.Extensions.DependencyInjection  10.0.3 -> 10.0.5
+  Microsoft.Extensions.Hosting              10.0.3 -> 10.0.5
+
+» TinyBDD.NUnit
+  [net9.0]
+  NUnit  4.4.0 -> 4.5.1
+  [net8.0]
+  NUnit  4.4.0 -> 4.5.1
+  [.NETFramework,Version=v4.7.2]
+  NUnit  4.4.0 -> 4.5.1
+  [.NETFramework,Version=v4.6.2]
+  NUnit  4.4.0 -> 4.5.1
+  [.NETFramework,Version=v4.7]
+  NUnit  4.4.0 -> 4.5.1
+  [.NETFramework,Version=v4.8]
+  NUnit  4.4.0 -> 4.5.1
+  [.NETFramework,Version=v4.8.1]
+  NUnit  4.4.0 -> 4.5.1
+
+» TinyBDD.NUnit.Tests
+  [net9.0]
+  NUnit              4.4.0 -> 4.5.1
+  NUnit3TestAdapter  6.0.1 -> 6.1.0
+  [net8.0]
+  NUnit              4.4.0 -> 4.5.1
+  NUnit3TestAdapter  6.0.1 -> 6.1.0
+  [net10.0]
+  NUnit              4.4.0 -> 4.5.1
+  NUnit3TestAdapter  6.0.1 -> 6.1.0
+
+Version color legend:
+<red>   : Major version update or pre-release version. Possible breaking changes.
+<yellow>: Minor version update. Backwards-compatible features added.
+<green> : Patch version update. Backwards-compatible bug fixes.
+
+Upgrading package Microsoft.Extensions.DependencyInjection...
+Project TinyBDD [net9.0] upgraded successfully
+Project TinyBDD [net10.0] upgraded successfully
+Project TinyBDD [net8.0] upgraded successfully
+Project TinyBDD [.NETFramework,Version=v4.8.1] upgraded successfully
+Project TinyBDD [.NETFramework,Version=v4.8] upgraded successfully
+Project TinyBDD [.NETFramework,Version=v4.7] upgraded successfully
+Project TinyBDD [.NETFramework,Version=v4.6.2] upgraded successfully
+Project TinyBDD [.NETFramework,Version=v4.7.2] upgraded successfully
+Project TinyBDD [.NETStandard,Version=v2.1] upgraded successfully
+Project TinyBDD [.NETStandard,Version=v2.0] upgraded successfully
+Project TinyBDD.Extensions.Tests [net9.0] upgraded successfully
+Project TinyBDD.Extensions.Tests [net10.0] upgraded successfully
+Project TinyBDD.Extensions.Tests [net8.0] upgraded successfully
+
+Upgrading package Microsoft.Extensions.DependencyInjection.Abstractions...
+Project TinyBDD [net9.0] upgraded successfully
+Project TinyBDD [net10.0] upgraded successfully
+Project TinyBDD [net8.0] upgraded successfully
+Project TinyBDD [.NETFramework,Version=v4.8.1] upgraded successfully
+Project TinyBDD [.NETFramework,Version=v4.8] upgraded successfully
+Project TinyBDD [.NETFramework,Version=v4.7] upgraded successfully
+Project TinyBDD [.NETFramework,Version=v4.6.2] upgraded successfully
+Project TinyBDD [.NETFramework,Version=v4.7.2] upgraded successfully
+Project TinyBDD [.NETStandard,Version=v2.1] upgraded successfully
+Project TinyBDD [.NETStandard,Version=v2.0] upgraded successfully
+Project TinyBDD.Extensions.DependencyInjection [net9.0] upgraded successfully
+Project TinyBDD.Extensions.DependencyInjection [net10.0] upgraded successfully
+Project TinyBDD.Extensions.DependencyInjection [net8.0] upgraded successfully
+Project TinyBDD.Extensions.DependencyInjection [.NETFramework,Version=v4.7.2] upgraded successfully
+Project TinyBDD.Extensions.DependencyInjection [.NETFramework,Version=v4.7] upgraded successfully
+Project TinyBDD.Extensions.DependencyInjection [.NETFramework,Version=v4.8.1] upgraded successfully
+Project TinyBDD.Extensions.DependencyInjection [.NETFramework,Version=v4.6.2] upgraded successfully
+Project TinyBDD.Extensions.DependencyInjection [.NETFramework,Version=v4.8] upgraded successfully
+Project TinyBDD.Extensions.DependencyInjection [.NETStandard,Version=v2.0] upgraded successfully
+Project TinyBDD.Extensions.DependencyInjection [.NETStandard,Version=v2.1] upgraded successfully
+
+Upgrading package Microsoft.Extensions.Options...
+Project TinyBDD.Extensions.DependencyInjection [net9.0] upgraded successfully
+Project TinyBDD.Extensions.DependencyInjection [net10.0] upgraded successfully
+Project TinyBDD.Extensions.DependencyInjection [net8.0] upgraded successfully
+Project TinyBDD.Extensions.DependencyInjection [.NETFramework,Version=v4.7.2] upgraded successfully
+Project TinyBDD.Extensions.DependencyInjection [.NETFramework,Version=v4.7] upgraded successfully
+Project TinyBDD.Extensions.DependencyInjection [.NETFramework,Version=v4.8.1] upgraded successfully
+Project TinyBDD.Extensions.DependencyInjection [.NETFramework,Version=v4.6.2] upgraded successfully
+Project TinyBDD.Extensions.DependencyInjection [.NETFramework,Version=v4.8] upgraded successfully
+Project TinyBDD.Extensions.DependencyInjection [.NETStandard,Version=v2.0] upgraded successfully
+Project TinyBDD.Extensions.DependencyInjection [.NETStandard,Version=v2.1] upgraded successfully
+
+Upgrading package Microsoft.Extensions.FileSystemGlobbing...
+Project TinyBDD.Extensions.FileBased [net9.0] upgraded successfully
+Project TinyBDD.Extensions.FileBased [net10.0] upgraded successfully
+Project TinyBDD.Extensions.FileBased [net8.0] upgraded successfully
+Project TinyBDD.Extensions.FileBased [.NETFramework,Version=v4.8] upgraded successfully
+Project TinyBDD.Extensions.FileBased [.NETFramework,Version=v4.8.1] upgraded successfully
+Project TinyBDD.Extensions.FileBased [.NETFramework,Version=v4.7.2] upgraded successfully
+Project TinyBDD.Extensions.FileBased [.NETFramework,Version=v4.7] upgraded successfully
+Project TinyBDD.Extensions.FileBased [.NETFramework,Version=v4.6.2] upgraded successfully
+Project TinyBDD.Extensions.FileBased [.NETStandard,Version=v2.1] upgraded successfully
+Project TinyBDD.Extensions.FileBased [.NETStandard,Version=v2.0] upgraded successfully
+
+Upgrading package Microsoft.Extensions.Hosting.Abstractions...
+Project TinyBDD.Extensions.Hosting [net8.0] upgraded successfully
+Project TinyBDD.Extensions.Hosting [net9.0] upgraded successfully
+Project TinyBDD.Extensions.Hosting [net10.0] upgraded successfully
+Project TinyBDD.Extensions.Hosting [.NETFramework,Version=v4.7.2] upgraded successfully
+Project TinyBDD.Extensions.Hosting [.NETFramework,Version=v4.6.2] upgraded successfully
+Project TinyBDD.Extensions.Hosting [.NETFramework,Version=v4.7] upgraded successfully
+Project TinyBDD.Extensions.Hosting [.NETFramework,Version=v4.8.1] upgraded successfully
+Project TinyBDD.Extensions.Hosting [.NETFramework,Version=v4.8] upgraded successfully
+Project TinyBDD.Extensions.Hosting [.NETStandard,Version=v2.0] upgraded successfully
+Project TinyBDD.Extensions.Hosting [.NETStandard,Version=v2.1] upgraded successfully
+
+Upgrading package Microsoft.Extensions.Logging.Abstractions...
+Project TinyBDD.Extensions.Hosting [net8.0] upgraded successfully
+Project TinyBDD.Extensions.Hosting [net9.0] upgraded successfully
+Project TinyBDD.Extensions.Hosting [net10.0] upgraded successfully
+Project TinyBDD.Extensions.Hosting [.NETFramework,Version=v4.7.2] upgraded successfully
+Project TinyBDD.Extensions.Hosting [.NETFramework,Version=v4.6.2] upgraded successfully
+Project TinyBDD.Extensions.Hosting [.NETFramework,Version=v4.7] upgraded successfully
+Project TinyBDD.Extensions.Hosting [.NETFramework,Version=v4.8.1] upgraded successfully
+Project TinyBDD.Extensions.Hosting [.NETFramework,Version=v4.8] upgraded successfully
+Project TinyBDD.Extensions.Hosting [.NETStandard,Version=v2.0] upgraded successfully
+Project TinyBDD.Extensions.Hosting [.NETStandard,Version=v2.1] upgraded successfully
+
+Upgrading package System.Text.Json...
+Project TinyBDD.Extensions.Reporting [net8.0] upgraded successfully
+Project TinyBDD.Extensions.Reporting [net10.0] upgraded successfully
+Project TinyBDD.Extensions.Reporting [net9.0] upgraded successfully
+Project TinyBDD.Extensions.Reporting [.NETFramework,Version=v4.7.2] upgraded successfully
+Project TinyBDD.Extensions.Reporting [.NETFramework,Version=v4.7] upgraded successfully
+Project TinyBDD.Extensions.Reporting [.NETFramework,Version=v4.8.1] upgraded successfully
+Project TinyBDD.Extensions.Reporting [.NETFramework,Version=v4.8] upgraded successfully
+Project TinyBDD.Extensions.Reporting [.NETFramework,Version=v4.6.2] upgraded successfully
+Project TinyBDD.Extensions.Reporting [.NETStandard,Version=v2.1] upgraded successfully
+Project TinyBDD.Extensions.Reporting [.NETStandard,Version=v2.0] upgraded successfully
+
+Upgrading package Microsoft.Extensions.Hosting...
+Project TinyBDD.Extensions.Tests [net9.0] upgraded successfully
+Project TinyBDD.Extensions.Tests [net10.0] upgraded successfully
+Project TinyBDD.Extensions.Tests [net8.0] upgraded successfully
+
+Upgrading package NUnit...
+Project TinyBDD.NUnit [net9.0] upgraded successfully
+Project TinyBDD.NUnit [net8.0] upgraded successfully
+Project TinyBDD.NUnit [.NETFramework,Version=v4.7.2] upgraded successfully
+Project TinyBDD.NUnit [.NETFramework,Version=v4.6.2] upgraded successfully
+Project TinyBDD.NUnit [.NETFramework,Version=v4.7] upgraded successfully
+Project TinyBDD.NUnit [.NETFramework,Version=v4.8] upgraded successfully
+Project TinyBDD.NUnit [.NETFramework,Version=v4.8.1] upgraded successfully
+Project TinyBDD.NUnit.Tests [net9.0] upgraded successfully
+Project TinyBDD.NUnit.Tests [net8.0] upgraded successfully
+Project TinyBDD.NUnit.Tests [net10.0] upgraded successfully
+
+Upgrading package NUnit3TestAdapter...
+Project TinyBDD.NUnit.Tests [net9.0] upgraded successfully
+Project TinyBDD.NUnit.Tests [net8.0] upgraded successfully
+Project TinyBDD.NUnit.Tests [net10.0] upgraded successfully
+
+Elapsed: 00:04:25.5768816
