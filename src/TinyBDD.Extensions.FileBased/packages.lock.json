@@ -4,9 +4,9 @@
     ".NETStandard,Version=v2.1": {
       "Microsoft.Extensions.FileSystemGlobbing": {
         "type": "Direct",
-        "requested": "[10.0.3, )",
-        "resolved": "10.0.3",
-        "contentHash": "oM7pl8uJz8WRPRlh4AGQS61aeV9GOfTu89yqTiRSYyyMuCNVkbNra9zEk7ApyJ/sZrUpbjOZCRHuitCEsTWghg=="
+        "requested": "[10.0.5, )",
+        "resolved": "10.0.5",
+        "contentHash": "mOE3ARusNQR0a5x8YOcnUbfyyXGqoAWQtEc7qFOfNJgruDWQLo39Re+3/Lzj5pLPFuFYj8hN4dgKzaSQDKiOCw=="
       },
       "PolySharp": {
         "type": "Direct",
@@ -23,25 +23,25 @@
       "tinybdd": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Extensions.DependencyInjection": "[10.0.3, )",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.3, )",
+          "Microsoft.Extensions.DependencyInjection": "[10.0.5, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.5, )",
           "System.Threading.Tasks.Extensions": "[4.6.3, )"
         }
       },
       "Microsoft.Extensions.DependencyInjection": {
         "type": "CentralTransitive",
-        "requested": "[10.0.3, )",
-        "resolved": "10.0.3",
-        "contentHash": "2DLOmC0EkB2smVK8lPP1PIKEgL1arE3CMp9XSIQB/Y7ev5nnnyuM/PizKJ6QfLD08QCYoopSC9SFdbYglDomYg==",
+        "requested": "[10.0.5, )",
+        "resolved": "10.0.5",
+        "contentHash": "v1SVsowG6YE1YnHVGmLWz57YTRCQRx9pH5ebIESXfm5isI9gA3QaMyg/oMTzPpXYZwSAVDzYItGJKfmV+pqXkQ==",
         "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.3"
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.5"
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
         "type": "CentralTransitive",
-        "requested": "[10.0.3, )",
-        "resolved": "10.0.3",
-        "contentHash": "bwGMrRcAMWx2s/RDgja97p27rxSz2pEQW0+rX5cWAUWVETVJ/eyxGfjAl8vuG5a+lckWmPIE+vcuaZNVB5YDdw=="
+        "requested": "[10.0.5, )",
+        "resolved": "10.0.5",
+        "contentHash": "iVMtq9eRvzyhx8949EGT0OCYJfXi737SbRVzWXE5GrOgGj5AaZ9eUuxA/BSUfmOMALKn/g8KfFaNQw0eiB3lyA=="
       },
       "System.Threading.Tasks.Extensions": {
         "type": "CentralTransitive",
