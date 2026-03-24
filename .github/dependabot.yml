@@ -1,7 +1,6 @@
 version: 2
 
 updates:
-  # NuGet package updates
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:
@@ -18,30 +17,10 @@ updates:
       prefix: "deps"
       include: "scope"
     groups:
-      microsoft:
+      all-nuget:
         patterns:
-          - "Microsoft.*"
-        update-types:
-          - "minor"
-          - "patch"
-      testing:
-        patterns:
-          - "NUnit*"
-          - "xunit*"
-          - "MSTest*"
-          - "FluentAssertions"
-          - "coverlet.*"
-        update-types:
-          - "minor"
-          - "patch"
-      source-generators:
-        patterns:
-          - "Microsoft.CodeAnalysis.*"
-        update-types:
-          - "minor"
-          - "patch"
+          - "*"
 
-  # GitHub Actions updates
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -57,3 +36,7 @@ updates:
     commit-message:
       prefix: "ci"
       include: "scope"
+    groups:
+      all-actions:
+        patterns:
+          - "*"
