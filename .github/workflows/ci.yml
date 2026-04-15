@@ -115,7 +115,7 @@ jobs:
       - name: Run benchmarks (smoke test)
         run: |
           cd benchmarks/TinyBDD.Benchmarks
-          dotnet run -c Release -- --filter "TinyBDD.Benchmarks.SingleAssertionBenchmark.*" --job short --exporters json markdown
+          dotnet run -c Release --framework net9.0 -- --filter "TinyBDD.Benchmarks.SingleAssertionBenchmark.*" --job short --exporters json markdown
 
       - name: Upload benchmark results
         uses: actions/upload-artifact@v7
@@ -292,12 +292,12 @@ jobs:
         run: dotnet restore --use-lock-file
 
       - name: Build benchmarks
-        run: dotnet build benchmarks/TinyBDD.Benchmarks/TinyBDD.Benchmarks.csproj -c Release --no-restore
+        run: dotnet build benchmarks/TinyBDD.Benchmarks/TinyBDD.Benchmarks.csproj -c Release --no-restore --framework net9.0
 
       - name: Run full benchmark suite
         run: |
           cd benchmarks/TinyBDD.Benchmarks
-          dotnet run -c Release --no-build -- --exporters json markdown html
+          dotnet run -c Release --no-build --framework net9.0 -- --exporters json markdown html
 
       - name: Upload benchmark results
         uses: actions/upload-artifact@v7
