@@ -7,6 +7,7 @@ namespace TinyBDD.Tests.Common.SetupTeardown;
 /// shared singleton-based tests, including the teardown exception path and
 /// the inside-the-lock idempotency early-returns.
 /// </summary>
+[Collection(AssemblyFixtureCoordinatorCollection.Name)]
 public class AssemblyFixtureCoordinatorEdgeTests
 {
     private sealed class CoordinatorFailingTeardownFixture : AssemblyFixture

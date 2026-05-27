@@ -2,6 +2,7 @@ using System.Reflection;
 
 namespace TinyBDD.Tests.Common.SetupTeardown;
 
+[Collection(AssemblyFixtureCoordinatorCollection.Name)]
 public class AssemblyFixtureCoordinatorTests
 {
     [Fact]
