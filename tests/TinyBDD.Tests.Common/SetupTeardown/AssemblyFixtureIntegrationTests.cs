@@ -5,6 +5,7 @@ using TinyBDD;
 
 namespace TinyBDD.Tests.Common.SetupTeardown;
 
+[Collection(AssemblyFixtureCoordinatorCollection.Name)]
 public class AssemblyFixtureIntegrationTests
 {
     [Fact]
@@ -106,6 +107,7 @@ public class IntegrationTestFixture : AssemblyFixture
 /// <summary>
 /// Additional tests for coordinator exception handling paths.
 /// </summary>
+[Collection(AssemblyFixtureCoordinatorCollection.Name)]
 public class AssemblyFixtureCoordinatorExceptionTests
 {
     [Fact]
