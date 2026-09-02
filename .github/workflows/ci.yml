@@ -246,6 +246,7 @@ jobs:
           generate_release_notes: true
 
       - name: Push to NuGet.org
+        continue-on-error: true
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
@@ -254,8 +255,11 @@ jobs:
               --api-key "$NUGET_API_KEY" \
               --source https://api.nuget.org/v3/index.json \
               --skip-duplicate
+            if [ $? -ne 0 ]; then
+              echo "::warning::Push to NuGet.org failed (see log above). This does not fail the build; the GitHub Release and GitHub Packages push below still proceed. Check NUGET_API_KEY validity on nuget.org."
+            fi
           else
-            echo "Skipping NuGet.org push: API key not set."
+            echo "::warning::Skipping NuGet.org push: NUGET_API_KEY not set."
           fi
 
       - name: Push to GitHub Packages (optional)
