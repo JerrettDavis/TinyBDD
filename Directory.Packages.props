@@ -4,6 +4,7 @@
   </PropertyGroup>
   <!-- If netstandard2.0 or netstandard2.1, reference nuget 3.x, otherwise nuget 6.x -->
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'netstandard2.1' ">
+    <PackageVersion Include="Microsoft.Build.Tasks.Git" Version="10.0.303" />
     <PackageVersion Include="NUnit" Version="3.14.0" />
     <PackageVersion Include="NUnit3TestAdapter" Version="6.2.0" />
   </ItemGroup>
