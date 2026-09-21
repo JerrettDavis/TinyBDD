@@ -102,7 +102,7 @@ jobs:
             ```
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v7.0.0
+        uses: codecov/codecov-action@v7.1.1
         with:
           files: |
             **/TestResults/*/coverage.cobertura.xml
