@@ -102,7 +102,7 @@ jobs:
             ```
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v7.0.0
+        uses: codecov/codecov-action@v7.1.1
         with:
           files: |
             **/TestResults/*/coverage.cobertura.xml
@@ -115,7 +115,7 @@ jobs:
       - name: Run benchmarks (smoke test)
         run: |
           cd benchmarks/TinyBDD.Benchmarks
-          dotnet run -c Release --framework net9.0 -- --filter "TinyBDD.Benchmarks.SingleAssertionBenchmark.*" --job short --exporters json markdown
+          dotnet run -c Release --framework net9.0 -- --filter "TinyBDD.Benchmarks.SingleAssertionBenchmark.*" --job short --launchCount 1 --warmupCount 1 --iterationCount 3 --exporters json markdown
 
       - name: Upload benchmark results
         uses: actions/upload-artifact@v7
@@ -317,4 +317,3 @@ jobs:
           name: benchmark-results-full
           path: |
             benchmarks/TinyBDD.Benchmarks/BenchmarkDotNet.Artifacts/results/*
-
