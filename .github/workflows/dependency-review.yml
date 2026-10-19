@@ -23,5 +23,7 @@ jobs:
         uses: actions/dependency-review-action@v5
         with:
           fail-on-severity: moderate
+          # Advisory is scoped to Microsoft.Build.Tasks.Git 8.0.0 but is matched against the transitive 10.0.x SourceLink dependency (build-time only, no fix published).
+          allow-ghsas: GHSA-23fw-v26w-5fgq
           deny-licenses: GPL-2.0, GPL-3.0, AGPL-3.0
           comment-summary-in-pr: always
